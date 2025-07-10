@@ -4,8 +4,6 @@
   - x/authz/**/*
 "C:x/bank":
   - x/bank/**/*
-"C:x/crisis":
-  - x/crisis/**/*
 "C:x/distribution":
   - x/distribution/**/*
 "C:x/evidence":
@@ -16,12 +14,8 @@
   - x/genutil/**/*
 "C:x/gov":
   - x/gov/**/*
-"C:x/group":
-  - x/group/**/*
 "C:x/mint":
   - x/mint/**/*
-"C:x/nft":
-  - x/nft/**/*
 "C:x/params":
   - x/params/**/*
 "C:Simulations":
