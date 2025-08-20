@@ -40,7 +40,7 @@ func TestMsgGrantGetAuthorization(t *testing.T) {
 	require.Equal(a, &g)
 
 	g = authz.GenericAuthorization{Msg: "some_type2"}
-	m.SetAuthorization(&g)
+	require.NoError(m.SetAuthorization(&g))
 	a, err = m.GetAuthorization()
 	require.NoError(err)
 	require.Equal(a, &g)
@@ -57,7 +57,7 @@ func TestAminoJSON(t *testing.T) {
 		FileResolver: proto.HybridResolver,
 	})
 
-	tx := legacytx.StdTx{}
+	tx := legacytx.StdTx{} // nolint:staticcheck // legacy testing
 	blockTime := time.Date(1, 1, 1, 1, 1, 1, 1, time.UTC)
 	expiresAt := blockTime.Add(time.Hour)
 	msgSend := banktypes.MsgSend{FromAddress: "cosmos1ghi", ToAddress: "cosmos1jkl"}
