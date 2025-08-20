@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 	"sort"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/maps"
 
 	modulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	"cosmossdk.io/core/appmodule"
@@ -210,7 +211,7 @@ type ModuleInputs struct {
 	LegacySubspace exported.Subspace `optional:"true"`
 }
 
-// Dependency Injection Outputs
+// ModuleOutputs contains Dependency Injection Outputs
 type ModuleOutputs struct {
 	depinject.Out
 
@@ -248,7 +249,7 @@ func InvokeSetStakingHooks(
 		return nil
 	}
 
-	modNames := maps.Keys(stakingHooks)
+	modNames := slices.Collect(maps.Keys(stakingHooks))
 	order := config.HooksOrder
 	if len(order) == 0 {
 		order = modNames
@@ -285,7 +286,8 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 }
 
 // ProposalMsgs returns msgs used for governance proposals for simulations.
-func (AppModule) ProposalMsgs(simState module.SimulationState) []simtypes.WeightedProposalMsg {
+// migrate to ProposalMsgsX. This method is ignored when ProposalMsgsX exists and will be removed in the future.
+func (AppModule) ProposalMsgs(_ module.SimulationState) []simtypes.WeightedProposalMsg {
 	return simulation.ProposalMsgs()
 }
 
