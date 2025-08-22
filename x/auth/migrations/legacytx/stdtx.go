@@ -79,6 +79,7 @@ type StdTip struct {
 // StdTx is the legacy transaction format for wrapping a Msg with Fee and Signatures.
 // It only works with Amino, please prefer the new protobuf Tx in types/tx.
 // NOTE: the first signature is the fee payer (Signatures must not be nil).
+// Deprecated
 type StdTx struct {
 	Msgs          []sdk.Msg      `json:"msg" yaml:"msg"`
 	Fee           StdFee         `json:"fee" yaml:"fee"`
@@ -87,7 +88,7 @@ type StdTx struct {
 	TimeoutHeight uint64         `json:"timeout_height" yaml:"timeout_height"`
 }
 
-// NewStdTx is a legacy function.
+// Deprecated
 func NewStdTx(msgs []sdk.Msg, fee StdFee, sigs []StdSignature, memo string) StdTx {
 	return StdTx{
 		Msgs:       msgs,
