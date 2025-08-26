@@ -216,3 +216,14 @@ func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coins, sender 
 	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amount...)...)
 	return k.FeePool.Set(ctx, feePool)
 }
+
+// Eta returns the current Nakamoto bonus coefficient
+func (q Querier) Eta(ctx context.Context, _ *types.QueryEtaRequest) (*types.QueryEtaResponse, error) {
+	params, err := q.Keeper.Params.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryEtaResponse{
+		NakamotoBonusCoefficient: params.NakamotoBonusCoefficient,
+	}, nil
+}

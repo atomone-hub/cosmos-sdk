@@ -235,6 +235,21 @@ func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
 	return m.recorder
 }
 
+// BondDenom mocks base method.
+func (m *MockStakingKeeper) BondDenom(ctx context.Context) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BondDenom", ctx)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BondDenom indicates an expected call of BondDenom.
+func (mr *MockStakingKeeperMockRecorder) BondDenom(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BondDenom", reflect.TypeOf((*MockStakingKeeper)(nil).BondDenom), ctx)
+}
+
 // ConsensusAddressCodec mocks base method.
 func (m *MockStakingKeeper) ConsensusAddressCodec() address.Codec {
 	m.ctrl.T.Helper()
@@ -307,6 +322,21 @@ func (m *MockStakingKeeper) GetAllValidators(ctx context.Context) ([]types0.Vali
 func (mr *MockStakingKeeperMockRecorder) GetAllValidators(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllValidators", reflect.TypeOf((*MockStakingKeeper)(nil).GetAllValidators), ctx)
+}
+
+// GetBondedValidatorsByPower mocks base method.
+func (m *MockStakingKeeper) GetBondedValidatorsByPower(ctx context.Context) ([]types0.Validator, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBondedValidatorsByPower", ctx)
+	ret0, _ := ret[0].([]types0.Validator)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBondedValidatorsByPower indicates an expected call of GetBondedValidatorsByPower.
+func (mr *MockStakingKeeperMockRecorder) GetBondedValidatorsByPower(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).GetBondedValidatorsByPower), ctx)
 }
 
 // IterateDelegations mocks base method.

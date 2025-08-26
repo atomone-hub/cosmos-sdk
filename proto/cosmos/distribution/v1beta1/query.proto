@@ -70,6 +70,11 @@ service Query {
   rpc CommunityPool(QueryCommunityPoolRequest) returns (QueryCommunityPoolResponse) {
     option (google.api.http).get = "/cosmos/distribution/v1beta1/community_pool";
   }
+
+  // Eta queries the current eta parameter.
+  rpc Eta(QueryEtaRequest) returns (QueryEtaResponse) {
+    option (google.api.http).get = "/cosmos/distribution/v1beta1/eta";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -251,5 +256,20 @@ message QueryCommunityPoolResponse {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
+  ];
+}
+
+// QueryEtaRequest is the request type for the Query/EtaRequest RPC
+// method.
+message QueryEtaRequest {}
+
+// QueryEtaResponse is the response type for the Query/EtaRequest
+// RPC method.
+message QueryEtaResponse {
+  string nakamoto_bonus_coefficient = 5 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)   = false
   ];
 }
