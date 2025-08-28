@@ -177,13 +177,13 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) (updates 
 		case validator.IsUnbonded():
 			validator, err = k.unbondedToBonded(ctx, validator)
 			if err != nil {
-				return nil, err
+				return updates, err
 			}
 			amtFromNotBondedToBonded = amtFromNotBondedToBonded.Add(validator.GetTokens())
 		case validator.IsUnbonding():
 			validator, err = k.unbondingToBonded(ctx, validator)
 			if err != nil {
-				return nil, err
+				return updates, err
 			}
 			amtFromNotBondedToBonded = amtFromNotBondedToBonded.Add(validator.GetTokens())
 		case validator.IsBonded():
@@ -343,38 +343,38 @@ func (k Keeper) unjailValidator(ctx context.Context, validator types.Validator) 
 func (k Keeper) bondValidator(ctx context.Context, validator types.Validator) (types.Validator, error) {
 	// delete the validator by power index, as the key will change
 	if err := k.DeleteValidatorByPowerIndex(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	validator = validator.UpdateStatus(types.Bonded)
 
 	// save the now bonded validator record to the two referenced stores
 	if err := k.SetValidator(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	if err := k.SetValidatorByPowerIndex(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	// delete from queue if present
 	if err := k.DeleteValidatorQueue(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	// trigger hook
 	consAddr, err := validator.GetConsAddr()
 	if err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	str, err := k.validatorAddressCodec.StringToBytes(validator.GetOperator())
 	if err != nil {
-		return types.Validator{}, fmt.Errorf("failed to get validator operator address: %w", err)
+		return validator, fmt.Errorf("failed to get validator operator address: %w", err)
 	}
 
 	if err := k.Hooks().AfterValidatorBonded(ctx, consAddr, str); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	return validator, nil
@@ -384,22 +384,22 @@ func (k Keeper) bondValidator(ctx context.Context, validator types.Validator) (t
 func (k Keeper) BeginUnbondingValidator(ctx context.Context, validator types.Validator) (types.Validator, error) {
 	params, err := k.GetParams(ctx)
 	if err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	// delete the validator by power index, as the key will change
 	if err = k.DeleteValidatorByPowerIndex(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	// sanity check
 	if validator.Status != types.Bonded {
-		return types.Validator{}, fmt.Errorf("should not already be unbonded or unbonding, validator: %v", validator)
+		return validator, fmt.Errorf("should not already be unbonded or unbonding, validator: %v", validator)
 	}
 
 	id, err := k.IncrementUnbondingID(ctx)
 	if err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	validator = validator.UpdateStatus(types.Unbonding)
@@ -413,39 +413,39 @@ func (k Keeper) BeginUnbondingValidator(ctx context.Context, validator types.Val
 
 	// save the now unbonded validator record and power index
 	if err = k.SetValidator(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	if err = k.SetValidatorByPowerIndex(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	// Adds to unbonding validator queue
 	if err = k.InsertUnbondingValidatorQueue(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	// trigger hook
 	consAddr, err := validator.GetConsAddr()
 	if err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	str, err := k.validatorAddressCodec.StringToBytes(validator.GetOperator())
 	if err != nil {
-		return types.Validator{}, fmt.Errorf("failed to get validator operator address: %w", err)
+		return validator, err
 	}
 
 	if err := k.Hooks().AfterValidatorBeginUnbonding(ctx, consAddr, str); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	if err := k.SetValidatorByUnbondingID(ctx, validator, id); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	if err := k.Hooks().AfterUnbondingInitiated(ctx, id); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	return validator, nil
@@ -455,7 +455,7 @@ func (k Keeper) BeginUnbondingValidator(ctx context.Context, validator types.Val
 func (k Keeper) completeUnbondingValidator(ctx context.Context, validator types.Validator) (types.Validator, error) {
 	validator = validator.UpdateStatus(types.Unbonded)
 	if err := k.SetValidator(ctx, validator); err != nil {
-		return types.Validator{}, err
+		return validator, err
 	}
 
 	return validator, nil
