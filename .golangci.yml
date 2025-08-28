@@ -3,7 +3,6 @@ run:
   timeout: 15m
   sort-results: true
   allow-parallel-runners: true
-  exclude-dir: testutil/testdata
 linters:
   disable-all: true
   enable:
@@ -35,7 +34,7 @@ issues:
     - path: mock
       linters:
         - revive
-    - path: testutil
+    - path: testdata
       linters:
         - revive
     - path: _test\.go
