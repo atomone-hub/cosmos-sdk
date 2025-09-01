@@ -57,7 +57,7 @@ func TestAminoJSON(t *testing.T) {
 		FileResolver: proto.HybridResolver,
 	})
 
-	tx := legacytx.StdTx{} // nolint:staticcheck // legacy testing
+	tx := legacytx.StdTx{}
 	blockTime := time.Date(1, 1, 1, 1, 1, 1, 1, time.UTC)
 	expiresAt := blockTime.Add(time.Hour)
 	msgSend := banktypes.MsgSend{FromAddress: "cosmos1ghi", ToAddress: "cosmos1jkl"}
