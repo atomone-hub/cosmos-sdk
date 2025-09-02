@@ -22,7 +22,7 @@ var _ authz.QueryServer = Keeper{}
 // It returns grants for a granter-grantee pair. If msg type URL is set, it returns grants only for that msg type.
 func (k Keeper) Grants(ctx context.Context, req *authz.QueryGrantsRequest) (*authz.QueryGrantsResponse, error) {
 	if req == nil {
-		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	granter, err := k.authKeeper.AddressCodec().StringToBytes(req.Granter)
@@ -92,7 +92,7 @@ func (k Keeper) Grants(ctx context.Context, req *authz.QueryGrantsRequest) (*aut
 // GranterGrants implements the Query/GranterGrants gRPC method.
 func (k Keeper) GranterGrants(ctx context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error) {
 	if req == nil {
-		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	granter, err := k.authKeeper.AddressCodec().StringToBytes(req.Granter)
@@ -137,7 +137,7 @@ func (k Keeper) GranterGrants(ctx context.Context, req *authz.QueryGranterGrants
 // GranteeGrants implements the Query/GranteeGrants gRPC method.
 func (k Keeper) GranteeGrants(ctx context.Context, req *authz.QueryGranteeGrantsRequest) (*authz.QueryGranteeGrantsResponse, error) {
 	if req == nil {
-		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	grantee, err := k.authKeeper.AddressCodec().StringToBytes(req.Grantee)
