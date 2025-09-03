@@ -1,127 +1,112 @@
-name: Audit & prune Actions caches
+name: Prune caches for stale branches (gh CLI)
 
 on:
+  schedule:
+    - cron: "0 4 * * 0"      # Sundays 04:00 UTC
   workflow_dispatch:
     inputs:
-      max_age_days:
-        description: "Delete caches last accessed more than N days ago"
-        required: false
-        default: "30"
       dry_run:
         description: "Only report (true) or actually delete (false)"
         required: false
         default: "true"
-  schedule:
-    - cron: "0 6 * * *"  # daily at 06:00 UTC (~03:00 America/Sao_Paulo)
 
 permissions:
   contents: read
-  actions: write
+  actions: write   # required for gh cache delete
 
 jobs:
-  audit-prune:
+  prune-stale-branch-caches:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
-      # For scheduled runs, these fall back to defaults above
-      MAX_AGE_DAYS: ${{ inputs.max_age_days || '30' }}
       DRY_RUN: ${{ inputs.dry_run || 'true' }}
     steps:
-      - name: Ensure jq & coreutils present
+      - name: Install jq
         run: |
           sudo apt-get update -y
           sudo apt-get install -y jq coreutils
 
-      - name: Build set of valid refs (branches, tags, open PR refs)
+      - name: Build set of active branch refs
         run: |
           set -euo pipefail
           OWNER=${REPO%%/*}
           NAME=${REPO#*/}
 
-          BR_REFS=$(gh api "/repos/$OWNER/$NAME/branches?per_page=100" --paginate \
-            | jq -r '.[].name' | sed 's/^/refs\/heads\//')
+          # Active branches -> refs/heads/<name>
+          gh api "/repos/$OWNER/$NAME/branches?per_page=100" --paginate \
+            | jq -r '.[].name' \
+            | sed 's/^/refs\/heads\//g' \
+            | sort -u > /tmp/active_refs.txt
 
-          TG_REFS=$(gh api "/repos/$OWNER/$NAME/tags?per_page=100" --paginate \
-            | jq -r '.[].name' | sed 's/^/refs\/tags\//')
+          echo "Active branch refs:"
+          head -n 20 /tmp/active_refs.txt || true
+          echo "Total active branch refs: $(wc -l < /tmp/active_refs.txt || echo 0)"
 
-          PRS=$(gh api "/repos/$OWNER/$NAME/pulls?state=open&per_page=100" --paginate)
-          PR_REFS_MERGE=$(echo "$PRS" | jq -r '.[].number' | sed 's/^/refs\/pull\//; s/$/\/merge/')
-          PR_REFS_HEAD=$(echo "$PRS" | jq -r '.[].number' | sed 's/^/refs\/pull\//; s/$/\/head/')
-
-          { echo "$BR_REFS"; echo "$TG_REFS"; echo "$PR_REFS_MERGE"; echo "$PR_REFS_HEAD"; } \
-            | awk 'NF' | sort -u > /tmp/valid_refs.txt
-
-      - name: List all caches and compute candidates
+      - name: List all caches and choose stale branch caches
         run: |
           set -euo pipefail
-          OWNER=${REPO%%/*}
-          NAME=${REPO#*/}
 
-          NOW_EPOCH=$(date -u +%s)
-          AGE_SECS=$(( (${MAX_AGE_DAYS:-30}) * 24 * 3600 ))
+          # All caches (increase --limit if you have many)
+          gh cache list --limit 1000 --json id,key,ref,last_accessed_at,size_in_bytes \
+            > /tmp/caches.json
 
-          gh api "/repos/$OWNER/$NAME/actions/caches?per_page=100" --paginate \
-            > /tmp/caches_raw.json
+          # Report header
+          echo -e "ID\tSIZE(MB)\tREF\tKEY\tLAST_ACCESSED\tDECISION" > /tmp/report.tsv
 
-          jq '[.actions_caches[]] | add' /tmp/caches_raw.json >/tmp/caches.json 2>/dev/null \
-            || jq '.actions_caches' /tmp/caches_raw.json >/tmp/caches.json
-
-          echo -e "ID\tSIZE(MB)\tAGE(d)\tREF\tKEY\tLAST_ACCESSED\tREASON" > /tmp/report.tsv
-
+          # Build candidate list = caches under refs/heads/* where that ref no longer exists
           jq -c '.[]' /tmp/caches.json | while read -r row; do
             id=$(echo "$row" | jq -r '.id')
             key=$(echo "$row" | jq -r '.key')
-            ref=$(echo "$row" | jq -r '.ref')
-            size=$(echo "$row" | jq -r '.size_in_bytes')
-            la=$(echo "$row" | jq -r '.last_accessed_at // .created_at // ""')
-
+            ref=$(echo "$row" | jq -r '.ref // ""')
+            size=$(echo "$row" | jq -r '.size_in_bytes // 0')
+            la=$(echo "$row" | jq -r '.last_accessed_at // ""')
             size_mb=$(( (size + 1024*1024 - 1) / (1024*1024) ))
-            if [ -n "$la" ] && date -u -d "$la" >/dev/null 2>&1; then
-              la_epoch=$(date -u -d "$la" +%s)
-              age_days=$(( (NOW_EPOCH - la_epoch) / 86400 ))
-            else
-              la_epoch=0; age_days=9999
-            fi
 
-            reason=""
-            if ! grep -qxF "$ref" /tmp/valid_refs.txt 2>/dev/null; then reason="stale-ref"; fi
-            if [ $((NOW_EPOCH - la_epoch)) -ge $AGE_SECS ]; then reason="${reason:+$reason,}old"; fi
+            decision="keep"
+            case "$ref" in
+              refs/heads/*)
+                if ! grep -qxF "$ref" /tmp/active_refs.txt 2>/dev/null; then
+                  decision="delete-stale-branch"
+                fi
+                ;;
+              *) decision="ignore-non-branch" ;;
+            esac
 
-            printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
-              "$id" "$size_mb" "$age_days" "$ref" "$key" "$la" "${reason:-keep}" \
+            printf "%s\t%s\t%s\t%s\t%s\t%s\n" \
+              "$id" "$size_mb" "${ref:-<none>}" "$key" "$la" "$decision" \
               >> /tmp/report.tsv
           done
 
-          awk -F'\t' 'NR>1 && $7 ~ /(stale-ref|old)/ {print $1}' /tmp/report.tsv \
+          # Extract IDs to delete
+          awk -F '\t' 'NR>1 && $6=="delete-stale-branch" {print $1}' /tmp/report.tsv \
             > /tmp/candidate_ids.txt || true
 
-          echo "Report head:"; head -n 25 /tmp/report.tsv || true
-          echo "Candidates:"; wc -l /tmp/candidate_ids.txt
+          echo "Report head:"
+          head -n 25 /tmp/report.tsv || true
+          echo "Candidates to delete: $(wc -l < /tmp/candidate_ids.txt || echo 0)"
 
-      - name: Delete candidates (skip if dry-run)
+      - name: Delete stale branch caches (skip when dry-run)
         if: ${{ env.DRY_RUN != 'true' }}
         run: |
           set -euo pipefail
-          OWNER=${REPO%%/*}
-          NAME=${REPO#*/}
-
           COUNT=$(wc -l < /tmp/candidate_ids.txt || echo 0)
           if [ "$COUNT" -eq 0 ]; then
-            echo "No candidates to delete."; exit 0
+            echo "No stale-branch caches to delete."
+            exit 0
           fi
 
           echo "Deleting $COUNT caches…"
           while read -r ID; do
             [ -n "$ID" ] || continue
-            gh api -X DELETE -H "Accept: application/vnd.github+json" \
-              "/repos/$OWNER/$NAME/actions/caches/$ID" || true
+            gh cache delete "$ID" || true
             sleep 0.2
           done < /tmp/candidate_ids.txt
+          echo "✅ Done."
 
-      - name: Upload report artifact
+      - name: Upload audit report
         uses: actions/upload-artifact@v4
         with:
-          name: cache-audit-report
+          name: cache-prune-report
           path: /tmp/report.tsv
           if-no-files-found: warn
