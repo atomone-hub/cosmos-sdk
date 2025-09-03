@@ -1,55 +1,29 @@
 name: Cleanup PR caches
-
 on:
   pull_request:
-    types: [ closed ]
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "PR number to clean (e.g., 123)"
-        required: true
-
-permissions:
-  actions: write  # required to delete Actions caches
-  contents: read
-
-concurrency:
-  group: cleanup-pr-caches-${{ github.event.pull_request.number || inputs.pr_number || 'manual' }}
-  cancel-in-progress: false
+    types:
+      - closed
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
-      REPO: ${{ github.repository }}
-      # Prefer the event's PR number; fall back to workflow_dispatch input
-      PR_NUM: ${{ github.event.pull_request.number || inputs.pr_number }}
     steps:
-      - name: Validate inputs
+      - name: Cleanup
         run: |
-          set -euo pipefail
-          if [ -z "${PR_NUM:-}" ]; then
-            echo "PR number is required (from pull_request event or workflow_dispatch input)."
-            exit 1
-          fi
+          gh extension install actions/gh-actions-cache
 
-      - name: Delete caches for PR refs (merge + head)
-        run: |
-          set -euo pipefail
+          echo "Fetching list of cache key"
+          cacheKeysForPR=$(gh actions-cache list -R $REPO -B $BRANCH -L 100 | cut -f 1 )
 
-          OWNER=${REPO%%/*}
-          NAME=${REPO#*/}
-
-          delete_for_ref () {
-            local REF="$1"
-            echo "→ Deleting caches for ref: $REF"
-            # This endpoint deletes ALL caches for the given ref.
-            gh api -X DELETE -H "Accept: application/vnd.github+json" \
-              "/repos/$OWNER/$NAME/actions/caches?ref=$REF" || true
-          }
-
-          delete_for_ref "refs/pull/$PR_NUM/merge"
-          delete_for_ref "refs/pull/$PR_NUM/head"
-
-          echo "✅ Done."
+          ## Setting this to not fail the workflow while deleting cache keys.
+          set +e
+          echo "Deleting caches..."
+          for cacheKey in $cacheKeysForPR
+          do
+              gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
+          done
+          echo "Done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
