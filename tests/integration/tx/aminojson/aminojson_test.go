@@ -24,7 +24,6 @@ import (
 	"cosmossdk.io/api/cosmos/crypto/ed25519"
 	multisigapi "cosmossdk.io/api/cosmos/crypto/multisig"
 	"cosmossdk.io/api/cosmos/crypto/secp256k1"
-	distapi "cosmossdk.io/api/cosmos/distribution/v1beta1"
 	gov_v1_api "cosmossdk.io/api/cosmos/gov/v1"
 	gov_v1beta1_api "cosmossdk.io/api/cosmos/gov/v1beta1"
 	msgv1 "cosmossdk.io/api/cosmos/msg/v1"
@@ -38,6 +37,7 @@ import (
 	"cosmossdk.io/x/tx/signing/aminojson"
 	signing_testutil "cosmossdk.io/x/tx/signing/testutil"
 	"cosmossdk.io/x/upgrade"
+	distapi "github.com/cosmos/cosmos-sdk/tests/integration/api/cosmos/distribution/v1beta1"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ed25519types "github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"

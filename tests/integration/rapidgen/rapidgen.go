@@ -18,7 +18,6 @@ import (
 	"cosmossdk.io/api/cosmos/crypto/ed25519"
 	multisigapi "cosmossdk.io/api/cosmos/crypto/multisig"
 	"cosmossdk.io/api/cosmos/crypto/secp256k1"
-	distapi "cosmossdk.io/api/cosmos/distribution/v1beta1"
 	evidenceapi "cosmossdk.io/api/cosmos/evidence/v1beta1"
 	feegrantapi "cosmossdk.io/api/cosmos/feegrant/v1beta1"
 	gov_v1_api "cosmossdk.io/api/cosmos/gov/v1"
@@ -33,6 +32,7 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	feegranttypes "cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	distapi "github.com/cosmos/cosmos-sdk/tests/integration/api/cosmos/distribution/v1beta1"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
