@@ -16,8 +16,8 @@ const (
 // DefaultParams returns default distribution parameters
 func DefaultParams() Params {
 	return Params{
-		BaseProposerReward:       math.LegacyZeroDec(),            //nolint:staticcheck // deprecated value
-		BonusProposerReward:      math.LegacyZeroDec(),            //nolint:staticcheck // deprecated value
+		BaseProposerReward:       math.LegacyZeroDec(),
+		BonusProposerReward:      math.LegacyZeroDec(),
 		CommunityTax:             math.LegacyNewDecWithPrec(2, 2), // 2%
 		WithdrawAddrEnabled:      true,
 		NakamotoBonusCoefficient: math.LegacyNewDecWithPrec(EtaStep, 2), // 3%

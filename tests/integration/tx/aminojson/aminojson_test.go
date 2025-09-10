@@ -37,12 +37,12 @@ import (
 	"cosmossdk.io/x/tx/signing/aminojson"
 	signing_testutil "cosmossdk.io/x/tx/signing/testutil"
 	"cosmossdk.io/x/upgrade"
-	distapi "github.com/cosmos/cosmos-sdk/tests/integration/api/cosmos/distribution/v1beta1"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ed25519types "github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	secp256k1types "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	distapi "github.com/cosmos/cosmos-sdk/tests/integration/api/cosmos/distribution/v1beta1"
 	"github.com/cosmos/cosmos-sdk/tests/integration/rapidgen"
 	gogo_testpb "github.com/cosmos/cosmos-sdk/tests/integration/tx/internal/gogo/testpb"
 	pulsar_testpb "github.com/cosmos/cosmos-sdk/tests/integration/tx/internal/pulsar/testpb"
@@ -270,7 +270,7 @@ func TestAminoJSON_LegacyParity(t *testing.T) {
 		},
 		"distribution/community_pool_spend_proposal_with_deposit": {
 			gogo:   &disttypes.CommunityPoolSpendProposalWithDeposit{},
-			pulsar: &distapi.CommunityPoolSpendProposalWithDeposit{}, //nolint:staticcheck // keep test as is testing legacy parity
+			pulsar: &distapi.CommunityPoolSpendProposalWithDeposit{},
 		},
 		"distribution/msg_withdraw_delegator_reward": {
 			gogo:   &disttypes.MsgWithdrawDelegatorReward{DelegatorAddress: "foo"},
