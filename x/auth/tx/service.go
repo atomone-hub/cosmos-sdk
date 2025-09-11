@@ -92,7 +92,7 @@ func (s txServer) Simulate(_ context.Context, req *txtypes.SimulateRequest) (*tx
 	}
 
 	if txBytes == nil {
-		return nil, status.Errorf(codes.InvalidArgument, "empty txBytes is not allowed")
+		return nil, status.Error(codes.InvalidArgument, "empty txBytes is not allowed")
 	}
 
 	gasInfo, result, err := s.simulate(txBytes)
@@ -320,7 +320,7 @@ func RegisterTxService(
 // RegisterGRPCGatewayRoutes mounts the tx service's GRPC-gateway routes on the
 // given Mux.
 func RegisterGRPCGatewayRoutes(clientConn gogogrpc.ClientConn, mux *runtime.ServeMux) {
-	txtypes.RegisterServiceHandlerClient(context.Background(), mux, txtypes.NewServiceClient(clientConn))
+	_ = txtypes.RegisterServiceHandlerClient(context.Background(), mux, txtypes.NewServiceClient(clientConn))
 }
 
 func parseOrderBy(orderBy txtypes.OrderBy) string {
