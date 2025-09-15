@@ -37,21 +37,28 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 	}
 	n := len(validators)
 	if n < 3 {
-		return nil
+		return nil // Not enough validators to split into three groups
 	}
 	sort.Slice(validators, func(i, j int) bool {
 		return validators[i].GetBondedTokens().GT(validators[j].GetBondedTokens())
 	})
 
+	// Dynamically divide into three groups (high, medium, low) as evenly as possible
+	// high: first groupSize, medium: next groupSize, low: rest
+	groupSize := n / 3
+	remainder := n % 3
+
+	highEnd := groupSize
+	mediumEnd := groupSize * 2
+
+	// If there is a remainder, distribute it to the last group ("low")
+	// So low group will have groupSize + remainder
+	lowStart := mediumEnd
+	lowEnd := n
+
 	var high, low []stakingtypes.Validator
-	if n < 100 {
-		third := n / 3
-		high = validators[:third]
-		low = validators[n-third:]
-	} else {
-		high = validators[:33]
-		low = validators[66:]
-	}
+	high = validators[:highEnd]
+	low = validators[lowStart:lowEnd]
 
 	sum := func(vals []stakingtypes.Validator) math.Int {
 		total := math.ZeroInt()
@@ -70,6 +77,8 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 	lowAvg := avg(low)
 	eta := params.NakamotoBonusCoefficient
 
+	// Adjust eta: if avgHigh >= 3x avgLow, increase eta, else decrease
+	// EtaStep should be a decimal value, e.g. 0.03 for 3%
 	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(types.EtaStep)) {
 		eta = eta.Add(math.LegacyNewDecWithPrec(types.EtaStep, 2))
 	} else {
