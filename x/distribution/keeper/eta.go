@@ -46,7 +46,6 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 	// Dynamically divide into three groups (high, medium, low) as evenly as possible
 	// high: first groupSize, medium: next groupSize, low: rest
 	groupSize := n / 3
-	remainder := n % 3
 
 	highEnd := groupSize
 	mediumEnd := groupSize * 2
