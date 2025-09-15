@@ -33,8 +33,8 @@ import (
 	feegranttypes "cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
+	distapi "github.com/cosmos/cosmos-sdk/atomone-api/cosmos/distribution/v1beta1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	distapi "github.com/cosmos/cosmos-sdk/tests/integration/api/cosmos/distribution/v1beta1"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
