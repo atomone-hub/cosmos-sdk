@@ -25,8 +25,6 @@ enum VoteOption {
   VOTE_OPTION_ABSTAIN = 2 [(gogoproto.enumvalue_customname) = "OptionAbstain"];
   // VOTE_OPTION_NO defines a no vote option.
   VOTE_OPTION_NO = 3 [(gogoproto.enumvalue_customname) = "OptionNo"];
-  // VOTE_OPTION_NO_WITH_VETO defines a no with veto vote option.
-  VOTE_OPTION_NO_WITH_VETO = 4 [(gogoproto.enumvalue_customname) = "OptionNoWithVeto"];
 }
 
 // WeightedVoteOption defines a unit of vote for vote split.

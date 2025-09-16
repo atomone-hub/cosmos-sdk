@@ -21,13 +21,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Msg_SubmitProposal_FullMethodName    = "/cosmos.gov.v1.Msg/SubmitProposal"
-	Msg_ExecLegacyContent_FullMethodName = "/cosmos.gov.v1.Msg/ExecLegacyContent"
-	Msg_Vote_FullMethodName              = "/cosmos.gov.v1.Msg/Vote"
-	Msg_VoteWeighted_FullMethodName      = "/cosmos.gov.v1.Msg/VoteWeighted"
-	Msg_Deposit_FullMethodName           = "/cosmos.gov.v1.Msg/Deposit"
-	Msg_UpdateParams_FullMethodName      = "/cosmos.gov.v1.Msg/UpdateParams"
-	Msg_CancelProposal_FullMethodName    = "/cosmos.gov.v1.Msg/CancelProposal"
+	Msg_SubmitProposal_FullMethodName               = "/cosmos.gov.v1.Msg/SubmitProposal"
+	Msg_ExecLegacyContent_FullMethodName            = "/cosmos.gov.v1.Msg/ExecLegacyContent"
+	Msg_Vote_FullMethodName                         = "/cosmos.gov.v1.Msg/Vote"
+	Msg_VoteWeighted_FullMethodName                 = "/cosmos.gov.v1.Msg/VoteWeighted"
+	Msg_Deposit_FullMethodName                      = "/cosmos.gov.v1.Msg/Deposit"
+	Msg_UpdateParams_FullMethodName                 = "/cosmos.gov.v1.Msg/UpdateParams"
+	Msg_CancelProposal_FullMethodName               = "/cosmos.gov.v1.Msg/CancelProposal"
+	Msg_ProposeLaw_FullMethodName                   = "/cosmos.gov.v1.Msg/ProposeLaw"
+	Msg_ProposeConstitutionAmendment_FullMethodName = "/cosmos.gov.v1.Msg/ProposeConstitutionAmendment"
 )
 
 // MsgClient is the client API for Msg service.
@@ -56,6 +58,12 @@ type MsgClient interface {
 	//
 	// Since: cosmos-sdk 0.50
 	CancelProposal(ctx context.Context, in *MsgCancelProposal, opts ...grpc.CallOption) (*MsgCancelProposalResponse, error)
+	// ProposeLaw defines a governance operation for proposing a new law.
+	// The authority is defined in the keeper.
+	ProposeLaw(ctx context.Context, in *MsgProposeLaw, opts ...grpc.CallOption) (*MsgProposeLawResponse, error)
+	// ProposeConstitutionAmendment defines a governance operation for proposing a
+	// new constitution amendment. The authority is defined in the keeper.
+	ProposeConstitutionAmendment(ctx context.Context, in *MsgProposeConstitutionAmendment, opts ...grpc.CallOption) (*MsgProposeConstitutionAmendmentResponse, error)
 }
 
 type msgClient struct {
@@ -136,6 +144,26 @@ func (c *msgClient) CancelProposal(ctx context.Context, in *MsgCancelProposal, o
 	return out, nil
 }
 
+func (c *msgClient) ProposeLaw(ctx context.Context, in *MsgProposeLaw, opts ...grpc.CallOption) (*MsgProposeLawResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MsgProposeLawResponse)
+	err := c.cc.Invoke(ctx, Msg_ProposeLaw_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) ProposeConstitutionAmendment(ctx context.Context, in *MsgProposeConstitutionAmendment, opts ...grpc.CallOption) (*MsgProposeConstitutionAmendmentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MsgProposeConstitutionAmendmentResponse)
+	err := c.cc.Invoke(ctx, Msg_ProposeConstitutionAmendment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility.
@@ -162,6 +190,12 @@ type MsgServer interface {
 	//
 	// Since: cosmos-sdk 0.50
 	CancelProposal(context.Context, *MsgCancelProposal) (*MsgCancelProposalResponse, error)
+	// ProposeLaw defines a governance operation for proposing a new law.
+	// The authority is defined in the keeper.
+	ProposeLaw(context.Context, *MsgProposeLaw) (*MsgProposeLawResponse, error)
+	// ProposeConstitutionAmendment defines a governance operation for proposing a
+	// new constitution amendment. The authority is defined in the keeper.
+	ProposeConstitutionAmendment(context.Context, *MsgProposeConstitutionAmendment) (*MsgProposeConstitutionAmendmentResponse, error)
 	mustEmbedUnimplementedMsgServer()
 }
 
@@ -192,6 +226,12 @@ func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*
 }
 func (UnimplementedMsgServer) CancelProposal(context.Context, *MsgCancelProposal) (*MsgCancelProposalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelProposal not implemented")
+}
+func (UnimplementedMsgServer) ProposeLaw(context.Context, *MsgProposeLaw) (*MsgProposeLawResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProposeLaw not implemented")
+}
+func (UnimplementedMsgServer) ProposeConstitutionAmendment(context.Context, *MsgProposeConstitutionAmendment) (*MsgProposeConstitutionAmendmentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProposeConstitutionAmendment not implemented")
 }
 func (UnimplementedMsgServer) mustEmbedUnimplementedMsgServer() {}
 func (UnimplementedMsgServer) testEmbeddedByValue()             {}
@@ -340,6 +380,42 @@ func _Msg_CancelProposal_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_ProposeLaw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgProposeLaw)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ProposeLaw(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_ProposeLaw_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ProposeLaw(ctx, req.(*MsgProposeLaw))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_ProposeConstitutionAmendment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgProposeConstitutionAmendment)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ProposeConstitutionAmendment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_ProposeConstitutionAmendment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ProposeConstitutionAmendment(ctx, req.(*MsgProposeConstitutionAmendment))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Msg_ServiceDesc is the grpc.ServiceDesc for Msg service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -374,6 +450,14 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelProposal",
 			Handler:    _Msg_CancelProposal_Handler,
+		},
+		{
+			MethodName: "ProposeLaw",
+			Handler:    _Msg_ProposeLaw_Handler,
+		},
+		{
+			MethodName: "ProposeConstitutionAmendment",
+			Handler:    _Msg_ProposeConstitutionAmendment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
