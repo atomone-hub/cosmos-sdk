@@ -30,17 +30,13 @@ const (
 	// SetOrderBeginBlockers.
 	DefaultHistoricalEntries uint32 = 10000
 
-	// DefaultMinCommission default minimum commission.
-	// SetOrderBeginBlockers.
-	DefaultMinCommission = 1
-
 	// DefaultMaxCommission default maximum commission.
 	DefaultMaxCommission = 100 // 30% (30/100 = 0.3 = 30%
 )
 
 var (
 	// DefaultMinCommissionRate is set to 0%
-	DefaultMinCommissionRate = math.LegacyNewDecWithPrec(DefaultMinCommission, 2)
+	DefaultMinCommissionRate = math.LegacyZeroDec()
 
 	// DefaultMaxCommissionRate is set to 0%
 	DefaultMaxCommissionRate = math.LegacyNewDecWithPrec(DefaultMaxCommission, 2)
@@ -232,32 +228,6 @@ func validateMaxCommissionRate(i interface{}) error {
 	}
 	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("minimum commission rate cannot be greater than 100%%: %s", v)
-	}
-
-	return nil
-}
-
-func validateCommissionRate(minimum, maximum interface{}) error {
-	if err := validateMinCommissionRate(minimum); err != nil {
-		return err
-	}
-
-	if err := validateMaxCommissionRate(maximum); err != nil {
-		return err
-	}
-
-	vMin, ok := minimum.(math.LegacyDec)
-	if !ok {
-		return fmt.Errorf("invalid minimum parameter type: %T", minimum)
-	}
-
-	vMax, ok := maximum.(math.LegacyDec)
-	if !ok {
-		return fmt.Errorf("invalid maximum parameter type: %T", maximum)
-	}
-
-	if vMin.GT(vMax) {
-		return fmt.Errorf("minimum commission (%s) rate cannot be greater than the maximum (%s)", vMin.String(), vMax.String())
 	}
 
 	return nil
