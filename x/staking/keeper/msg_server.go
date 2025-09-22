@@ -55,15 +55,15 @@ func (k msgServer) CreateValidator(ctx context.Context, msg *types.MsgCreateVali
 
 	if maxCommRate.Equal(minCommRate) {
 		if !msg.Commission.Rate.Equal(minCommRate) {
-			return nil, errorsmod.Wrapf(types.ErrCommissionLTRateNotEqual, "if the validity minimum and maximum commission rates are equal (%s), the commission rate must be equal too", minCommRate.String())
+			return nil, errorsmod.Wrapf(types.ErrCommissionLTRateNotEqual, "if the validity minimum and maximum commission rates are equal (%s), the commission rate (%s) must be equal too", minCommRate.String(), msg.Commission.Rate.String())
 		}
 	} else {
 		if msg.Commission.Rate.LT(minCommRate) {
-			return nil, errorsmod.Wrapf(types.ErrCommissionLTMinRate, "cannot set validator commission to less than minimum rate of %s", minCommRate.String())
+			return nil, errorsmod.Wrapf(types.ErrCommissionLTMinRate, "cannot set validator commission (%s) to less than minimum rate of %s", msg.Commission.Rate.String(), minCommRate.String())
 		}
 
 		if msg.Commission.Rate.GT(maxCommRate) {
-			return nil, errorsmod.Wrapf(types.ErrCommissionLTMaxRate, "cannot set validator commission to more than minimum rate of %s", maxCommRate.String())
+			return nil, errorsmod.Wrapf(types.ErrCommissionLTMaxRate, "cannot set validator commission (%s) to more than minimum rate of %s", msg.Commission.Rate.String(), maxCommRate.String())
 		}
 	}
 
@@ -206,15 +206,15 @@ func (k msgServer) EditValidator(ctx context.Context, msg *types.MsgEditValidato
 
 		if maxCommissionRate.Equal(minCommissionRate) {
 			if !msg.CommissionRate.Equal(minCommissionRate) {
-				return nil, errorsmod.Wrapf(types.ErrCommissionLTRateNotEqual, "if the validity minimum and maximum commission rates are equal (%s), the commission rate must be equal too", minCommissionRate.String())
+				return nil, errorsmod.Wrapf(types.ErrCommissionLTRateNotEqual, "if the validity minimum and maximum commission rates are equal (%s), the commission rate (%s) must be equal too", msg.CommissionRate.String(), minCommissionRate.String())
 			}
 		} else {
 			if msg.CommissionRate.LT(minCommissionRate) {
-				return nil, errorsmod.Wrapf(types.ErrCommissionLTMinRate, "commission rate cannot be less than the min commission rate %s", minCommissionRate.String())
+				return nil, errorsmod.Wrapf(types.ErrCommissionLTMinRate, "commission rate (%s) cannot be less than the min commission rate %s", msg.CommissionRate.String(), minCommissionRate.String())
 			}
 
 			if msg.CommissionRate.GT(maxCommissionRate) {
-				return nil, errorsmod.Wrapf(types.ErrCommissionLTMaxRate, "cannot set validator commission to more than minimum rate of %s", maxCommissionRate.String())
+				return nil, errorsmod.Wrapf(types.ErrCommissionLTMaxRate, "cannot set validator (%s) commission to more than minimum rate of %s", msg.CommissionRate.String(), maxCommissionRate.String())
 			}
 		}
 	}
