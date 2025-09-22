@@ -48,4 +48,6 @@ var (
 	ErrInvalidSigner                   = errors.Register(ModuleName, 43, "expected authority account as only signer for proposal message")
 	ErrBadRedelegationSrc              = errors.Register(ModuleName, 44, "redelegation source validator not found")
 	ErrNoUnbondingType                 = errors.Register(ModuleName, 45, "unbonding type not found")
+	ErrCommissionLTMaxRate             = errors.Register(ModuleName, 46, "commission cannot be less than min rate")
+	ErrCommissionLTRateNotEqual        = errors.Register(ModuleName, 47, "commission cannot be different if than min and max rate are equal")
 )
