@@ -20,7 +20,6 @@ func (keeper Keeper) Tally(ctx context.Context, proposal v1.Proposal) (passes, b
 	results[v1.OptionYes] = math.LegacyZeroDec()
 	results[v1.OptionAbstain] = math.LegacyZeroDec()
 	results[v1.OptionNo] = math.LegacyZeroDec()
-	results[v1.OptionNoWithVeto] = math.LegacyZeroDec()
 
 	totalVotingPower := math.LegacyZeroDec()
 	currValidators := make(map[string]v1.ValidatorGovInfo)
@@ -141,22 +140,7 @@ func (keeper Keeper) Tally(ctx context.Context, proposal v1.Proposal) (passes, b
 		return false, false, tallyResults, nil
 	}
 
-	// If more than 1/3 of voters veto, proposal fails
-	vetoThreshold, _ := math.LegacyNewDecFromStr(params.VetoThreshold)
-	if results[v1.OptionNoWithVeto].Quo(totalVotingPower).GT(vetoThreshold) {
-		return false, params.BurnVoteVeto, tallyResults, nil
-	}
-
-	// If more than 1/2 of non-abstaining voters vote Yes, proposal passes
-	// For expedited 2/3
-	var thresholdStr string
-	if proposal.Expedited {
-		thresholdStr = params.GetExpeditedThreshold()
-	} else {
-		thresholdStr = params.GetThreshold()
-	}
-
-	threshold, _ := math.LegacyNewDecFromStr(thresholdStr)
+	threshold, _ := math.LegacyNewDecFromStr(params.GetThreshold())
 
 	if results[v1.OptionYes].Quo(totalVotingPower.Sub(results[v1.OptionAbstain])).GT(threshold) {
 		return true, false, tallyResults, nil

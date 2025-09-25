@@ -6,7 +6,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v4 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v4"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
@@ -24,7 +23,7 @@ var (
 // Set of default chain constitution.
 func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, cdc codec.BinaryCodec, constitutionCollection collections.Item[string]) error {
 	store := storeService.OpenKVStore(ctx)
-	paramsBz, err := store.Get(v4.ParamsKey)
+	paramsBz, err := store.Get(ParamsKey)
 	if err != nil {
 		return err
 	}
@@ -36,9 +35,6 @@ func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, c
 	}
 
 	defaultParams := govv1.DefaultParams()
-	params.ExpeditedMinDeposit = defaultParams.ExpeditedMinDeposit
-	params.ExpeditedVotingPeriod = defaultParams.ExpeditedVotingPeriod
-	params.ExpeditedThreshold = defaultParams.ExpeditedThreshold
 	params.ProposalCancelRatio = defaultParams.ProposalCancelRatio
 	params.ProposalCancelDest = defaultParams.ProposalCancelDest
 	params.MinDepositRatio = defaultParams.MinDepositRatio

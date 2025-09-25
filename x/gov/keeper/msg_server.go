@@ -76,7 +76,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		return nil, fmt.Errorf("failed to get governance parameters: %w", err)
 	}
 
-	if err := k.validateInitialDeposit(ctx, params, initialDeposit, msg.Expedited); err != nil {
+	if err := k.validateInitialDeposit(ctx, params, initialDeposit); err != nil {
 		return nil, err
 	}
 
@@ -84,7 +84,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		return nil, err
 	}
 
-	proposal, err := k.Keeper.SubmitProposal(ctx, proposalMsgs, msg.Metadata, msg.Title, msg.Summary, proposer, msg.Expedited)
+	proposal, err := k.Keeper.SubmitProposal(ctx, proposalMsgs, msg.Metadata, msg.Title, msg.Summary, proposer)
 	if err != nil {
 		return nil, err
 	}
@@ -284,6 +284,37 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 	return &v1.MsgUpdateParamsResponse{}, nil
 }
 
+// ProposeLaw implements the MsgServer.ProposeLaw method.
+func (k msgServer) ProposeLaw(goCtx context.Context, msg *v1.MsgProposeLaw) (*v1.MsgProposeLawResponse, error) {
+	if k.authority != msg.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
+	}
+	// only a no-op for now
+	return &v1.MsgProposeLawResponse{}, nil
+}
+
+// ProposeConstitutionAmendment implements the MsgServer.ProposeConstitutionAmendment method.
+func (k msgServer) ProposeConstitutionAmendment(goCtx context.Context, msg *v1.MsgProposeConstitutionAmendment) (*v1.MsgProposeConstitutionAmendmentResponse, error) {
+	if k.authority != msg.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
+	}
+	if msg.Amendment == "" {
+		return nil, govtypes.ErrInvalidProposalMsg.Wrap("amendment cannot be empty")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	constitution, err := k.ApplyConstitutionAmendment(ctx, msg.Amendment)
+	if err != nil {
+		return nil, govtypes.ErrInvalidProposalMsg.Wrap(err.Error())
+	}
+
+	if err := k.Constitution.Set(ctx, constitution); err != nil {
+		return nil, err
+	}
+
+	return &v1.MsgProposeConstitutionAmendmentResponse{}, nil
+}
+
 type legacyMsgServer struct {
 	govAcct string
 	server  v1.MsgServer
@@ -321,7 +352,6 @@ func (k legacyMsgServer) SubmitProposal(goCtx context.Context, msg *v1beta1.MsgS
 		"",
 		msg.GetContent().GetTitle(),
 		msg.GetContent().GetDescription(),
-		false, // legacy proposals cannot be expedited
 	)
 	if err != nil {
 		return nil, err

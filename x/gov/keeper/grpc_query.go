@@ -27,7 +27,7 @@ func NewQueryServer(k *Keeper) v1.QueryServer {
 
 func (q queryServer) Constitution(ctx context.Context, _ *v1.QueryConstitutionRequest) (*v1.QueryConstitutionResponse, error) {
 	constitution, err := q.k.Constitution.Get(ctx)
-	if err != nil {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
 		return nil, err
 	}
 	return &v1.QueryConstitutionResponse{Constitution: constitution}, nil
@@ -177,7 +177,7 @@ func (q queryServer) Params(ctx context.Context, req *v1.QueryParamsRequest) (*v
 		response.VotingParams = &votingParams
 
 	case v1.ParamTallying:
-		tallyParams := v1.NewTallyParams(params.Quorum, params.Threshold, params.VetoThreshold)
+		tallyParams := v1.NewTallyParams(params.Quorum, params.Threshold)
 		response.TallyParams = &tallyParams
 	default:
 		if len(req.ParamsType) > 0 {
@@ -273,6 +273,58 @@ func (q queryServer) TallyResult(ctx context.Context, req *v1.QueryTallyResultRe
 	}
 
 	return &v1.QueryTallyResultResponse{Tally: &tallyResult}, nil
+}
+
+// MinDeposit returns the minimum deposit currently required for a proposal to enter voting period
+func (q queryServer) MinDeposit(c context.Context, req *v1.QueryMinDepositRequest) (*v1.QueryMinDepositResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	minDeposit := q.k.GetMinDeposit(ctx)
+
+	return &v1.QueryMinDepositResponse{MinDeposit: minDeposit}, nil
+}
+
+// MinInitialDeposit returns the minimum deposit required for a proposal to be submitted
+func (q queryServer) MinInitialDeposit(c context.Context, req *v1.QueryMinInitialDepositRequest) (*v1.QueryMinInitialDepositResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	minInitialDeposit := q.k.GetMinInitialDeposit(ctx)
+
+	return &v1.QueryMinInitialDepositResponse{MinInitialDeposit: minInitialDeposit}, nil
+}
+
+// Quorums returns the current quorums
+func (q queryServer) Quorums(c context.Context, _ *v1.QueryQuorumsRequest) (*v1.QueryQuorumsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return &v1.QueryQuorumsResponse{
+		Quorum:                      q.k.GetQuorum(ctx).String(),
+		ConstitutionAmendmentQuorum: q.k.GetConstitutionAmendmentQuorum(ctx).String(),
+		LawQuorum:                   q.k.GetLawQuorum(ctx).String(),
+	}, nil
+}
+
+// ParticipationEMAs queries the state of the proposal participation exponential moving averages.
+func (q queryServer) ParticipationEMAs(c context.Context, _ *v1.QueryParticipationEMAsRequest) (*v1.QueryParticipationEMAsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	participation, err := q.k.ParticipationEMA.Get(ctx)
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+
+	constitutionParticipation, err := q.k.ConstitutionAmendmentParticipationEMA.Get(ctx)
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+
+	lawParticipation, err := q.k.LawParticipationEMA.Get(ctx)
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+
+	return &v1.QueryParticipationEMAsResponse{
+		ParticipationEma:                      participation.String(),
+		ConstitutionAmendmentParticipationEma: constitutionParticipation.String(),
+		LawParticipationEma:                   lawParticipation.String(),
+	}, nil
 }
 
 var _ v1beta1.QueryServer = legacyQueryServer{}

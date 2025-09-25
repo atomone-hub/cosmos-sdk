@@ -116,12 +116,12 @@ Where proposal.json contains:
   "expedited": false
 }
 
-metadata example: 
+metadata example:
 {
 	"title": "",
 	"authors": [""],
 	"summary": "",
-	"details": "", 
+	"details": "",
 	"proposal_forum_url": "",
 	"vote_option_context": "",
 }
@@ -140,7 +140,7 @@ metadata example:
 				return err
 			}
 
-			msg, err := v1.NewMsgSubmitProposal(msgs, deposit, clientCtx.GetFromAddress().String(), proposal.Metadata, proposal.Title, proposal.Summary, proposal.Expedited)
+			msg, err := v1.NewMsgSubmitProposal(msgs, deposit, clientCtx.GetFromAddress().String(), proposal.Metadata, proposal.Title, proposal.Summary)
 			if err != nil {
 				return fmt.Errorf("invalid message: %w", err)
 			}

@@ -17,7 +17,6 @@ func NewMsgSubmitProposal(
 	messages []sdk.Msg,
 	initialDeposit sdk.Coins,
 	proposer, metadata, title, summary string,
-	expedited bool,
 ) (*MsgSubmitProposal, error) {
 	m := &MsgSubmitProposal{
 		InitialDeposit: initialDeposit,
@@ -25,7 +24,6 @@ func NewMsgSubmitProposal(
 		Metadata:       metadata,
 		Title:          title,
 		Summary:        summary,
-		Expedited:      expedited,
 	}
 
 	anys, err := sdktx.SetMsgs(messages)

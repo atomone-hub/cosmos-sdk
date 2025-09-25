@@ -46,6 +46,14 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 			return false, err
 		}
 
+		// before deleting, check one last time if the proposal has enough deposits to get into voting phase,
+		// maybe because min deposit decreased in the meantime.
+		minDeposit := keeper.GetMinDeposit(ctx)
+		if proposal.Status == v1.StatusDepositPeriod && sdk.NewCoins(proposal.TotalDeposit...).IsAllGTE(minDeposit) {
+			keeper.ActivateVotingPeriod(ctx, proposal)
+			return false, nil
+		}
+
 		if err = keeper.DeleteProposal(ctx, proposal.Id); err != nil {
 			return false, err
 		}
@@ -59,7 +67,6 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 		} else {
 			err = keeper.DeleteAndBurnDeposits(ctx, proposal.Id) // burn the deposit if proposal got removed without getting 100% of the proposal
 		}
-
 		if err != nil {
 			return false, err
 		}
@@ -84,9 +91,8 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 		logger.Info(
 			"proposal did not meet minimum deposit; deleted",
 			"proposal", proposal.Id,
-			"expedited", proposal.Expedited,
 			"title", proposal.Title,
-			"min_deposit", sdk.NewCoins(proposal.GetMinDepositFromParams(params)...).String(),
+			"min_deposit", sdk.NewCoins(minDeposit...).String(),
 			"total_deposit", sdk.NewCoins(proposal.TotalDeposit...).String(),
 		)
 
@@ -127,19 +133,10 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 			return false, err
 		}
 
-		// If an expedited proposal fails, we do not want to update
-		// the deposit at this point since the proposal is converted to regular.
-		// As a result, the deposits are either deleted or refunded in all cases
-		// EXCEPT when an expedited proposal fails.
-		if !(proposal.Expedited && !passes) {
-			if burnDeposits {
-				err = keeper.DeleteAndBurnDeposits(ctx, proposal.Id)
-			} else {
-				err = keeper.RefundAndDeleteDeposits(ctx, proposal.Id)
-			}
-			if err != nil {
-				return false, err
-			}
+		if burnDeposits {
+			err = keeper.DeleteAndBurnDeposits(ctx, proposal.Id)
+		} else {
+			err = keeper.RefundAndDeleteDeposits(ctx, proposal.Id)
 		}
 
 		if err = keeper.ActiveProposalsQueue.Remove(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id)); err != nil {
@@ -199,26 +196,6 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 				tagValue = types.AttributeValueProposalFailed
 				logMsg = fmt.Sprintf("passed, but msg %d (%s) failed on execution: %s", idx, sdk.MsgTypeURL(msg), err)
 			}
-		case proposal.Expedited:
-			// When expedited proposal fails, it is converted
-			// to a regular proposal. As a result, the voting period is extended, and,
-			// once the regular voting period expires again, the tally is repeated
-			// according to the regular proposal rules.
-			proposal.Expedited = false
-			params, err := keeper.Params.Get(ctx)
-			if err != nil {
-				return false, err
-			}
-			endTime := proposal.VotingStartTime.Add(*params.VotingPeriod)
-			proposal.VotingEndTime = &endTime
-
-			err = keeper.ActiveProposalsQueue.Set(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id), proposal.Id)
-			if err != nil {
-				return false, err
-			}
-
-			tagValue = types.AttributeValueExpeditedProposalRejected
-			logMsg = "expedited proposal converted to regular"
 		default:
 			proposal.Status = v1.StatusRejected
 			proposal.FailedReason = "proposal did not get enough votes to pass"
@@ -246,7 +223,6 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 			"proposal tallied",
 			"proposal", proposal.Id,
 			"status", proposal.Status.String(),
-			"expedited", proposal.Expedited,
 			"title", proposal.Title,
 			"results", logMsg,
 		)
@@ -317,7 +293,6 @@ func failUnsupportedProposal(
 	logger.Info(
 		"proposal failed to decode; deleted",
 		"proposal", proposal.Id,
-		"expedited", proposal.Expedited,
 		"title", proposal.Title,
 		"results", errMsg,
 	)

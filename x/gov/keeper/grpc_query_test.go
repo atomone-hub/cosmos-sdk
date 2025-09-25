@@ -1487,10 +1487,9 @@ func (suite *KeeperTestSuite) TestGRPCQueryTallyResult() {
 					Id:     1,
 					Status: v1.StatusPassed,
 					FinalTallyResult: &v1.TallyResult{
-						YesCount:        "4",
-						AbstainCount:    "1",
-						NoCount:         "0",
-						NoWithVetoCount: "0",
+						YesCount:     "4",
+						AbstainCount: "1",
+						NoCount:      "0",
 					},
 					SubmitTime:      &propTime,
 					VotingStartTime: &propTime,
@@ -1502,10 +1501,9 @@ func (suite *KeeperTestSuite) TestGRPCQueryTallyResult() {
 				req = &v1.QueryTallyResultRequest{ProposalId: proposal.Id}
 
 				expTally = &v1.TallyResult{
-					YesCount:        "4",
-					AbstainCount:    "1",
-					NoCount:         "0",
-					NoWithVetoCount: "0",
+					YesCount:     "4",
+					AbstainCount: "1",
+					NoCount:      "0",
 				}
 			},
 			true,
@@ -1527,10 +1525,9 @@ func (suite *KeeperTestSuite) TestGRPCQueryTallyResult() {
 				req = &v1.QueryTallyResultRequest{ProposalId: proposal.Id}
 
 				expTally = &v1.TallyResult{
-					YesCount:        "0",
-					AbstainCount:    "0",
-					NoCount:         "0",
-					NoWithVetoCount: "0",
+					YesCount:     "0",
+					AbstainCount: "0",
+					NoCount:      "0",
 				}
 			},
 			true,
@@ -1552,10 +1549,9 @@ func (suite *KeeperTestSuite) TestGRPCQueryTallyResult() {
 				req = &v1.QueryTallyResultRequest{ProposalId: proposal.Id}
 
 				expTally = &v1.TallyResult{
-					YesCount:        "0",
-					AbstainCount:    "0",
-					NoCount:         "0",
-					NoWithVetoCount: "0",
+					YesCount:     "0",
+					AbstainCount: "0",
+					NoCount:      "0",
 				}
 			},
 			true,
@@ -1568,10 +1564,9 @@ func (suite *KeeperTestSuite) TestGRPCQueryTallyResult() {
 					Id:     1,
 					Status: v1.StatusFailed,
 					FinalTallyResult: &v1.TallyResult{
-						YesCount:        "4",
-						AbstainCount:    "1",
-						NoCount:         "0",
-						NoWithVetoCount: "0",
+						YesCount:     "4",
+						AbstainCount: "1",
+						NoCount:      "0",
 					},
 					SubmitTime:      &propTime,
 					VotingStartTime: &propTime,
@@ -1584,10 +1579,9 @@ func (suite *KeeperTestSuite) TestGRPCQueryTallyResult() {
 				req = &v1.QueryTallyResultRequest{ProposalId: proposal.Id}
 
 				expTally = &v1.TallyResult{
-					YesCount:        "4",
-					AbstainCount:    "1",
-					NoCount:         "0",
-					NoWithVetoCount: "0",
+					YesCount:     "4",
+					AbstainCount: "1",
+					NoCount:      "0",
 				}
 			},
 			true,
@@ -1655,10 +1649,9 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryTallyResult() {
 					Id:     1,
 					Status: v1.StatusPassed,
 					FinalTallyResult: &v1.TallyResult{
-						YesCount:        "4",
-						AbstainCount:    "1",
-						NoCount:         "0",
-						NoWithVetoCount: "0",
+						YesCount:     "4",
+						AbstainCount: "1",
+						NoCount:      "0",
 					},
 					SubmitTime:      &propTime,
 					VotingStartTime: &propTime,
@@ -1736,10 +1729,9 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryTallyResult() {
 					Id:     1,
 					Status: v1.StatusFailed,
 					FinalTallyResult: &v1.TallyResult{
-						YesCount:        "4",
-						AbstainCount:    "1",
-						NoCount:         "0",
-						NoWithVetoCount: "0",
+						YesCount:     "4",
+						AbstainCount: "1",
+						NoCount:      "0",
 					},
 					SubmitTime:      &propTime,
 					VotingStartTime: &propTime,

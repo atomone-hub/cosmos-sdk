@@ -90,6 +90,26 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:       "constitution",
 					Short:     "Query the current chain constitution",
 				},
+				{
+					RpcMethod: "MinDeposit",
+					Use:       "min-deposit",
+					Short:     "Query the minimum deposit currently needed for a proposal to enter voting period",
+				},
+				{
+					RpcMethod: "MinInitialDeposit",
+					Use:       "min-initial-deposit",
+					Short:     "Query the minimum initial deposit needed for a proposal to enter deposit period",
+				},
+				{
+					RpcMethod: "Quorums",
+					Use:       "quorums",
+					Short:     "Query the current state of the dynamic quorums",
+				},
+				{
+					RpcMethod: "ParticipationEMAs",
+					Use:       "participation",
+					Short:     "Query the current state of the exponential moving average of the proposal participations",
+				},
 			},
 			EnhanceCustomCommand: true, // We still have manual commands in gov that we want to keep
 		},

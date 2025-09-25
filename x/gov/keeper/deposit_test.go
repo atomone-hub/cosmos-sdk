@@ -23,137 +23,117 @@ const (
 )
 
 func TestDeposits(t *testing.T) {
-	testcases := []struct {
-		name      string
-		expedited bool
-	}{
-		{
-			name: "regular",
-		},
-		{
-			name:      "expedited",
-			expedited: true,
-		},
-	}
+	govKeeper, authKeeper, bankKeeper, stakingKeeper, distKeeper, _, ctx := setupGovKeeper(t)
+	trackMockBalances(bankKeeper, distKeeper)
 
-	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
-			govKeeper, authKeeper, bankKeeper, stakingKeeper, distKeeper, _, ctx := setupGovKeeper(t)
-			trackMockBalances(bankKeeper, distKeeper)
+	// With expedited proposals the minimum deposit is higher, so we must
+	// initialize and deposit an amount depositMultiplier times larger
+	// than the regular min deposit amount.
+	depositMultiplier := int64(1)
 
-			// With expedited proposals the minimum deposit is higher, so we must
-			// initialize and deposit an amount depositMultiplier times larger
-			// than the regular min deposit amount.
-			depositMultiplier := int64(1)
-			if tc.expedited {
-				depositMultiplier = v1.DefaultMinExpeditedDepositTokensRatio
-			}
+	TestAddrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdkmath.NewInt(10000000*depositMultiplier))
+	authKeeper.EXPECT().AddressCodec().Return(address.NewBech32Codec("cosmos")).AnyTimes()
 
-			TestAddrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdkmath.NewInt(10000000*depositMultiplier))
-			authKeeper.EXPECT().AddressCodec().Return(address.NewBech32Codec("cosmos")).AnyTimes()
+	tp := TestProposal
+	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0])
+	require.NoError(t, err)
+	proposalID := proposal.Id
 
-			tp := TestProposal
-			proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0], tc.expedited)
-			require.NoError(t, err)
-			proposalID := proposal.Id
+	fourStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 4*depositMultiplier)))
+	fiveStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 5*depositMultiplier)))
 
-			fourStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 4*depositMultiplier)))
-			fiveStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 5*depositMultiplier)))
+	addr0Initial := bankKeeper.GetAllBalances(ctx, TestAddrs[0])
+	addr1Initial := bankKeeper.GetAllBalances(ctx, TestAddrs[1])
 
-			addr0Initial := bankKeeper.GetAllBalances(ctx, TestAddrs[0])
-			addr1Initial := bankKeeper.GetAllBalances(ctx, TestAddrs[1])
+	require.True(t, sdk.NewCoins(proposal.TotalDeposit...).Equal(sdk.NewCoins()))
 
-			require.True(t, sdk.NewCoins(proposal.TotalDeposit...).Equal(sdk.NewCoins()))
+	// Check no deposits at beginning
+	_, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
+	require.ErrorIs(t, err, collections.ErrNotFound)
+	proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
+	require.Nil(t, err)
+	require.Nil(t, proposal.VotingStartTime)
 
-			// Check no deposits at beginning
-			_, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
-			require.ErrorIs(t, err, collections.ErrNotFound)
-			proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
-			require.Nil(t, err)
-			require.Nil(t, proposal.VotingStartTime)
+	// Check first deposit
+	votingStarted, err := govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake)
+	require.NoError(t, err)
+	require.False(t, votingStarted)
+	deposit, err := govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[0]))
+	require.Nil(t, err)
+	require.Equal(t, fourStake, sdk.NewCoins(deposit.Amount...))
+	require.Equal(t, TestAddrs[0].String(), deposit.Depositor)
+	proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
+	require.Nil(t, err)
+	require.Equal(t, fourStake, sdk.NewCoins(proposal.TotalDeposit...))
+	require.Equal(t, addr0Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
 
-			// Check first deposit
-			votingStarted, err := govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake)
-			require.NoError(t, err)
-			require.False(t, votingStarted)
-			deposit, err := govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[0]))
-			require.Nil(t, err)
-			require.Equal(t, fourStake, sdk.NewCoins(deposit.Amount...))
-			require.Equal(t, TestAddrs[0].String(), deposit.Depositor)
-			proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
-			require.Nil(t, err)
-			require.Equal(t, fourStake, sdk.NewCoins(proposal.TotalDeposit...))
-			require.Equal(t, addr0Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
+	// Check a second deposit from same address
+	votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake)
+	require.NoError(t, err)
+	require.False(t, votingStarted)
+	deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[0]))
+	require.Nil(t, err)
+	require.Equal(t, fourStake.Add(fiveStake...), sdk.NewCoins(deposit.Amount...))
+	require.Equal(t, TestAddrs[0].String(), deposit.Depositor)
+	proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
+	require.Nil(t, err)
+	require.Equal(t, fourStake.Add(fiveStake...), sdk.NewCoins(proposal.TotalDeposit...))
+	require.Equal(t, addr0Initial.Sub(fourStake...).Sub(fiveStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
 
-			// Check a second deposit from same address
-			votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake)
-			require.NoError(t, err)
-			require.False(t, votingStarted)
-			deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[0]))
-			require.Nil(t, err)
-			require.Equal(t, fourStake.Add(fiveStake...), sdk.NewCoins(deposit.Amount...))
-			require.Equal(t, TestAddrs[0].String(), deposit.Depositor)
-			proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
-			require.Nil(t, err)
-			require.Equal(t, fourStake.Add(fiveStake...), sdk.NewCoins(proposal.TotalDeposit...))
-			require.Equal(t, addr0Initial.Sub(fourStake...).Sub(fiveStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
+	// Check third deposit from a new address
+	votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[1], fourStake)
+	require.NoError(t, err)
+	require.True(t, votingStarted)
+	deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
+	require.Nil(t, err)
+	require.Equal(t, TestAddrs[1].String(), deposit.Depositor)
+	require.Equal(t, fourStake, sdk.NewCoins(deposit.Amount...))
+	proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
+	require.Nil(t, err)
+	require.Equal(t, fourStake.Add(fiveStake...).Add(fourStake...), sdk.NewCoins(proposal.TotalDeposit...))
+	require.Equal(t, addr1Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[1]))
 
-			// Check third deposit from a new address
-			votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[1], fourStake)
-			require.NoError(t, err)
-			require.True(t, votingStarted)
-			deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
-			require.Nil(t, err)
-			require.Equal(t, TestAddrs[1].String(), deposit.Depositor)
-			require.Equal(t, fourStake, sdk.NewCoins(deposit.Amount...))
-			proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
-			require.Nil(t, err)
-			require.Equal(t, fourStake.Add(fiveStake...).Add(fourStake...), sdk.NewCoins(proposal.TotalDeposit...))
-			require.Equal(t, addr1Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[1]))
+	// Check that proposal moved to voting period
+	proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
+	require.Nil(t, err)
+	require.True(t, proposal.VotingStartTime.Equal(ctx.BlockHeader().Time))
 
-			// Check that proposal moved to voting period
-			proposal, err = govKeeper.Proposals.Get(ctx, proposalID)
-			require.Nil(t, err)
-			require.True(t, proposal.VotingStartTime.Equal(ctx.BlockHeader().Time))
+	// Test deposit iterator
+	// NOTE order of deposits is determined by the addresses
+	var deposits v1.Deposits
+	err = govKeeper.Deposits.Walk(ctx, nil, func(_ collections.Pair[uint64, sdk.AccAddress], deposit v1.Deposit) (bool, error) {
+		deposits = append(deposits, &deposit)
+		return false, nil
+	})
+	require.NoError(t, err)
+	require.Len(t, deposits, 2)
+	propDeposits, _ := govKeeper.GetDeposits(ctx, proposalID)
+	require.Equal(t, deposits, propDeposits)
+	require.Equal(t, TestAddrs[0].String(), deposits[0].Depositor)
+	require.Equal(t, fourStake.Add(fiveStake...), sdk.NewCoins(deposits[0].Amount...))
+	require.Equal(t, TestAddrs[1].String(), deposits[1].Depositor)
+	require.Equal(t, fourStake, sdk.NewCoins(deposits[1].Amount...))
 
-			// Test deposit iterator
-			// NOTE order of deposits is determined by the addresses
-			var deposits v1.Deposits
-			err = govKeeper.Deposits.Walk(ctx, nil, func(_ collections.Pair[uint64, sdk.AccAddress], deposit v1.Deposit) (bool, error) {
-				deposits = append(deposits, &deposit)
-				return false, nil
-			})
-			require.NoError(t, err)
-			require.Len(t, deposits, 2)
-			propDeposits, _ := govKeeper.GetDeposits(ctx, proposalID)
-			require.Equal(t, deposits, propDeposits)
-			require.Equal(t, TestAddrs[0].String(), deposits[0].Depositor)
-			require.Equal(t, fourStake.Add(fiveStake...), sdk.NewCoins(deposits[0].Amount...))
-			require.Equal(t, TestAddrs[1].String(), deposits[1].Depositor)
-			require.Equal(t, fourStake, sdk.NewCoins(deposits[1].Amount...))
+	// Test Refund Deposits
+	deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
+	require.Nil(t, err)
+	require.Equal(t, fourStake, sdk.NewCoins(deposit.Amount...))
+	govKeeper.RefundAndDeleteDeposits(ctx, proposalID)
+	deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
+	require.ErrorIs(t, err, collections.ErrNotFound)
+	require.Equal(t, addr0Initial, bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
+	require.Equal(t, addr1Initial, bankKeeper.GetAllBalances(ctx, TestAddrs[1]))
 
-			// Test Refund Deposits
-			deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
-			require.Nil(t, err)
-			require.Equal(t, fourStake, sdk.NewCoins(deposit.Amount...))
-			govKeeper.RefundAndDeleteDeposits(ctx, proposalID)
-			deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
-			require.ErrorIs(t, err, collections.ErrNotFound)
-			require.Equal(t, addr0Initial, bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
-			require.Equal(t, addr1Initial, bankKeeper.GetAllBalances(ctx, TestAddrs[1]))
-
-			// Test delete and burn deposits
-			proposal, err = govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0], true)
-			require.NoError(t, err)
-			proposalID = proposal.Id
-			_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake)
-			require.NoError(t, err)
-			govKeeper.DeleteAndBurnDeposits(ctx, proposalID)
-			deposits, _ = govKeeper.GetDeposits(ctx, proposalID)
-			require.Len(t, deposits, 0)
-			require.Equal(t, addr0Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
-		})
-	}
+	// Test delete and burn deposits
+	proposal, err = govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0])
+	require.NoError(t, err)
+	proposalID = proposal.Id
+	_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake)
+	require.NoError(t, err)
+	govKeeper.DeleteAndBurnDeposits(ctx, proposalID)
+	deposits, _ = govKeeper.GetDeposits(ctx, proposalID)
+	require.Len(t, deposits, 0)
+	require.Equal(t, addr0Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
 }
 
 func TestDepositAmount(t *testing.T) {
@@ -220,7 +200,7 @@ func TestDepositAmount(t *testing.T) {
 			require.NoError(t, err)
 
 			tp := TestProposal
-			proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", testAddrs[0], false)
+			proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", testAddrs[0])
 			require.NoError(t, err)
 			proposalID := proposal.Id
 
@@ -240,9 +220,7 @@ func TestValidateInitialDeposit(t *testing.T) {
 		minDeposit               sdk.Coins
 		minInitialDepositPercent int64
 		initialDeposit           sdk.Coins
-		expedited                bool
-
-		expectError bool
+		expectError              bool
 	}{
 		"min deposit * initial percent == initial deposit: success": {
 			minDeposit:               sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(baseDepositTestAmount))),
@@ -308,18 +286,6 @@ func TestValidateInitialDeposit(t *testing.T) {
 			minInitialDepositPercent: 0,
 			initialDeposit:           sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(baseDepositTestAmount*baseDepositTestPercent/100))),
 		},
-		"expedited min deposit * initial percent == initial deposit: success": {
-			minDeposit:               sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(baseDepositTestAmount))),
-			minInitialDepositPercent: baseDepositTestPercent,
-			initialDeposit:           sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(baseDepositTestAmount*baseDepositTestPercent/100))),
-			expedited:                true,
-		},
-		"expedited - 0 initial percent: success": {
-			minDeposit:               sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(baseDepositTestAmount))),
-			minInitialDepositPercent: 0,
-			initialDeposit:           sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(baseDepositTestAmount*baseDepositTestPercent/100))),
-			expedited:                true,
-		},
 	}
 
 	for name, tc := range testcases {
@@ -327,16 +293,13 @@ func TestValidateInitialDeposit(t *testing.T) {
 			govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t)
 
 			params := v1.DefaultParams()
-			if tc.expedited {
-				params.ExpeditedMinDeposit = tc.minDeposit
-			} else {
-				params.MinDeposit = tc.minDeposit
-			}
+
+			params.MinDeposit = tc.minDeposit
 			params.MinInitialDepositRatio = sdkmath.LegacyNewDec(tc.minInitialDepositPercent).Quo(sdkmath.LegacyNewDec(100)).String()
 
 			govKeeper.Params.Set(ctx, params)
 
-			err := govKeeper.ValidateInitialDeposit(ctx, tc.initialDeposit, tc.expedited)
+			err := govKeeper.ValidateInitialDeposit(ctx, tc.initialDeposit)
 
 			if tc.expectError {
 				require.Error(t, err)
@@ -408,7 +371,7 @@ func TestChargeDeposit(t *testing.T) {
 				require.NoError(t, err)
 
 				tp := TestProposal
-				proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0], false)
+				proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0])
 				require.NoError(t, err)
 				proposalID := proposal.Id
 				// deposit to proposal

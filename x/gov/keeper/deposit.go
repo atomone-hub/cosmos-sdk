@@ -78,7 +78,7 @@ func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, deposito
 		return false, err
 	}
 
-	minDepositAmount := proposal.GetMinDepositFromParams(params)
+	minDepositAmount := keeper.GetMinDeposit(ctx)
 	minDepositRatio, err := sdkmath.LegacyNewDecFromStr(params.GetMinDepositRatio())
 	if err != nil {
 		return false, err
@@ -282,7 +282,7 @@ func (keeper Keeper) RefundAndDeleteDeposits(ctx context.Context, proposalID uin
 // validateInitialDeposit validates if initial deposit is greater than or equal to the minimum
 // required at the time of proposal submission. This threshold amount is determined by
 // the deposit parameters. Returns nil on success, error otherwise.
-func (keeper Keeper) validateInitialDeposit(_ context.Context, params v1.Params, initialDeposit sdk.Coins, expedited bool) error {
+func (keeper Keeper) validateInitialDeposit(_ context.Context, params v1.Params, initialDeposit sdk.Coins) error {
 	if !initialDeposit.IsValid() || initialDeposit.IsAnyNegative() {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, initialDeposit.String())
 	}
@@ -295,13 +295,7 @@ func (keeper Keeper) validateInitialDeposit(_ context.Context, params v1.Params,
 		return nil
 	}
 
-	var minDepositCoins sdk.Coins
-	if expedited {
-		minDepositCoins = params.ExpeditedMinDeposit
-	} else {
-		minDepositCoins = params.MinDeposit
-	}
-
+	minDepositCoins := params.MinDeposit
 	for i := range minDepositCoins {
 		minDepositCoins[i].Amount = sdkmath.LegacyNewDecFromInt(minDepositCoins[i].Amount).Mul(minInitialDepositRatio).RoundInt()
 	}
