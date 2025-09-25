@@ -220,7 +220,7 @@ message MsgCancelProposalResponse {
 // MsgLaw is the Msg/ProposeLaw request type.
 message MsgProposeLaw {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "atomone/x/gov/v1/MsgProposeLaw";
+  option (amino.name)           = "cosmos-sdk/x/gov/v1/MsgProposeLaw";
 
   // authority is the address that controls the module (defaults to x/gov unless
   // overwritten).
@@ -234,7 +234,7 @@ message MsgProposeLawResponse {}
 // MsgConstitutionAmendment is the Msg/ProposeConstitutionAmendment request type.
 message MsgProposeConstitutionAmendment {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "atomone/x/gov/v1/MsgProposeAmendment";
+  option (amino.name)           = "cosmos-sdk/x/gov/v1/MsgProposeAmendment";
 
   // authority is the address that controls the module (defaults to x/gov unless
   // overwritten).
