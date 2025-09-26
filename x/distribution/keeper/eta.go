@@ -12,7 +12,7 @@ import (
 
 // AdjustEta is called to adjust η dynamically for each block.
 func (k Keeper) AdjustEta(ctx sdk.Context) error {
-	if ctx.BlockHeight()%types.EtaUpdateInterval != 0 {
+	if ctx.BlockHeight()%types.NakamotoBonusUpdateInterval != 0 {
 		return nil
 	}
 
@@ -74,31 +74,31 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 	}
 	highAvg := avg(high)
 	lowAvg := avg(low)
-	eta := params.NakamotoBonusCoefficient
+	coefficient := params.NakamotoBonusCoefficient
 
-	// Adjust eta: if avgHigh >= 3x avgLow, increase eta, else decrease
-	// EtaStep should be a decimal value, e.g. 0.03 for 3%
-	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(types.EtaStep)) {
-		eta = eta.Add(math.LegacyNewDecWithPrec(types.EtaStep, 2))
+	// Adjust coefficient: if avgHigh >= 3x avgLow, increase eta, else decrease
+	// NakamotoBonusStep should be a decimal value, e.g. 0.03 for 3%
+	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(types.NakamotoBonusStep)) {
+		coefficient = coefficient.Add(math.LegacyNewDecWithPrec(types.NakamotoBonusStep, 2))
 	} else {
-		eta = eta.Sub(math.LegacyNewDecWithPrec(types.EtaStep, 2))
+		coefficient = coefficient.Sub(math.LegacyNewDecWithPrec(types.NakamotoBonusStep, 2))
 	}
-	if eta.LT(math.LegacyZeroDec()) {
-		eta = math.LegacyZeroDec()
+	if coefficient.LT(math.LegacyZeroDec()) {
+		coefficient = math.LegacyZeroDec()
 	}
-	if eta.GT(math.LegacyOneDec()) {
-		eta = math.LegacyOneDec()
+	if coefficient.GT(math.LegacyOneDec()) {
+		coefficient = math.LegacyOneDec()
 	}
 
-	if !eta.Equal(params.NakamotoBonusCoefficient) {
+	if !coefficient.Equal(params.NakamotoBonusCoefficient) {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeNakamotoCoefficient,
-				sdk.NewAttribute(types.AttributeNakamotoCoefficient, eta.String()),
+				sdk.NewAttribute(types.AttributeNakamotoCoefficient, coefficient.String()),
 			),
 		)
 	}
 
-	params.NakamotoBonusCoefficient = eta
+	params.NakamotoBonusCoefficient = coefficient
 	return k.Params.Set(ctx, params)
 }

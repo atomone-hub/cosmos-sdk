@@ -13,7 +13,7 @@ import (
 )
 
 func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.EtaUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.NakamotoBonusUpdateInterval)
 
 	// Use η = 0.03, block height triggers adjustment
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10))
@@ -32,7 +32,7 @@ func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 }
 
 func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.EtaUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.NakamotoBonusUpdateInterval)
 
 	// Use η = 0.03, block height triggers adjustment, but ratio < 3 (should decrease to 0)
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10))
@@ -51,7 +51,7 @@ func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 }
 
 func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyOneDec(), types.EtaUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyOneDec(), types.NakamotoBonusUpdateInterval)
 
 	// η = 1.0, should clamp to 1.0 even if increase requested
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10))
@@ -70,7 +70,7 @@ func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
 }
 
 func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyZeroDec(), types.EtaUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyZeroDec(), types.NakamotoBonusUpdateInterval)
 
 	// η = 0.0, should clamp to 0.0 even if decrease requested
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10))

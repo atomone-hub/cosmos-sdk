@@ -71,9 +71,9 @@ service Query {
     option (google.api.http).get = "/cosmos/distribution/v1beta1/community_pool";
   }
 
-  // Eta queries the current eta parameter.
-  rpc Eta(QueryEtaRequest) returns (QueryEtaResponse) {
-    option (google.api.http).get = "/cosmos/distribution/v1beta1/eta";
+  // NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
+  rpc NakamotoBonusCoefficient(QueryNakamotoBonusCoefficientRequest) returns (QueryNakamotoBonusCoefficientResponse) {
+    option (google.api.http).get = "/cosmos/distribution/v1beta1/nakamoto_bonus_coefficient";
   }
 }
 
@@ -259,14 +259,14 @@ message QueryCommunityPoolResponse {
   ];
 }
 
-// QueryEtaRequest is the request type for the Query/EtaRequest RPC
+// QueryNakamotoBonusCoefficientRequest is the request type for the Query/NakamotoBonusCoefficientRequest RPC
 // method.
-message QueryEtaRequest {}
+message QueryNakamotoBonusCoefficientRequest {}
 
-// QueryEtaResponse is the response type for the Query/EtaRequest
+// QueryNakamotoBonusCoefficientResponse is the response type for the Query/NakamotoBonusCoefficientRequest
 // RPC method.
-message QueryEtaResponse {
-  string nakamoto_bonus_coefficient = 5 [
+message QueryNakamotoBonusCoefficientResponse {
+  string nakamoto_bonus_coefficient = 1 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (amino.dont_omitempty) = true,

@@ -370,14 +370,14 @@ func (k Querier) CommunityPool(ctx context.Context, _ *types.QueryCommunityPoolR
 	return &types.QueryCommunityPoolResponse{Pool: pool.CommunityPool}, nil
 }
 
-// Eta queries the current eta parameter.
-func (k Keeper) Eta(goCtx context.Context, _ *types.QueryEtaRequest) (*types.QueryEtaResponse, error) {
+// NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
+func (k Keeper) NakamotoBonusCoefficient(goCtx context.Context, _ *types.QueryNakamotoBonusCoefficientRequest) (*types.QueryNakamotoBonusCoefficientResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryEtaResponse{
+	return &types.QueryNakamotoBonusCoefficientResponse{
 		NakamotoBonusCoefficient: params.NakamotoBonusCoefficient,
 	}, nil
 }

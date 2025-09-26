@@ -29,7 +29,7 @@ const (
 	Query_DelegatorValidators_FullMethodName         = "/cosmos.distribution.v1beta1.Query/DelegatorValidators"
 	Query_DelegatorWithdrawAddress_FullMethodName    = "/cosmos.distribution.v1beta1.Query/DelegatorWithdrawAddress"
 	Query_CommunityPool_FullMethodName               = "/cosmos.distribution.v1beta1.Query/CommunityPool"
-	Query_Eta_FullMethodName                         = "/cosmos.distribution.v1beta1.Query/Eta"
+	Query_NakamotoBonusCoefficient_FullMethodName    = "/cosmos.distribution.v1beta1.Query/NakamotoBonusCoefficient"
 )
 
 // QueryClient is the client API for Query service.
@@ -59,8 +59,8 @@ type QueryClient interface {
 	DelegatorWithdrawAddress(ctx context.Context, in *QueryDelegatorWithdrawAddressRequest, opts ...grpc.CallOption) (*QueryDelegatorWithdrawAddressResponse, error)
 	// CommunityPool queries the community pool coins.
 	CommunityPool(ctx context.Context, in *QueryCommunityPoolRequest, opts ...grpc.CallOption) (*QueryCommunityPoolResponse, error)
-	// Eta queries the current eta parameter.
-	Eta(ctx context.Context, in *QueryEtaRequest, opts ...grpc.CallOption) (*QueryEtaResponse, error)
+	// NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
+	NakamotoBonusCoefficient(ctx context.Context, in *QueryNakamotoBonusCoefficientRequest, opts ...grpc.CallOption) (*QueryNakamotoBonusCoefficientResponse, error)
 }
 
 type queryClient struct {
@@ -171,10 +171,10 @@ func (c *queryClient) CommunityPool(ctx context.Context, in *QueryCommunityPoolR
 	return out, nil
 }
 
-func (c *queryClient) Eta(ctx context.Context, in *QueryEtaRequest, opts ...grpc.CallOption) (*QueryEtaResponse, error) {
+func (c *queryClient) NakamotoBonusCoefficient(ctx context.Context, in *QueryNakamotoBonusCoefficientRequest, opts ...grpc.CallOption) (*QueryNakamotoBonusCoefficientResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(QueryEtaResponse)
-	err := c.cc.Invoke(ctx, Query_Eta_FullMethodName, in, out, cOpts...)
+	out := new(QueryNakamotoBonusCoefficientResponse)
+	err := c.cc.Invoke(ctx, Query_NakamotoBonusCoefficient_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -208,8 +208,8 @@ type QueryServer interface {
 	DelegatorWithdrawAddress(context.Context, *QueryDelegatorWithdrawAddressRequest) (*QueryDelegatorWithdrawAddressResponse, error)
 	// CommunityPool queries the community pool coins.
 	CommunityPool(context.Context, *QueryCommunityPoolRequest) (*QueryCommunityPoolResponse, error)
-	// Eta queries the current eta parameter.
-	Eta(context.Context, *QueryEtaRequest) (*QueryEtaResponse, error)
+	// NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
+	NakamotoBonusCoefficient(context.Context, *QueryNakamotoBonusCoefficientRequest) (*QueryNakamotoBonusCoefficientResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -250,8 +250,8 @@ func (UnimplementedQueryServer) DelegatorWithdrawAddress(context.Context, *Query
 func (UnimplementedQueryServer) CommunityPool(context.Context, *QueryCommunityPoolRequest) (*QueryCommunityPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommunityPool not implemented")
 }
-func (UnimplementedQueryServer) Eta(context.Context, *QueryEtaRequest) (*QueryEtaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Eta not implemented")
+func (UnimplementedQueryServer) NakamotoBonusCoefficient(context.Context, *QueryNakamotoBonusCoefficientRequest) (*QueryNakamotoBonusCoefficientResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NakamotoBonusCoefficient not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 func (UnimplementedQueryServer) testEmbeddedByValue()               {}
@@ -454,20 +454,20 @@ func _Query_CommunityPool_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Eta_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryEtaRequest)
+func _Query_NakamotoBonusCoefficient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryNakamotoBonusCoefficientRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Eta(ctx, in)
+		return srv.(QueryServer).NakamotoBonusCoefficient(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Query_Eta_FullMethodName,
+		FullMethod: Query_NakamotoBonusCoefficient_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Eta(ctx, req.(*QueryEtaRequest))
+		return srv.(QueryServer).NakamotoBonusCoefficient(ctx, req.(*QueryNakamotoBonusCoefficientRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -520,8 +520,8 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Query_CommunityPool_Handler,
 		},
 		{
-			MethodName: "Eta",
-			Handler:    _Query_Eta_Handler,
+			MethodName: "NakamotoBonusCoefficient",
+			Handler:    _Query_NakamotoBonusCoefficient_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

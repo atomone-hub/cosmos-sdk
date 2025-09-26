@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	// EtaUpdateInterval represents 120k blocks
-	EtaUpdateInterval = 120_000
-	// EtaStep represents the step to increase or decrease η
-	EtaStep = 3
+	// NakamotoBonusUpdateInterval represents 120k blocks
+	NakamotoBonusUpdateInterval = 120_000
+	// NakamotoBonusStep represents the step to increase or decrease η
+	NakamotoBonusStep = 3
 )
 
 // DefaultParams returns default distribution parameters
@@ -20,7 +20,7 @@ func DefaultParams() Params {
 		BonusProposerReward:      math.LegacyZeroDec(),
 		CommunityTax:             math.LegacyNewDecWithPrec(2, 2), // 2%
 		WithdrawAddrEnabled:      true,
-		NakamotoBonusCoefficient: math.LegacyNewDecWithPrec(EtaStep, 2), // 3%
+		NakamotoBonusCoefficient: math.LegacyNewDecWithPrec(NakamotoBonusStep, 2), // 3%
 		NakamotoBonusEnabled:     true,
 	}
 }
@@ -73,5 +73,14 @@ func validateNakamotoBonusCoefficient(i interface{}) error {
 	case v.GT(math.LegacyOneDec()):
 		return fmt.Errorf("nakamoto bonus coefficient too large: %s", v)
 	}
+	return nil
+}
+
+func validateNakamotoBonusEnabled(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
 	return nil
 }
