@@ -20,7 +20,7 @@ func TestVotes(t *testing.T) {
 	authKeeper.EXPECT().AddressCodec().Return(address.NewBech32Codec("cosmos")).AnyTimes()
 
 	tp := TestProposal
-	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "description", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"), false)
+	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "description", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
 	require.NoError(t, err)
 	proposalID := proposal.Id
 	metadata := "metadata"
@@ -58,7 +58,6 @@ func TestVotes(t *testing.T) {
 		v1.NewWeightedVoteOption(v1.OptionYes, sdkmath.LegacyNewDecWithPrec(60, 2)),
 		v1.NewWeightedVoteOption(v1.OptionNo, sdkmath.LegacyNewDecWithPrec(30, 2)),
 		v1.NewWeightedVoteOption(v1.OptionAbstain, sdkmath.LegacyNewDecWithPrec(5, 2)),
-		v1.NewWeightedVoteOption(v1.OptionNoWithVeto, sdkmath.LegacyNewDecWithPrec(5, 2)),
 	}, ""))
 	vote, err = govKeeper.Votes.Get(ctx, collections.Join(proposalID, addrs[1]))
 	require.Nil(t, err)
@@ -68,7 +67,6 @@ func TestVotes(t *testing.T) {
 	require.Equal(t, v1.OptionYes, vote.Options[0].Option)
 	require.Equal(t, v1.OptionNo, vote.Options[1].Option)
 	require.Equal(t, v1.OptionAbstain, vote.Options[2].Option)
-	require.Equal(t, v1.OptionNoWithVeto, vote.Options[3].Option)
 	require.Equal(t, vote.Options[0].Weight, sdkmath.LegacyNewDecWithPrec(60, 2).String())
 	require.Equal(t, vote.Options[1].Weight, sdkmath.LegacyNewDecWithPrec(30, 2).String())
 	require.Equal(t, vote.Options[2].Weight, sdkmath.LegacyNewDecWithPrec(5, 2).String())

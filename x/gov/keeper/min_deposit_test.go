@@ -13,23 +13,6 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
-func TestActiveProposalNumber(t *testing.T) {
-	assert := assert.New(t)
-	k, _, _, ctx := setupGovKeeper(t)
-
-	assert.EqualValues(0, k.GetActiveProposalsNumber(ctx))
-
-	k.IncrementActiveProposalsNumber(ctx)
-	k.IncrementActiveProposalsNumber(ctx)
-	assert.EqualValues(2, k.GetActiveProposalsNumber(ctx))
-
-	k.DecrementActiveProposalsNumber(ctx)
-	assert.EqualValues(1, k.GetActiveProposalsNumber(ctx))
-
-	k.SetActiveProposalsNumber(ctx, 42)
-	assert.EqualValues(42, k.GetActiveProposalsNumber(ctx))
-}
-
 func TestGetMinDeposit(t *testing.T) {
 	var (
 		minDepositFloor   = v1.GetDefaultMinDepositFloor()
@@ -189,7 +172,7 @@ func TestGetMinDeposit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k, _, _, ctx := setupGovKeeper(t)
+			k, _, _, _, _, _, ctx := setupGovKeeper(t)
 			if tt.setup != nil {
 				tt.setup(ctx, k)
 			}

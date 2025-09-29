@@ -109,8 +109,7 @@ func WeightedVoteOptionsFromString(str string) (WeightedVoteOptions, error) {
 func ValidVoteOption(option VoteOption) bool {
 	if option == OptionYes ||
 		option == OptionAbstain ||
-		option == OptionNo ||
-		option == OptionNoWithVeto {
+		option == OptionNo {
 		return true
 	}
 	return false

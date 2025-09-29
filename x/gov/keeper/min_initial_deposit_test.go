@@ -15,7 +15,7 @@ import (
 
 func TestInactiveProposalNumber(t *testing.T) {
 	assert := assert.New(t)
-	k, _, _, ctx := setupGovKeeper(t)
+	k, _, _, _, _, _, ctx := setupGovKeeper(t)
 
 	assert.EqualValues(0, k.GetInactiveProposalsNumber(ctx))
 

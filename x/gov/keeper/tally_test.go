@@ -505,11 +505,12 @@ func TestTally(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			govKeeper, mocks, _, _, _, _, ctx := setupGovKeeper(t)
+
 			params := v1.DefaultParams()
 			// Ensure params value are different than false
 			params.BurnVoteQuorum = true
-			err := govKeeper.SetParams(ctx, params)
+			err := govKeeper.Params.Set(ctx, params)
 			require.NoError(t, err)
 			var (
 				numVals       = 10
@@ -531,7 +532,7 @@ func TestTally(t *testing.T) {
 				tt.setup(s)
 			}
 
-			pass, burn, _, tally, err := govKeeper.Tally(ctx, proposal)
+			pass, burn, tally, err := govKeeper.Tally(ctx, proposal)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedPass, pass, "wrong pass")
@@ -629,7 +630,7 @@ func TestHasReachedQuorum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			govKeeper, mocks, _, _, _, _, ctx := setupGovKeeper(t)
 			var (
 				numVals       = 10
 				numDelegators = 5
@@ -650,7 +651,8 @@ func TestHasReachedQuorum(t *testing.T) {
 			assert.Equal(t, tt.expectedQuorum, quorum)
 			if tt.expectedQuorum {
 				// Assert votes are still here after HasReachedQuorum
-				votes := suite.keeper.GetVotes(suite.ctx, proposal.Id)
+				votes, err := suite.keeper.Votes.Get(suite.ctx, proposal.Id)
+				require.NoError(t, err)
 				assert.NotEmpty(t, votes, "votes must be kept after HasReachedQuorum")
 			}
 		})

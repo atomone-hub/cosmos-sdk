@@ -80,20 +80,16 @@ func ConvertToLegacyTallyResult(tally *v1.TallyResult) (v1beta1.TallyResult, err
 	if !ok {
 		return v1beta1.TallyResult{}, fmt.Errorf("unable to convert no tally string (%s) to int", tally.NoCount)
 	}
-	veto, ok := math.NewIntFromString(tally.NoWithVetoCount)
-	if !ok {
-		return v1beta1.TallyResult{}, fmt.Errorf("unable to convert no with veto tally string (%s) to int", tally.NoWithVetoCount)
-	}
+
 	abstain, ok := math.NewIntFromString(tally.AbstainCount)
 	if !ok {
 		return v1beta1.TallyResult{}, fmt.Errorf("unable to convert abstain tally string (%s) to int", tally.AbstainCount)
 	}
 
 	return v1beta1.TallyResult{
-		Yes:        yes,
-		No:         no,
-		NoWithVeto: veto,
-		Abstain:    abstain,
+		Yes:     yes,
+		No:      no,
+		Abstain: abstain,
 	}, nil
 }
 
@@ -200,7 +196,7 @@ func convertToNewTallyParams(oldTallyParams v1beta1.TallyParams) v1.TallyParams 
 }
 
 func convertToNewProposal(oldProp v1beta1.Proposal) (v1.Proposal, error) {
-	msg, err := v1.NewLegacyContent(oldProp.GetContent(), authtypes.NewModuleAddress(ModuleName).String())
+	msg, err := v1.NewLegacyContent(oldProp.GetContent(), authtypes.NewModuleAddress("gov").String())
 	if err != nil {
 		return v1.Proposal{}, err
 	}
@@ -214,10 +210,9 @@ func convertToNewProposal(oldProp v1beta1.Proposal) (v1.Proposal, error) {
 		Messages: []*codectypes.Any{msgAny},
 		Status:   v1.ProposalStatus(oldProp.Status),
 		FinalTallyResult: &v1.TallyResult{
-			YesCount:        oldProp.FinalTallyResult.Yes.String(),
-			NoCount:         oldProp.FinalTallyResult.No.String(),
-			AbstainCount:    oldProp.FinalTallyResult.Abstain.String(),
-			NoWithVetoCount: oldProp.FinalTallyResult.NoWithVeto.String(),
+			YesCount:     oldProp.FinalTallyResult.Yes.String(),
+			NoCount:      oldProp.FinalTallyResult.No.String(),
+			AbstainCount: oldProp.FinalTallyResult.Abstain.String(),
 		},
 		SubmitTime:      &oldProp.SubmitTime,
 		DepositEndTime:  &oldProp.DepositEndTime,

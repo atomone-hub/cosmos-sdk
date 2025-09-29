@@ -12,7 +12,7 @@ import (
 )
 
 func TestGetSetParticipationEma(t *testing.T) {
-	k, _, _, ctx := setupGovKeeper(t)
+	k, _, _, _, _, _, ctx := setupGovKeeper(t)
 	assert := assert.New(t)
 
 	assert.Equal(v1.DefaultParticipationEma, k.GetParticipationEMA(ctx).String())

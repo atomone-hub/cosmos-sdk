@@ -59,7 +59,7 @@ func TestUnregisteredProposal_ActiveProposalFails(t *testing.T) {
 	startTime, endTime := time.Now().Add(-4*time.Hour), ctx.BlockHeader().Time
 	proposal, err := v1.NewProposal([]sdk.Msg{
 		&v1.Proposal{}, // invalid proposal message
-	}, 1, startTime, startTime, "", "Unsupported proposal", "Unsupported proposal", addrs[0], false)
+	}, 1, startTime, startTime, "", "Unsupported proposal", "Unsupported proposal", addrs[0])
 	require.NoError(t, err)
 	proposal.Status = v1.StatusVotingPeriod
 	proposal.VotingEndTime = &endTime
