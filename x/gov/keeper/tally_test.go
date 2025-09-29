@@ -17,6 +17,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/testutil"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
@@ -30,9 +31,11 @@ type tallyFixture struct {
 	validators  []stakingtypes.Validator
 	delegations []stakingtypes.Delegation
 
-	keeper *keeper.Keeper
-	ctx    sdk.Context
-	mocks  mocks
+	keeper        *keeper.Keeper
+	ctx           sdk.Context
+	acctKeeper    *govtestutil.MockAccountKeeper
+	bankKeeper    *govtestutil.MockBankKeeper
+	stakingKeeper *govtestutil.MockStakingKeeper
 }
 
 // newTallyFixture returns a configured fixture for testing the govKeeper.Tally
@@ -43,18 +46,22 @@ type tallyFixture struct {
 //   - setup IterateDelegations call for validators
 func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
 	valAddrs []sdk.ValAddress, delAddrs []sdk.AccAddress, govKeeper *keeper.Keeper,
-	mocks mocks,
+	acctKeeper *govtestutil.MockAccountKeeper,
+	bankKeeper *govtestutil.MockBankKeeper,
+	stakingKeeper *govtestutil.MockStakingKeeper,
 ) *tallyFixture {
 	s := &tallyFixture{
-		t:        t,
-		ctx:      ctx,
-		proposal: proposal,
-		valAddrs: valAddrs,
-		delAddrs: delAddrs,
-		keeper:   govKeeper,
-		mocks:    mocks,
+		t:             t,
+		ctx:           ctx,
+		proposal:      proposal,
+		valAddrs:      valAddrs,
+		delAddrs:      delAddrs,
+		keeper:        govKeeper,
+		acctKeeper:    acctKeeper,
+		bankKeeper:    bankKeeper,
+		stakingKeeper: stakingKeeper,
 	}
-	mocks.stakingKeeper.EXPECT().TotalBondedTokens(gomock.Any()).
+	stakingKeeper.EXPECT().TotalBondedTokens(gomock.Any()).
 		DoAndReturn(func(_ context.Context) (sdkmath.Int, error) {
 			return sdkmath.NewInt(s.totalBonded), nil
 		}).MaxTimes(1)
@@ -69,7 +76,7 @@ func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
 		// validator self delegation
 		s.delegate(sdk.AccAddress(valAddrs[i]), valAddrs[i], 1)
 	}
-	mocks.stakingKeeper.EXPECT().
+	stakingKeeper.EXPECT().
 		IterateBondedValidatorsByPower(ctx, gomock.Any()).
 		DoAndReturn(
 			func(ctx context.Context, fn func(index int64, validator stakingtypes.ValidatorI) bool) error {
@@ -78,7 +85,7 @@ func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
 				}
 				return nil
 			})
-	mocks.stakingKeeper.EXPECT().
+	stakingKeeper.EXPECT().
 		IterateDelegations(ctx, gomock.Any(), gomock.Any()).
 		DoAndReturn(
 			func(ctx context.Context, voter sdk.AccAddress, fn func(index int64, d stakingtypes.DelegationI) bool) error {
@@ -506,7 +513,7 @@ func TestTally(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, _, _, _, ctx := setupGovKeeper(t)
+			govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, _, _, ctx := setupGovKeeper(t)
 
 			params := v1.DefaultParams()
 			// Ensure params value are different than false
@@ -528,7 +535,7 @@ func TestTally(t *testing.T) {
 				proposal.Endorsed = true
 			}
 			// Create the test fixture
-			s := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mocks)
+			s := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper)
 			if tt.setup != nil {
 				tt.setup(s)
 			}
@@ -637,7 +644,7 @@ func TestHasReachedQuorum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, _, _, _, ctx := setupGovKeeper(t)
+			govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, _, _, ctx := setupGovKeeper(t)
 			var (
 				numVals       = 10
 				numDelegators = 5
@@ -649,7 +656,7 @@ func TestHasReachedQuorum(t *testing.T) {
 			proposal, err := govKeeper.SubmitProposal(ctx, tt.proposalMsgs, "", "title", "summary", delAddrs[0])
 			require.NoError(t, err)
 			govKeeper.ActivateVotingPeriod(ctx, proposal)
-			suite := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mocks)
+			suite := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper)
 			tt.setup(suite)
 
 			quorum, err := govKeeper.HasReachedQuorum(ctx, proposal)

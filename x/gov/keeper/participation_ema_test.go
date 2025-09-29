@@ -15,17 +15,25 @@ func TestGetSetParticipationEma(t *testing.T) {
 	k, _, _, _, _, _, ctx := setupGovKeeper(t)
 	assert := assert.New(t)
 
-	assert.Equal(v1.DefaultParticipationEma, k.GetParticipationEMA(ctx).String())
-	assert.Equal(v1.DefaultParticipationEma, k.GetConstitutionAmendmentParticipationEMA(ctx).String())
-	assert.Equal(v1.DefaultParticipationEma, k.GetLawParticipationEMA(ctx).String())
+	participationEMA, _ := k.ParticipationEMA.Get(ctx)
+	constitutionParticipationEMA, _ := k.ConstitutionAmendmentParticipationEMA.Get(ctx)
+	lawParticipationEMA, _ := k.LawParticipationEMA.Get(ctx)
 
-	k.SetParticipationEMA(ctx, math.LegacyNewDecWithPrec(1, 2))
-	k.SetConstitutionAmendmentParticipationEMA(ctx, math.LegacyNewDecWithPrec(2, 2))
-	k.SetLawParticipationEMA(ctx, math.LegacyNewDecWithPrec(3, 2))
+	assert.Equal(v1.DefaultParticipationEma, participationEMA.String())
+	assert.Equal(v1.DefaultParticipationEma, constitutionParticipationEMA.String())
+	assert.Equal(v1.DefaultParticipationEma, lawParticipationEMA.String())
 
-	assert.Equal(math.LegacyNewDecWithPrec(1, 2).String(), k.GetParticipationEMA(ctx).String())
-	assert.Equal(math.LegacyNewDecWithPrec(2, 2).String(), k.GetConstitutionAmendmentParticipationEMA(ctx).String())
-	assert.Equal(math.LegacyNewDecWithPrec(3, 2).String(), k.GetLawParticipationEMA(ctx).String())
+	assert.NoError(k.ParticipationEMA.Set(ctx, math.LegacyNewDecWithPrec(1, 2)))
+	assert.NoError(k.ConstitutionAmendmentParticipationEMA.Set(ctx, math.LegacyNewDecWithPrec(2, 2)))
+	assert.NoError(k.LawParticipationEMA.Set(ctx, math.LegacyNewDecWithPrec(3, 2)))
+
+	participationEMA, _ = k.ParticipationEMA.Get(ctx)
+	constitutionParticipationEMA, _ = k.ConstitutionAmendmentParticipationEMA.Get(ctx)
+	lawParticipationEMA, _ = k.LawParticipationEMA.Get(ctx)
+
+	assert.Equal(math.LegacyNewDecWithPrec(1, 2).String(), participationEMA.String())
+	assert.Equal(math.LegacyNewDecWithPrec(2, 2).String(), constitutionParticipationEMA.String())
+	assert.Equal(math.LegacyNewDecWithPrec(3, 2).String(), lawParticipationEMA.String())
 
 	assert.Equal(math.LegacyNewDecWithPrec(104, 3).String(), k.GetQuorum(ctx).String())
 	assert.Equal(math.LegacyNewDecWithPrec(108, 3).String(), k.GetConstitutionAmendmentQuorum(ctx).String())
@@ -77,16 +85,25 @@ func TestUpdateParticipationEma(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := assert.New(t)
 			k, _, _, _, _, _, ctx := setupGovKeeper(t)
-			assert.Equal(v1.DefaultParticipationEma, k.GetParticipationEMA(ctx).String())
-			assert.Equal(v1.DefaultParticipationEma, k.GetConstitutionAmendmentParticipationEMA(ctx).String())
-			assert.Equal(v1.DefaultParticipationEma, k.GetLawParticipationEMA(ctx).String())
+
+			participationEMA, _ := k.ParticipationEMA.Get(ctx)
+			constitutionParticipationEMA, _ := k.ConstitutionAmendmentParticipationEMA.Get(ctx)
+			lawParticipationEMA, _ := k.LawParticipationEMA.Get(ctx)
+
+			assert.Equal(v1.DefaultParticipationEma, participationEMA.String())
+			assert.Equal(v1.DefaultParticipationEma, constitutionParticipationEMA.String())
+			assert.Equal(v1.DefaultParticipationEma, lawParticipationEMA.String())
 			newParticipation := math.LegacyNewDecWithPrec(5, 2) // 5% participation
 
 			k.UpdateParticipationEMA(ctx, tt.proposal, newParticipation)
 
-			assert.Equal(tt.expectedParticipationEma, k.GetParticipationEMA(ctx).String())
-			assert.Equal(tt.expectedConstitutionAmdmentParticipationEma, k.GetConstitutionAmendmentParticipationEMA(ctx).String())
-			assert.Equal(tt.expectedLawParticipationEma, k.GetLawParticipationEMA(ctx).String())
+			participationEMA, _ = k.ParticipationEMA.Get(ctx)
+			constitutionParticipationEMA, _ = k.ConstitutionAmendmentParticipationEMA.Get(ctx)
+			lawParticipationEMA, _ = k.LawParticipationEMA.Get(ctx)
+
+			assert.Equal(tt.expectedParticipationEma, participationEMA.String())
+			assert.Equal(tt.expectedConstitutionAmdmentParticipationEma, constitutionParticipationEMA.String())
+			assert.Equal(tt.expectedLawParticipationEma, lawParticipationEMA.String())
 		})
 	}
 }
