@@ -63,6 +63,7 @@ type Keeper struct {
 	ParticipationEMA                      collections.Item[math.LegacyDec]
 	ConstitutionAmendmentParticipationEMA collections.Item[math.LegacyDec]
 	LawParticipationEMA                   collections.Item[math.LegacyDec]
+	QuorumCheckQueue                      collections.Map[collections.Pair[time.Time, uint64], v1.QuorumCheckQueueEntry]
 }
 
 // GetAuthority returns the x/gov module's authority.
@@ -121,6 +122,7 @@ func NewKeeper(
 		ParticipationEMA:                      collections.NewItem(sb, types.ParticipationEMAKey, "participation_ema", sdk.LegacyDecValue),
 		LawParticipationEMA:                   collections.NewItem(sb, types.LawParticipationEMAKey, "law_participation_ema", sdk.LegacyDecValue),
 		ConstitutionAmendmentParticipationEMA: collections.NewItem(sb, types.ConstitutionAmendmentParticipationEMAKey, "constitution_amendment_participation_ema", sdk.LegacyDecValue),
+		QuorumCheckQueue:                      collections.NewMap(sb, types.QuorumCheckQueuePrefix, "quorum_check_queue", collections.PairKeyCodec(sdk.TimeKey, collections.Uint64Key), codec.CollValue[v1.QuorumCheckQueueEntry](cdc)),
 	}
 	schema, err := sb.Build()
 	if err != nil {

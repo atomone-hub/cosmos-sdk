@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 
@@ -532,13 +533,19 @@ func TestTally(t *testing.T) {
 				tt.setup(s)
 			}
 
-			pass, burn, tally, err := govKeeper.Tally(ctx, proposal)
+			pass, burn, _, tally, err := govKeeper.Tally(ctx, proposal)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedPass, pass, "wrong pass")
 			assert.Equal(t, tt.expectedBurn, burn, "wrong burn")
 			assert.Equal(t, tt.expectedTally, tally)
-			assert.Empty(t, govKeeper.GetVotes(ctx, proposal.Id), "votes not be removed after tally")
+			votes := make([]v1.Vote, 0)
+			err = govKeeper.Votes.Walk(ctx, nil, func(key collections.Pair[uint64, sdk.AccAddress], value v1.Vote) (bool, error) {
+				votes = append(votes, value)
+				return false, nil
+			})
+			assert.NoError(t, err)
+			assert.Empty(t, votes, "votes not be removed after tally")
 		})
 	}
 }
@@ -651,7 +658,11 @@ func TestHasReachedQuorum(t *testing.T) {
 			assert.Equal(t, tt.expectedQuorum, quorum)
 			if tt.expectedQuorum {
 				// Assert votes are still here after HasReachedQuorum
-				votes, err := suite.keeper.Votes.Get(suite.ctx, proposal.Id)
+				votes := make([]v1.Vote, 0)
+				err := suite.keeper.Votes.Walk(suite.ctx, nil, func(key collections.Pair[uint64, sdk.AccAddress], value v1.Vote) (bool, error) {
+					votes = append(votes, value)
+					return false, nil
+				})
 				require.NoError(t, err)
 				assert.NotEmpty(t, votes, "votes must be kept after HasReachedQuorum")
 			}

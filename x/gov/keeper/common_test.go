@@ -14,11 +14,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec/address"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	sdktx "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -31,11 +33,22 @@ import (
 )
 
 var (
-	_, _, addr   = testdata.KeyTestPubAddr()
-	govAcct      = authtypes.NewModuleAddress(types.ModuleName)
-	distAcct     = authtypes.NewModuleAddress(disttypes.ModuleName)
-	TestProposal = getTestProposal()
+	_, _, addr            = testdata.KeyTestPubAddr()
+	govAcct               = authtypes.NewModuleAddress(types.ModuleName)
+	distAcct              = authtypes.NewModuleAddress(disttypes.ModuleName)
+	TestProposal          = getTestProposal()
+	TestAmendmentProposal = getTestConstitutionAmendmentProposal()
+	TestLawProposal       = getTestLawProposal()
 )
+
+// Handy wrapper around sdktx.SetMsgs w/o error return.
+func setMsgs(t *testing.T, msgs []sdk.Msg) []*codectypes.Any {
+	anys, err := sdktx.SetMsgs(msgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return anys
+}
 
 // getTestProposal creates and returns a test proposal message.
 func getTestProposal() []sdk.Msg {
@@ -47,6 +60,29 @@ func getTestProposal() []sdk.Msg {
 	return []sdk.Msg{
 		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(1000)))),
 		legacyProposalMsg,
+	}
+}
+
+// getTestConstitutionAmendmentProposal creates and returns a test constitution amendment proposal message.
+func getTestConstitutionAmendmentProposal() []sdk.Msg {
+	amendment := "@@ -1 +1 @@\n-\n+Test"
+	proposalMsg := v1.NewMsgProposeConstitutionAmendment(authtypes.NewModuleAddress(types.ModuleName), amendment)
+
+	return []sdk.Msg{
+		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(1000)))),
+		proposalMsg,
+	}
+}
+
+// getTestLawProposal creates and returns a test law proposal message.
+func getTestLawProposal() []sdk.Msg {
+	proposalMsg := v1.MsgProposeLaw{
+		Authority: authtypes.NewModuleAddress(types.ModuleName).String(),
+	}
+
+	return []sdk.Msg{
+		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(1000)))),
+		&proposalMsg,
 	}
 }
 

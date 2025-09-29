@@ -1,18 +1,17 @@
 package keeper
 
 import (
+	"context"
 	"errors"
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 // UpdateParticipationEMA updates the governance participation EMA
-func (k Keeper) UpdateParticipationEMA(ctx sdk.Context, proposal v1.Proposal, participation math.LegacyDec) {
+func (k Keeper) UpdateParticipationEMA(ctx context.Context, proposal v1.Proposal, participation math.LegacyDec) {
 	formula := func(old, new math.LegacyDec) math.LegacyDec {
 		return old.Mul(math.LegacyNewDecWithPrec(8, 1)).Add(new.Mul(math.LegacyNewDecWithPrec(2, 1)))
 	}
@@ -52,7 +51,7 @@ func (k Keeper) UpdateParticipationEMA(ctx sdk.Context, proposal v1.Proposal, pa
 
 // GetQuorum returns the dynamic quorum for governance proposals calculated
 // based on the participation EMA
-func (k Keeper) GetQuorum(ctx sdk.Context) math.LegacyDec {
+func (k Keeper) GetQuorum(ctx context.Context) math.LegacyDec {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		panic(err)
@@ -70,7 +69,7 @@ func (k Keeper) GetQuorum(ctx sdk.Context) math.LegacyDec {
 
 // GetConstitutionAmendmentQuorum returns the dynamic quorum for constitution
 // amendment governance proposals calculated based on the participation EMA
-func (k Keeper) GetConstitutionAmendmentQuorum(ctx sdk.Context) math.LegacyDec {
+func (k Keeper) GetConstitutionAmendmentQuorum(ctx context.Context) math.LegacyDec {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		panic(err)
@@ -87,7 +86,7 @@ func (k Keeper) GetConstitutionAmendmentQuorum(ctx sdk.Context) math.LegacyDec {
 
 // GetLawQuorum returns the dynamic quorum for law governance proposals
 // calculated based on the participation EMA
-func (k Keeper) GetLawQuorum(ctx sdk.Context) math.LegacyDec {
+func (k Keeper) GetLawQuorum(ctx context.Context) math.LegacyDec {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		panic(err)

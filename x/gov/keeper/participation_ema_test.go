@@ -76,7 +76,7 @@ func TestUpdateParticipationEma(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := assert.New(t)
-			k, _, _, ctx := setupGovKeeper(t)
+			k, _, _, _, _, _, ctx := setupGovKeeper(t)
 			assert.Equal(v1.DefaultParticipationEma, k.GetParticipationEMA(ctx).String())
 			assert.Equal(v1.DefaultParticipationEma, k.GetConstitutionAmendmentParticipationEMA(ctx).String())
 			assert.Equal(v1.DefaultParticipationEma, k.GetLawParticipationEMA(ctx).String())
