@@ -221,14 +221,3 @@ func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coins, sender 
 	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amount...)...)
 	return k.FeePool.Set(ctx, feePool)
 }
-
-// NakamotoBonusCoefficient returns the current Nakamoto bonus coefficient
-func (q Querier) NakamotoBonusCoefficient(ctx context.Context, _ *types.QueryNakamotoBonusCoefficientRequest) (*types.QueryNakamotoBonusCoefficientResponse, error) {
-	nakamotoBonusCoefficient, err := q.Keeper.NakamotoBonus.Get(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &types.QueryNakamotoBonusCoefficientResponse{
-		NakamotoBonusCoefficient: nakamotoBonusCoefficient,
-	}, nil
-}

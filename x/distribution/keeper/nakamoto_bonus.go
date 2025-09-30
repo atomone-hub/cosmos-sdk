@@ -10,8 +10,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// AdjustEta is called to adjust η dynamically for each block.
-func (k Keeper) AdjustEta(ctx sdk.Context) error {
+// AdjustNakamotoBonusCoefficient is called to adjust η dynamically for each block.
+func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return err

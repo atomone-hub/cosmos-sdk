@@ -72,7 +72,7 @@ service Query {
   }
 
   // NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
-  rpc NakamotoBonusCoefficient(QueryNakamotoBonusRequest) returns (QueryNakamotoBonusResponse) {
+  rpc NakamotoBonusCoefficient(QueryNakamotoBonusCoefficientRequest) returns (QueryNakamotoBonusCoefficientResponse) {
     option (google.api.http).get = "/cosmos/distribution/v1beta1/nakamoto_bonus_coefficient";
   }
 }
@@ -261,12 +261,12 @@ message QueryCommunityPoolResponse {
 
 // QueryNakamotoBonusCoefficientRequest is the request type for the Query/NakamotoBonusCoefficientRequest RPC
 // method.
-message QueryNakamotoBonusRequest {}
+message QueryNakamotoBonusCoefficientRequest {}
 
 // QueryNakamotoBonusCoefficientResponse is the response type for the Query/NakamotoBonusCoefficientRequest
 // RPC method.
-message QueryNakamotoBonusResponse {
-  NakamotoBonus nakamoto_bonus = 1 [
+message QueryNakamotoBonusCoefficientResponse {
+  string coefficient = 1 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (amino.dont_omitempty) = true,

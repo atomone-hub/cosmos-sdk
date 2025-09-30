@@ -60,7 +60,7 @@ type QueryClient interface {
 	// CommunityPool queries the community pool coins.
 	CommunityPool(ctx context.Context, in *QueryCommunityPoolRequest, opts ...grpc.CallOption) (*QueryCommunityPoolResponse, error)
 	// NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
-	NakamotoBonusCoefficient(ctx context.Context, in *QueryNakamotoBonusRequest, opts ...grpc.CallOption) (*QueryNakamotoBonusResponse, error)
+	NakamotoBonusCoefficient(ctx context.Context, in *QueryNakamotoBonusCoefficientRequest, opts ...grpc.CallOption) (*QueryNakamotoBonusCoefficientResponse, error)
 }
 
 type queryClient struct {
@@ -171,9 +171,9 @@ func (c *queryClient) CommunityPool(ctx context.Context, in *QueryCommunityPoolR
 	return out, nil
 }
 
-func (c *queryClient) NakamotoBonusCoefficient(ctx context.Context, in *QueryNakamotoBonusRequest, opts ...grpc.CallOption) (*QueryNakamotoBonusResponse, error) {
+func (c *queryClient) NakamotoBonusCoefficient(ctx context.Context, in *QueryNakamotoBonusCoefficientRequest, opts ...grpc.CallOption) (*QueryNakamotoBonusCoefficientResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(QueryNakamotoBonusResponse)
+	out := new(QueryNakamotoBonusCoefficientResponse)
 	err := c.cc.Invoke(ctx, Query_NakamotoBonusCoefficient_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -209,7 +209,7 @@ type QueryServer interface {
 	// CommunityPool queries the community pool coins.
 	CommunityPool(context.Context, *QueryCommunityPoolRequest) (*QueryCommunityPoolResponse, error)
 	// NakamotoBonusCoefficient queries the current NakamotoBonusCoefficient parameter.
-	NakamotoBonusCoefficient(context.Context, *QueryNakamotoBonusRequest) (*QueryNakamotoBonusResponse, error)
+	NakamotoBonusCoefficient(context.Context, *QueryNakamotoBonusCoefficientRequest) (*QueryNakamotoBonusCoefficientResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -250,7 +250,7 @@ func (UnimplementedQueryServer) DelegatorWithdrawAddress(context.Context, *Query
 func (UnimplementedQueryServer) CommunityPool(context.Context, *QueryCommunityPoolRequest) (*QueryCommunityPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommunityPool not implemented")
 }
-func (UnimplementedQueryServer) NakamotoBonusCoefficient(context.Context, *QueryNakamotoBonusRequest) (*QueryNakamotoBonusResponse, error) {
+func (UnimplementedQueryServer) NakamotoBonusCoefficient(context.Context, *QueryNakamotoBonusCoefficientRequest) (*QueryNakamotoBonusCoefficientResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NakamotoBonusCoefficient not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
@@ -455,7 +455,7 @@ func _Query_CommunityPool_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _Query_NakamotoBonusCoefficient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryNakamotoBonusRequest)
+	in := new(QueryNakamotoBonusCoefficientRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -467,7 +467,7 @@ func _Query_NakamotoBonusCoefficient_Handler(srv interface{}, ctx context.Contex
 		FullMethod: Query_NakamotoBonusCoefficient_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).NakamotoBonusCoefficient(ctx, req.(*QueryNakamotoBonusRequest))
+		return srv.(QueryServer).NakamotoBonusCoefficient(ctx, req.(*QueryNakamotoBonusCoefficientRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

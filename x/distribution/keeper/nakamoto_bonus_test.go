@@ -33,7 +33,7 @@ func TestAdjustEta_NakamotoDisabled(t *testing.T) {
 	p.NakamotoBonus.Enabled = false
 	require.NoError(t, s.distrKeeper.Params.Set(s.ctx, p))
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
@@ -43,7 +43,7 @@ func TestAdjustEta_NakamotoDisabled(t *testing.T) {
 func TestAdjustEta_NoInterval(t *testing.T) {
 	s := setupTestKeeper(t, types.DefaultNakamotoBonusStep, 119_999)
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
@@ -55,7 +55,7 @@ func TestAdjustEta_NotEnoughValidators(t *testing.T) {
 
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(10, 10)).AnyTimes()
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
@@ -68,7 +68,7 @@ func TestAdjustEta_Increase(t *testing.T) {
 	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, should increase
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10)).AnyTimes()
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
@@ -81,7 +81,7 @@ func TestAdjustEta_Decrease(t *testing.T) {
 	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, should decrease
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10)).AnyTimes()
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
@@ -95,7 +95,7 @@ func TestAdjustEta_ClampZero(t *testing.T) {
 	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, should decrease, and clamp at 0
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10)).AnyTimes()
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
@@ -109,7 +109,7 @@ func TestAdjustEta_ClampOne(t *testing.T) {
 	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, should increase
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10)).AnyTimes()
 
-	require.NoError(t, s.distrKeeper.AdjustEta(s.ctx))
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)

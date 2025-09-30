@@ -15,7 +15,7 @@ func (k Keeper) BeginBlocker(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
 
 	// dynamically adjust the nakamoto bonus coefficient first.
-	if err := k.AdjustEta(c); err != nil {
+	if err := k.AdjustNakamotoBonusCoefficient(c); err != nil {
 		return err
 	}
 
