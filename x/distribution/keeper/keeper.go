@@ -8,6 +8,7 @@ import (
 	"cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,9 +27,10 @@ type Keeper struct {
 	// should be the x/gov module account.
 	authority string
 
-	Schema  collections.Schema
-	Params  collections.Item[types.Params]
-	FeePool collections.Item[types.FeePool]
+	Schema        collections.Schema
+	Params        collections.Item[types.Params]
+	FeePool       collections.Item[types.FeePool]
+	NakamotoBonus collections.Item[math.LegacyDec]
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
@@ -55,6 +57,7 @@ func NewKeeper(
 		authority:        authority,
 		Params:           collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 		FeePool:          collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
+		NakamotoBonus:    collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
 	}
 
 	schema, err := sb.Build()
@@ -99,11 +102,10 @@ func (k Keeper) SetWithdrawAddr(ctx context.Context, delegatorAddr, withdrawAddr
 		),
 	)
 
-	k.SetDelegatorWithdrawAddr(ctx, delegatorAddr, withdrawAddr)
-	return nil
+	return k.SetDelegatorWithdrawAddr(ctx, delegatorAddr, withdrawAddr)
 }
 
-// withdraw rewards from a delegation
+// WithdrawDelegationRewards withdraw rewards from a delegation
 func (k Keeper) WithdrawDelegationRewards(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error) {
 	val, err := k.stakingKeeper.Validator(ctx, valAddr)
 	if err != nil {
@@ -137,7 +139,7 @@ func (k Keeper) WithdrawDelegationRewards(ctx context.Context, delAddr sdk.AccAd
 	return rewards, nil
 }
 
-// withdraw validator commission
+// WithdrawValidatorCommission withdraw validator commission
 func (k Keeper) WithdrawValidatorCommission(ctx context.Context, valAddr sdk.ValAddress) (sdk.Coins, error) {
 	// fetch validator accumulated commission
 	accumCommission, err := k.GetValidatorAccumulatedCommission(ctx, valAddr)
@@ -150,7 +152,10 @@ func (k Keeper) WithdrawValidatorCommission(ctx context.Context, valAddr sdk.Val
 	}
 
 	commission, remainder := accumCommission.Commission.TruncateDecimal()
-	k.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: remainder}) // leave remainder to withdraw later
+	// leave remainder to withdraw later
+	if err := k.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: remainder}); err != nil {
+		return nil, err
+	}
 
 	// update outstanding
 	outstanding, err := k.GetValidatorOutstandingRewards(ctx, valAddr)
@@ -219,11 +224,11 @@ func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coins, sender 
 
 // NakamotoBonusCoefficient returns the current Nakamoto bonus coefficient
 func (q Querier) NakamotoBonusCoefficient(ctx context.Context, _ *types.QueryNakamotoBonusCoefficientRequest) (*types.QueryNakamotoBonusCoefficientResponse, error) {
-	params, err := q.Keeper.Params.Get(ctx)
+	nakamotoBonusCoefficient, err := q.Keeper.NakamotoBonus.Get(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &types.QueryNakamotoBonusCoefficientResponse{
-		NakamotoBonusCoefficient: params.NakamotoBonusCoefficient,
+		NakamotoBonusCoefficient: nakamotoBonusCoefficient,
 	}, nil
 }

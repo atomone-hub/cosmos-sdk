@@ -12,23 +12,27 @@ import (
 
 // AdjustEta is called to adjust η dynamically for each block.
 func (k Keeper) AdjustEta(ctx sdk.Context) error {
-	if ctx.BlockHeight()%types.NakamotoBonusUpdateInterval != 0 {
-		return nil
-	}
-
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	if !params.NakamotoBonusEnabled {
+	if ctx.BlockHeight()%int64(params.NakamotoBonus.Period) != 0 {
+		return nil
+	}
+
+	nakamotoCoefficient, err := k.NakamotoBonus.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !params.NakamotoBonus.Enabled {
 		// Always set eta to zero and skip dynamic update
-		if params.NakamotoBonusCoefficient.IsZero() {
+		if nakamotoCoefficient.IsZero() {
 			// Already zero, nothing to do
 			return nil
 		}
-		params.NakamotoBonusCoefficient = math.LegacyZeroDec()
-		return k.Params.Set(ctx, params)
+		return k.NakamotoBonus.Set(ctx, math.LegacyZeroDec())
 	}
 
 	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
@@ -74,14 +78,14 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 	}
 	highAvg := avg(high)
 	lowAvg := avg(low)
-	coefficient := params.NakamotoBonusCoefficient
+	coefficient := nakamotoCoefficient
 
 	// Adjust coefficient: if avgHigh >= 3x avgLow, increase eta, else decrease
 	// NakamotoBonusStep should be a decimal value, e.g. 0.03 for 3%
-	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(types.NakamotoBonusStep)) {
-		coefficient = coefficient.Add(math.LegacyNewDecWithPrec(types.NakamotoBonusStep, 2))
+	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(params.NakamotoBonus.Step) {
+		coefficient = coefficient.Add(params.NakamotoBonus.Step)
 	} else {
-		coefficient = coefficient.Sub(math.LegacyNewDecWithPrec(types.NakamotoBonusStep, 2))
+		coefficient = coefficient.Sub(params.NakamotoBonus.Step)
 	}
 	if coefficient.LT(math.LegacyZeroDec()) {
 		coefficient = math.LegacyZeroDec()
@@ -90,7 +94,7 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 		coefficient = math.LegacyOneDec()
 	}
 
-	if !coefficient.Equal(params.NakamotoBonusCoefficient) {
+	if !coefficient.Equal(nakamotoCoefficient) {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeNakamotoCoefficient,
@@ -99,6 +103,5 @@ func (k Keeper) AdjustEta(ctx sdk.Context) error {
 		)
 	}
 
-	params.NakamotoBonusCoefficient = coefficient
-	return k.Params.Set(ctx, params)
+	return k.NakamotoBonus.Set(ctx, coefficient)
 }

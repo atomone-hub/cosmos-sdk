@@ -36,7 +36,7 @@ type suite struct {
 	valCodec        sdkaddress.Codec
 }
 
-func setupTestKeeper(t *testing.T, eta math.LegacyDec, height int64) *suite {
+func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, height int64) *suite {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
@@ -69,9 +69,14 @@ func setupTestKeeper(t *testing.T, eta math.LegacyDec, height int64) *suite {
 
 	require.NoError(t, distrKeeper.FeePool.Set(ctx, disttypes.InitialFeePool()))
 
-	params := disttypes.DefaultParams()
-	params.NakamotoBonusCoefficient = eta
+	params, err := distrKeeper.Params.Get(ctx)
+	require.NoError(t, err)
+	params.NakamotoBonus.Period = uint64(height)
+	params.NakamotoBonus.Enabled = true
 	require.NoError(t, distrKeeper.Params.Set(ctx, params))
+
+	err = distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
+	require.NoError(t, err)
 
 	return &suite{
 		ctx:             ctx,
@@ -219,10 +224,12 @@ func TestAllocateTokens_NakamotoBonusDisabled(t *testing.T) {
 	// Set nakamoto_bonus_enabled parameter to false
 	params, err := s.distrKeeper.Params.Get(s.ctx)
 	require.NoError(t, err)
-	params.NakamotoBonusEnabled = false
-	// η can be any value, should have no effect
-	params.NakamotoBonusCoefficient = math.LegacyNewDecWithPrec(5, 2)
+	params.NakamotoBonus.Enabled = false
 	require.NoError(t, s.distrKeeper.Params.Set(s.ctx, params))
+
+	// η can be any value, should have no effect
+	err = s.distrKeeper.NakamotoBonus.Set(s.ctx, math.LegacyNewDecWithPrec(5, 2))
+	require.NoError(t, err)
 
 	// Setup validators: two validators, equal power, 0% commission
 	valAddr0 := sdk.ValAddress(valConsAddr0)

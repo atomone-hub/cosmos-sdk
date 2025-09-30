@@ -13,7 +13,7 @@ import (
 )
 
 func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.NakamotoBonusUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.DefaultNakamotoBonusPeriod)
 
 	// Use η = 0.03, block height triggers adjustment
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10))
@@ -26,13 +26,13 @@ func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check η was increased (high/low avg ratio >= 3)
-	params, err := s.distrKeeper.Params.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyNewDecWithPrec(6, 2), params.NakamotoBonusCoefficient)
+	require.Equal(t, math.LegacyNewDecWithPrec(6, 2), nakamotoBonusCoefficient)
 }
 
 func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.NakamotoBonusUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.DefaultNakamotoBonusPeriod)
 
 	// Use η = 0.03, block height triggers adjustment, but ratio < 3 (should decrease to 0)
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10))
@@ -45,13 +45,13 @@ func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check η was decreased and clamped at 0
-	params, err := s.distrKeeper.Params.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyZeroDec(), params.NakamotoBonusCoefficient)
+	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
 }
 
 func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyOneDec(), types.NakamotoBonusUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyOneDec(), types.DefaultNakamotoBonusPeriod)
 
 	// η = 1.0, should clamp to 1.0 even if increase requested
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10))
@@ -64,13 +64,13 @@ func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
 	require.NoError(t, err)
 
 	// Should stay at 1
-	params, err := s.distrKeeper.Params.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyOneDec(), params.NakamotoBonusCoefficient)
+	require.Equal(t, math.LegacyOneDec(), nakamotoBonusCoefficient)
 }
 
 func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyZeroDec(), types.NakamotoBonusUpdateInterval)
+	s := setupTestKeeper(t, math.LegacyZeroDec(), types.DefaultNakamotoBonusPeriod)
 
 	// η = 0.0, should clamp to 0.0 even if decrease requested
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10))
@@ -83,7 +83,7 @@ func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
 	require.NoError(t, err)
 
 	// Should stay at 0
-	params, err := s.distrKeeper.Params.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyZeroDec(), params.NakamotoBonusCoefficient)
+	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
 }

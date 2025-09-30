@@ -771,12 +771,15 @@ func TestMsgUpdateParams(t *testing.T) {
 			msg: &distrtypes.MsgUpdateParams{
 				Authority: f.distrKeeper.GetAuthority(),
 				Params: distrtypes.Params{
-					CommunityTax:             communityTax,
-					BaseProposerReward:       math.LegacyZeroDec(),
-					BonusProposerReward:      math.LegacyZeroDec(),
-					WithdrawAddrEnabled:      withdrawAddrEnabled,
-					NakamotoBonusCoefficient: math.LegacyNewDecWithPrec(3, 2),
-					NakamotoBonusEnabled:     true,
+					CommunityTax:        communityTax,
+					BaseProposerReward:  math.LegacyZeroDec(),
+					BonusProposerReward: math.LegacyZeroDec(),
+					WithdrawAddrEnabled: withdrawAddrEnabled,
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    math.LegacyNewDecWithPrec(3, 2),
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr: false,

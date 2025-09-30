@@ -9,6 +9,22 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
 
+// NakamotoBonus defines the nakamoto bonus parameters
+message NakamotoBonus {
+  option (gogoproto.equal) = true;
+
+  bool enabled = 1;
+
+  string step = 2 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)   = false
+  ];
+
+  uint64 period = 3;
+}
+
 // Params defines the set of params for the distribution module.
 message Params {
   option (amino.name) = "cosmos-sdk/x/distribution/Params";
@@ -42,14 +58,7 @@ message Params {
 
   bool withdraw_addr_enabled = 4;
 
-  string nakamoto_bonus_coefficient = 5 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (amino.dont_omitempty) = true,
-    (gogoproto.nullable)   = false
-  ];
-
-  bool nakamoto_bonus_enabled = 6;
+  NakamotoBonus nakamoto_bonus = 5 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // ValidatorHistoricalRewards represents historical rewards for a validator.

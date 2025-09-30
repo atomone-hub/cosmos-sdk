@@ -7,21 +7,26 @@ import (
 )
 
 const (
-	// NakamotoBonusUpdateInterval represents 120k blocks
-	NakamotoBonusUpdateInterval = 120_000
-	// NakamotoBonusStep represents the step to increase or decrease η
-	NakamotoBonusStep = 3
+	// DefaultNakamotoBonusPeriod represents default nakamoto bonus period (in blocks)
+	DefaultNakamotoBonusPeriod = 120_000
+	// defaultNakamotoBonusStep represents the default step to increase or decrease η
+	defaultNakamotoBonusStep = 3
 )
+
+var DefaultNakamotoBonusStep = math.LegacyNewDecWithPrec(defaultNakamotoBonusStep, 2)
 
 // DefaultParams returns default distribution parameters
 func DefaultParams() Params {
 	return Params{
-		BaseProposerReward:       math.LegacyZeroDec(),
-		BonusProposerReward:      math.LegacyZeroDec(),
-		CommunityTax:             math.LegacyNewDecWithPrec(2, 2), // 2%
-		WithdrawAddrEnabled:      true,
-		NakamotoBonusCoefficient: math.LegacyNewDecWithPrec(NakamotoBonusStep, 2), // 3%
-		NakamotoBonusEnabled:     true,
+		BaseProposerReward:  math.LegacyZeroDec(),
+		BonusProposerReward: math.LegacyZeroDec(),
+		CommunityTax:        math.LegacyNewDecWithPrec(2, 2), // 2%
+		WithdrawAddrEnabled: true,
+		NakamotoBonus: NakamotoBonus{
+			Enabled: true,
+			Step:    DefaultNakamotoBonusStep,
+			Period:  DefaultNakamotoBonusPeriod,
+		},
 	}
 }
 
@@ -30,7 +35,7 @@ func (p Params) ValidateBasic() error {
 	if err := validateCommunityTax(p.CommunityTax); err != nil {
 		return err
 	}
-	return validateNakamotoBonusCoefficient(p.NakamotoBonusCoefficient)
+	return validateNakamotoBonus(p.NakamotoBonus)
 }
 
 func validateCommunityTax(i interface{}) error {
@@ -59,28 +64,18 @@ func validateWithdrawAddrEnabled(i interface{}) error {
 	return nil
 }
 
-func validateNakamotoBonusCoefficient(i interface{}) error {
-	v, ok := i.(math.LegacyDec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+func validateNakamotoBonus(v NakamotoBonus) error {
+	if v.Period == 0 {
+		return fmt.Errorf("nakamoto bonus period must be greater than zero: %d", v.Period)
 	}
 
 	switch {
-	case v.IsNil():
+	case v.Step.IsNil():
 		return fmt.Errorf("nakamoto bonus coefficient must be not nil")
-	case v.IsNegative():
-		return fmt.Errorf("nakamoto bonus coefficient must be positive: %s", v)
-	case v.GT(math.LegacyOneDec()):
-		return fmt.Errorf("nakamoto bonus coefficient too large: %s", v)
+	case v.Step.IsNegative():
+		return fmt.Errorf("nakamoto bonus coefficient must be positive: %v", v)
+	case v.Step.GT(math.LegacyOneDec()):
+		return fmt.Errorf("nakamoto bonus coefficient too large: %v", v)
 	}
-	return nil
-}
-
-func validateNakamotoBonusEnabled(i interface{}) error {
-	_, ok := i.(bool)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
 	return nil
 }

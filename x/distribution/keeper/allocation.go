@@ -49,7 +49,11 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 	if err != nil {
 		return err
 	}
-	nakamotoCoefficient := params.NakamotoBonusCoefficient // the nakamoto bonus coefficient (e.g., 0.05 means 5% NB, 95% PR)
+
+	nakamotoCoefficient, err := k.NakamotoBonus.Get(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Compute total validator rewards (after community tax)
 	voteMultiplier := math.LegacyOneDec().Sub(communityTax)
@@ -57,7 +61,7 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 
 	// Split reward into Proportional (PR_i) and Nakamoto Bonus (NB_i)
 	nakamotoBonus := sdk.DecCoins{}
-	if params.NakamotoBonusEnabled {
+	if params.NakamotoBonus.Enabled {
 		nakamotoBonus = validatorTotalReward.MulDecTruncate(nakamotoCoefficient)
 	}
 	proportionalReward := validatorTotalReward.Sub(nakamotoBonus)
