@@ -9424,23 +9424,23 @@ func (x *fastReflection_QueryCommunityPoolResponse) ProtoMethods() *protoiface.M
 }
 
 var (
-	md_QueryNakamotoBonusCoefficientRequest protoreflect.MessageDescriptor
+	md_QueryNakamotoBonusRequest protoreflect.MessageDescriptor
 )
 
 func init() {
 	file_cosmos_distribution_v1beta1_query_proto_init()
-	md_QueryNakamotoBonusCoefficientRequest = File_cosmos_distribution_v1beta1_query_proto.Messages().ByName("QueryNakamotoBonusCoefficientRequest")
+	md_QueryNakamotoBonusRequest = File_cosmos_distribution_v1beta1_query_proto.Messages().ByName("QueryNakamotoBonusRequest")
 }
 
-var _ protoreflect.Message = (*fastReflection_QueryNakamotoBonusCoefficientRequest)(nil)
+var _ protoreflect.Message = (*fastReflection_QueryNakamotoBonusRequest)(nil)
 
-type fastReflection_QueryNakamotoBonusCoefficientRequest QueryNakamotoBonusCoefficientRequest
+type fastReflection_QueryNakamotoBonusRequest QueryNakamotoBonusRequest
 
-func (x *QueryNakamotoBonusCoefficientRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryNakamotoBonusCoefficientRequest)(x)
+func (x *QueryNakamotoBonusRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryNakamotoBonusRequest)(x)
 }
 
-func (x *QueryNakamotoBonusCoefficientRequest) slowProtoReflect() protoreflect.Message {
+func (x *QueryNakamotoBonusRequest) slowProtoReflect() protoreflect.Message {
 	mi := &file_cosmos_distribution_v1beta1_query_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9452,43 +9452,43 @@ func (x *QueryNakamotoBonusCoefficientRequest) slowProtoReflect() protoreflect.M
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryNakamotoBonusCoefficientRequest_messageType fastReflection_QueryNakamotoBonusCoefficientRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryNakamotoBonusCoefficientRequest_messageType{}
+var _fastReflection_QueryNakamotoBonusRequest_messageType fastReflection_QueryNakamotoBonusRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryNakamotoBonusRequest_messageType{}
 
-type fastReflection_QueryNakamotoBonusCoefficientRequest_messageType struct{}
+type fastReflection_QueryNakamotoBonusRequest_messageType struct{}
 
-func (x fastReflection_QueryNakamotoBonusCoefficientRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryNakamotoBonusCoefficientRequest)(nil)
+func (x fastReflection_QueryNakamotoBonusRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryNakamotoBonusRequest)(nil)
 }
-func (x fastReflection_QueryNakamotoBonusCoefficientRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryNakamotoBonusCoefficientRequest)
+func (x fastReflection_QueryNakamotoBonusRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryNakamotoBonusRequest)
 }
-func (x fastReflection_QueryNakamotoBonusCoefficientRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryNakamotoBonusCoefficientRequest
+func (x fastReflection_QueryNakamotoBonusRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryNakamotoBonusRequest
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryNakamotoBonusCoefficientRequest
+func (x *fastReflection_QueryNakamotoBonusRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryNakamotoBonusRequest
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Type() protoreflect.MessageType {
-	return _fastReflection_QueryNakamotoBonusCoefficientRequest_messageType
+func (x *fastReflection_QueryNakamotoBonusRequest) Type() protoreflect.MessageType {
+	return _fastReflection_QueryNakamotoBonusRequest_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) New() protoreflect.Message {
-	return new(fastReflection_QueryNakamotoBonusCoefficientRequest)
+func (x *fastReflection_QueryNakamotoBonusRequest) New() protoreflect.Message {
+	return new(fastReflection_QueryNakamotoBonusRequest)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Interface() protoreflect.ProtoMessage {
-	return (*QueryNakamotoBonusCoefficientRequest)(x)
+func (x *fastReflection_QueryNakamotoBonusRequest) Interface() protoreflect.ProtoMessage {
+	return (*QueryNakamotoBonusRequest)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -9496,7 +9496,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Interface() protor
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_QueryNakamotoBonusRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 }
 
 // Has reports whether a field is populated.
@@ -9510,13 +9510,13 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Range(f func(proto
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_QueryNakamotoBonusRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9526,13 +9526,13 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Has(fd protoreflec
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_QueryNakamotoBonusRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9542,13 +9542,13 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Clear(fd protorefl
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_QueryNakamotoBonusRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -9562,13 +9562,13 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Get(descriptor pro
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_QueryNakamotoBonusRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9582,36 +9582,36 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Set(fd protoreflec
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_QueryNakamotoBonusRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_QueryNakamotoBonusRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_QueryNakamotoBonusRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in cosmos.distribution.v1beta1.QueryNakamotoBonusRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -9619,7 +9619,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) WhichOneof(d proto
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_QueryNakamotoBonusRequest) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -9630,7 +9630,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) GetUnknown() proto
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_QueryNakamotoBonusRequest) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -9642,7 +9642,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) SetUnknown(fields 
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) IsValid() bool {
+func (x *fastReflection_QueryNakamotoBonusRequest) IsValid() bool {
 	return x != nil
 }
 
@@ -9652,9 +9652,9 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_QueryNakamotoBonusRequest) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryNakamotoBonusCoefficientRequest)
+		x := input.Message.Interface().(*QueryNakamotoBonusRequest)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -9676,7 +9676,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) ProtoMethods() *pr
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryNakamotoBonusCoefficientRequest)
+		x := input.Message.Interface().(*QueryNakamotoBonusRequest)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -9706,7 +9706,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) ProtoMethods() *pr
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryNakamotoBonusCoefficientRequest)
+		x := input.Message.Interface().(*QueryNakamotoBonusRequest)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -9738,10 +9738,10 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) ProtoMethods() *pr
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusCoefficientRequest: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusRequest: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusCoefficientRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			default:
@@ -9780,25 +9780,25 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientRequest) ProtoMethods() *pr
 }
 
 var (
-	md_QueryNakamotoBonusCoefficientResponse                            protoreflect.MessageDescriptor
-	fd_QueryNakamotoBonusCoefficientResponse_nakamoto_bonus_coefficient protoreflect.FieldDescriptor
+	md_QueryNakamotoBonusResponse                protoreflect.MessageDescriptor
+	fd_QueryNakamotoBonusResponse_nakamoto_bonus protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_cosmos_distribution_v1beta1_query_proto_init()
-	md_QueryNakamotoBonusCoefficientResponse = File_cosmos_distribution_v1beta1_query_proto.Messages().ByName("QueryNakamotoBonusCoefficientResponse")
-	fd_QueryNakamotoBonusCoefficientResponse_nakamoto_bonus_coefficient = md_QueryNakamotoBonusCoefficientResponse.Fields().ByName("nakamoto_bonus_coefficient")
+	md_QueryNakamotoBonusResponse = File_cosmos_distribution_v1beta1_query_proto.Messages().ByName("QueryNakamotoBonusResponse")
+	fd_QueryNakamotoBonusResponse_nakamoto_bonus = md_QueryNakamotoBonusResponse.Fields().ByName("nakamoto_bonus")
 }
 
-var _ protoreflect.Message = (*fastReflection_QueryNakamotoBonusCoefficientResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_QueryNakamotoBonusResponse)(nil)
 
-type fastReflection_QueryNakamotoBonusCoefficientResponse QueryNakamotoBonusCoefficientResponse
+type fastReflection_QueryNakamotoBonusResponse QueryNakamotoBonusResponse
 
-func (x *QueryNakamotoBonusCoefficientResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryNakamotoBonusCoefficientResponse)(x)
+func (x *QueryNakamotoBonusResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryNakamotoBonusResponse)(x)
 }
 
-func (x *QueryNakamotoBonusCoefficientResponse) slowProtoReflect() protoreflect.Message {
+func (x *QueryNakamotoBonusResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_cosmos_distribution_v1beta1_query_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9810,43 +9810,43 @@ func (x *QueryNakamotoBonusCoefficientResponse) slowProtoReflect() protoreflect.
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryNakamotoBonusCoefficientResponse_messageType fastReflection_QueryNakamotoBonusCoefficientResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryNakamotoBonusCoefficientResponse_messageType{}
+var _fastReflection_QueryNakamotoBonusResponse_messageType fastReflection_QueryNakamotoBonusResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryNakamotoBonusResponse_messageType{}
 
-type fastReflection_QueryNakamotoBonusCoefficientResponse_messageType struct{}
+type fastReflection_QueryNakamotoBonusResponse_messageType struct{}
 
-func (x fastReflection_QueryNakamotoBonusCoefficientResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryNakamotoBonusCoefficientResponse)(nil)
+func (x fastReflection_QueryNakamotoBonusResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryNakamotoBonusResponse)(nil)
 }
-func (x fastReflection_QueryNakamotoBonusCoefficientResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryNakamotoBonusCoefficientResponse)
+func (x fastReflection_QueryNakamotoBonusResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryNakamotoBonusResponse)
 }
-func (x fastReflection_QueryNakamotoBonusCoefficientResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryNakamotoBonusCoefficientResponse
+func (x fastReflection_QueryNakamotoBonusResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryNakamotoBonusResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryNakamotoBonusCoefficientResponse
+func (x *fastReflection_QueryNakamotoBonusResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryNakamotoBonusResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Type() protoreflect.MessageType {
-	return _fastReflection_QueryNakamotoBonusCoefficientResponse_messageType
+func (x *fastReflection_QueryNakamotoBonusResponse) Type() protoreflect.MessageType {
+	return _fastReflection_QueryNakamotoBonusResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) New() protoreflect.Message {
-	return new(fastReflection_QueryNakamotoBonusCoefficientResponse)
+func (x *fastReflection_QueryNakamotoBonusResponse) New() protoreflect.Message {
+	return new(fastReflection_QueryNakamotoBonusResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Interface() protoreflect.ProtoMessage {
-	return (*QueryNakamotoBonusCoefficientResponse)(x)
+func (x *fastReflection_QueryNakamotoBonusResponse) Interface() protoreflect.ProtoMessage {
+	return (*QueryNakamotoBonusResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -9854,10 +9854,10 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Interface() proto
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.NakamotoBonusCoefficient != "" {
-		value := protoreflect.ValueOfString(x.NakamotoBonusCoefficient)
-		if !f(fd_QueryNakamotoBonusCoefficientResponse_nakamoto_bonus_coefficient, value) {
+func (x *fastReflection_QueryNakamotoBonusResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.NakamotoBonus != nil {
+		value := protoreflect.ValueOfMessage(x.NakamotoBonus.ProtoReflect())
+		if !f(fd_QueryNakamotoBonusResponse_nakamoto_bonus, value) {
 			return
 		}
 	}
@@ -9874,15 +9874,15 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Range(f func(prot
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_QueryNakamotoBonusResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse.nakamoto_bonus_coefficient":
-		return x.NakamotoBonusCoefficient != ""
+	case "cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus":
+		return x.NakamotoBonus != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9892,15 +9892,15 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Has(fd protorefle
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_QueryNakamotoBonusResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse.nakamoto_bonus_coefficient":
-		x.NakamotoBonusCoefficient = ""
+	case "cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus":
+		x.NakamotoBonus = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9910,16 +9910,16 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Clear(fd protoref
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_QueryNakamotoBonusResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse.nakamoto_bonus_coefficient":
-		value := x.NakamotoBonusCoefficient
-		return protoreflect.ValueOfString(value)
+	case "cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus":
+		value := x.NakamotoBonus
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -9933,15 +9933,15 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Get(descriptor pr
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_QueryNakamotoBonusResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse.nakamoto_bonus_coefficient":
-		x.NakamotoBonusCoefficient = value.Interface().(string)
+	case "cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus":
+		x.NakamotoBonus = value.Message().Interface().(*NakamotoBonus)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9955,40 +9955,44 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Set(fd protorefle
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_QueryNakamotoBonusResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse.nakamoto_bonus_coefficient":
-		panic(fmt.Errorf("field nakamoto_bonus_coefficient of message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse is not mutable"))
+	case "cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus":
+		if x.NakamotoBonus == nil {
+			x.NakamotoBonus = new(NakamotoBonus)
+		}
+		return protoreflect.ValueOfMessage(x.NakamotoBonus.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_QueryNakamotoBonusResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse.nakamoto_bonus_coefficient":
-		return protoreflect.ValueOfString("")
+	case "cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus":
+		m := new(NakamotoBonus)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse"))
 		}
-		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message cosmos.distribution.v1beta1.QueryNakamotoBonusResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_QueryNakamotoBonusResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in cosmos.distribution.v1beta1.QueryNakamotoBonusResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -9996,7 +10000,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) WhichOneof(d prot
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_QueryNakamotoBonusResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -10007,7 +10011,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) GetUnknown() prot
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_QueryNakamotoBonusResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -10019,7 +10023,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) SetUnknown(fields
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) IsValid() bool {
+func (x *fastReflection_QueryNakamotoBonusResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -10029,9 +10033,9 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_QueryNakamotoBonusResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryNakamotoBonusCoefficientResponse)
+		x := input.Message.Interface().(*QueryNakamotoBonusResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -10043,8 +10047,8 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *p
 		var n int
 		var l int
 		_ = l
-		l = len(x.NakamotoBonusCoefficient)
-		if l > 0 {
+		if x.NakamotoBonus != nil {
+			l = options.Size(x.NakamotoBonus)
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
 		if x.unknownFields != nil {
@@ -10057,7 +10061,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *p
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryNakamotoBonusCoefficientResponse)
+		x := input.Message.Interface().(*QueryNakamotoBonusResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -10076,10 +10080,17 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *p
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.NakamotoBonusCoefficient) > 0 {
-			i -= len(x.NakamotoBonusCoefficient)
-			copy(dAtA[i:], x.NakamotoBonusCoefficient)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.NakamotoBonusCoefficient)))
+		if x.NakamotoBonus != nil {
+			encoded, err := options.Marshal(x.NakamotoBonus)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -10094,7 +10105,7 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *p
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryNakamotoBonusCoefficientResponse)
+		x := input.Message.Interface().(*QueryNakamotoBonusResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -10126,17 +10137,17 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *p
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusCoefficientResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusCoefficientResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryNakamotoBonusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field NakamotoBonusCoefficient", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field NakamotoBonus", wireType)
 				}
-				var stringLen uint64
+				var msglen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -10146,23 +10157,27 @@ func (x *fastReflection_QueryNakamotoBonusCoefficientResponse) ProtoMethods() *p
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
+					msglen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
+				if msglen < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
-				postIndex := iNdEx + intStringLen
+				postIndex := iNdEx + msglen
 				if postIndex < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.NakamotoBonusCoefficient = string(dAtA[iNdEx:postIndex])
+				if x.NakamotoBonus == nil {
+					x.NakamotoBonus = &NakamotoBonus{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.NakamotoBonus); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -11021,14 +11036,14 @@ func (x *QueryCommunityPoolResponse) GetPool() []*v1beta1.DecCoin {
 
 // QueryNakamotoBonusCoefficientRequest is the request type for the Query/NakamotoBonusCoefficientRequest RPC
 // method.
-type QueryNakamotoBonusCoefficientRequest struct {
+type QueryNakamotoBonusRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *QueryNakamotoBonusCoefficientRequest) Reset() {
-	*x = QueryNakamotoBonusCoefficientRequest{}
+func (x *QueryNakamotoBonusRequest) Reset() {
+	*x = QueryNakamotoBonusRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_cosmos_distribution_v1beta1_query_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -11036,29 +11051,29 @@ func (x *QueryNakamotoBonusCoefficientRequest) Reset() {
 	}
 }
 
-func (x *QueryNakamotoBonusCoefficientRequest) String() string {
+func (x *QueryNakamotoBonusRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*QueryNakamotoBonusCoefficientRequest) ProtoMessage() {}
+func (*QueryNakamotoBonusRequest) ProtoMessage() {}
 
-// Deprecated: Use QueryNakamotoBonusCoefficientRequest.ProtoReflect.Descriptor instead.
-func (*QueryNakamotoBonusCoefficientRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use QueryNakamotoBonusRequest.ProtoReflect.Descriptor instead.
+func (*QueryNakamotoBonusRequest) Descriptor() ([]byte, []int) {
 	return file_cosmos_distribution_v1beta1_query_proto_rawDescGZIP(), []int{20}
 }
 
 // QueryNakamotoBonusCoefficientResponse is the response type for the Query/NakamotoBonusCoefficientRequest
 // RPC method.
-type QueryNakamotoBonusCoefficientResponse struct {
+type QueryNakamotoBonusResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	NakamotoBonusCoefficient string `protobuf:"bytes,1,opt,name=nakamoto_bonus_coefficient,json=nakamotoBonusCoefficient,proto3" json:"nakamoto_bonus_coefficient,omitempty"`
+	NakamotoBonus *NakamotoBonus `protobuf:"bytes,1,opt,name=nakamoto_bonus,json=nakamotoBonus,proto3" json:"nakamoto_bonus,omitempty"`
 }
 
-func (x *QueryNakamotoBonusCoefficientResponse) Reset() {
-	*x = QueryNakamotoBonusCoefficientResponse{}
+func (x *QueryNakamotoBonusResponse) Reset() {
+	*x = QueryNakamotoBonusResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_cosmos_distribution_v1beta1_query_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -11066,22 +11081,22 @@ func (x *QueryNakamotoBonusCoefficientResponse) Reset() {
 	}
 }
 
-func (x *QueryNakamotoBonusCoefficientResponse) String() string {
+func (x *QueryNakamotoBonusResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*QueryNakamotoBonusCoefficientResponse) ProtoMessage() {}
+func (*QueryNakamotoBonusResponse) ProtoMessage() {}
 
-// Deprecated: Use QueryNakamotoBonusCoefficientResponse.ProtoReflect.Descriptor instead.
-func (*QueryNakamotoBonusCoefficientResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use QueryNakamotoBonusResponse.ProtoReflect.Descriptor instead.
+func (*QueryNakamotoBonusResponse) Descriptor() ([]byte, []int) {
 	return file_cosmos_distribution_v1beta1_query_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *QueryNakamotoBonusCoefficientResponse) GetNakamotoBonusCoefficient() string {
+func (x *QueryNakamotoBonusResponse) GetNakamotoBonus() *NakamotoBonus {
 	if x != nil {
-		return x.NakamotoBonusCoefficient
+		return x.NakamotoBonus
 	}
-	return ""
+	return nil
 }
 
 var File_cosmos_distribution_v1beta1_query_proto protoreflect.FileDescriptor
@@ -11286,19 +11301,19 @@ var file_cosmos_distribution_v1beta1_query_proto_rawDesc = []byte{
 	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
 	0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70,
 	0x65, 0x73, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0xa8, 0xe7, 0xb0, 0x2a, 0x01,
-	0x52, 0x04, 0x70, 0x6f, 0x6f, 0x6c, 0x22, 0x26, 0x0a, 0x24, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e,
-	0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x43, 0x6f, 0x65, 0x66,
-	0x66, 0x69, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x9d,
-	0x01, 0x0a, 0x25, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f,
-	0x42, 0x6f, 0x6e, 0x75, 0x73, 0x43, 0x6f, 0x65, 0x66, 0x66, 0x69, 0x63, 0x69, 0x65, 0x6e, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x74, 0x0a, 0x1a, 0x6e, 0x61, 0x6b, 0x61,
-	0x6d, 0x6f, 0x74, 0x6f, 0x5f, 0x62, 0x6f, 0x6e, 0x75, 0x73, 0x5f, 0x63, 0x6f, 0x65, 0x66, 0x66,
-	0x69, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x36, 0xc8, 0xde,
-	0x1f, 0x00, 0xda, 0xde, 0x1f, 0x1b, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e,
-	0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x4c, 0x65, 0x67, 0x61, 0x63, 0x79, 0x44, 0x65,
-	0x63, 0xd2, 0xb4, 0x2d, 0x0a, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x44, 0x65, 0x63, 0xa8,
-	0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x18, 0x6e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f,
-	0x6e, 0x75, 0x73, 0x43, 0x6f, 0x65, 0x66, 0x66, 0x69, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x32, 0xa9,
+	0x52, 0x04, 0x70, 0x6f, 0x6f, 0x6c, 0x22, 0x1b, 0x0a, 0x19, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e,
+	0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x22, 0xa8, 0x01, 0x0a, 0x1a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x61, 0x6b,
+	0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x89, 0x01, 0x0a, 0x0e, 0x6e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x5f,
+	0x62, 0x6f, 0x6e, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f,
+	0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x6f,
+	0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x42, 0x36, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f,
+	0x1b, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61,
+	0x74, 0x68, 0x2e, 0x4c, 0x65, 0x67, 0x61, 0x63, 0x79, 0x44, 0x65, 0x63, 0xd2, 0xb4, 0x2d, 0x0a,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x44, 0x65, 0x63, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52,
+	0x0d, 0x6e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x32, 0x93,
 	0x13, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x98, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x72,
 	0x61, 0x6d, 0x73, 0x12, 0x2f, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73,
 	0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
@@ -11439,38 +11454,36 @@ var file_cosmos_distribution_v1beta1_query_proto_rawDesc = []byte{
 	0x22, 0x33, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2d, 0x12, 0x2b, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
 	0x73, 0x2f, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x76,
 	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x75, 0x6e, 0x69, 0x74, 0x79,
-	0x5f, 0x70, 0x6f, 0x6f, 0x6c, 0x12, 0xe2, 0x01, 0x0a, 0x18, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x6f,
+	0x5f, 0x70, 0x6f, 0x6f, 0x6c, 0x12, 0xcc, 0x01, 0x0a, 0x18, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x6f,
 	0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x43, 0x6f, 0x65, 0x66, 0x66, 0x69, 0x63, 0x69, 0x65,
-	0x6e, 0x74, 0x12, 0x41, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73, 0x74,
+	0x6e, 0x74, 0x12, 0x36, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73, 0x74,
 	0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
 	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f,
-	0x6e, 0x75, 0x73, 0x43, 0x6f, 0x65, 0x66, 0x66, 0x69, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x42, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x64,
-	0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74,
-	0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x43, 0x6f, 0x65, 0x66, 0x66, 0x69, 0x63, 0x69, 0x65, 0x6e,
-	0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3f, 0x82, 0xd3, 0xe4, 0x93, 0x02,
-	0x39, 0x12, 0x37, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x64, 0x69, 0x73, 0x74, 0x72,
-	0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f,
-	0x6e, 0x61, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x5f, 0x62, 0x6f, 0x6e, 0x75, 0x73, 0x5f, 0x63,
-	0x6f, 0x65, 0x66, 0x66, 0x69, 0x63, 0x69, 0x65, 0x6e, 0x74, 0x42, 0xfd, 0x01, 0x0a, 0x1f, 0x63,
-	0x6f, 0x6d, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69,
-	0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x40, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x63,
-	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69,
-	0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x64, 0x69, 0x73, 0x74, 0x72,
-	0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02,
-	0x03, 0x43, 0x44, 0x58, 0xaa, 0x02, 0x1b, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x44, 0x69,
-	0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0xca, 0x02, 0x1b, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x44, 0x69, 0x73, 0x74,
-	0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xe2, 0x02, 0x27, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x44, 0x69, 0x73, 0x74, 0x72, 0x69,
-	0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47,
-	0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x1d, 0x43, 0x6f, 0x73,
-	0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x44, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f,
-	0x6e, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x6e, 0x75, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x37, 0x2e, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x61,
+	0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x42, 0x6f, 0x6e, 0x75, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x3f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x39, 0x12, 0x37, 0x2f, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f,
+	0x6e, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x6e, 0x61, 0x6b, 0x61, 0x6d, 0x6f,
+	0x74, 0x6f, 0x5f, 0x62, 0x6f, 0x6e, 0x75, 0x73, 0x5f, 0x63, 0x6f, 0x65, 0x66, 0x66, 0x69, 0x63,
+	0x69, 0x65, 0x6e, 0x74, 0x42, 0xfd, 0x01, 0x0a, 0x1f, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2e, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50,
+	0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x40, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64,
+	0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f,
+	0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x3b, 0x64, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f,
+	0x6e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x44, 0x58, 0xaa, 0x02,
+	0x1b, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x44, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75,
+	0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x1b, 0x43,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x44, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69,
+	0x6f, 0x6e, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x27, 0x43, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x5c, 0x44, 0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e,
+	0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61,
+	0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x1d, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x44,
+	0x69, 0x73, 0x74, 0x72, 0x69, 0x62, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x3a, 0x3a, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -11507,16 +11520,17 @@ var file_cosmos_distribution_v1beta1_query_proto_goTypes = []interface{}{
 	(*QueryDelegatorWithdrawAddressResponse)(nil),    // 17: cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressResponse
 	(*QueryCommunityPoolRequest)(nil),                // 18: cosmos.distribution.v1beta1.QueryCommunityPoolRequest
 	(*QueryCommunityPoolResponse)(nil),               // 19: cosmos.distribution.v1beta1.QueryCommunityPoolResponse
-	(*QueryNakamotoBonusCoefficientRequest)(nil),     // 20: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest
-	(*QueryNakamotoBonusCoefficientResponse)(nil),    // 21: cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse
-	(*Params)(nil),                         // 22: cosmos.distribution.v1beta1.Params
-	(*v1beta1.DecCoin)(nil),                // 23: cosmos.base.v1beta1.DecCoin
-	(*ValidatorOutstandingRewards)(nil),    // 24: cosmos.distribution.v1beta1.ValidatorOutstandingRewards
-	(*ValidatorAccumulatedCommission)(nil), // 25: cosmos.distribution.v1beta1.ValidatorAccumulatedCommission
-	(*v1beta11.PageRequest)(nil),           // 26: cosmos.base.query.v1beta1.PageRequest
-	(*ValidatorSlashEvent)(nil),            // 27: cosmos.distribution.v1beta1.ValidatorSlashEvent
-	(*v1beta11.PageResponse)(nil),          // 28: cosmos.base.query.v1beta1.PageResponse
-	(*DelegationDelegatorReward)(nil),      // 29: cosmos.distribution.v1beta1.DelegationDelegatorReward
+	(*QueryNakamotoBonusRequest)(nil),                // 20: cosmos.distribution.v1beta1.QueryNakamotoBonusRequest
+	(*QueryNakamotoBonusResponse)(nil),               // 21: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse
+	(*Params)(nil),                                   // 22: cosmos.distribution.v1beta1.Params
+	(*v1beta1.DecCoin)(nil),                          // 23: cosmos.base.v1beta1.DecCoin
+	(*ValidatorOutstandingRewards)(nil),              // 24: cosmos.distribution.v1beta1.ValidatorOutstandingRewards
+	(*ValidatorAccumulatedCommission)(nil),           // 25: cosmos.distribution.v1beta1.ValidatorAccumulatedCommission
+	(*v1beta11.PageRequest)(nil),                     // 26: cosmos.base.query.v1beta1.PageRequest
+	(*ValidatorSlashEvent)(nil),                      // 27: cosmos.distribution.v1beta1.ValidatorSlashEvent
+	(*v1beta11.PageResponse)(nil),                    // 28: cosmos.base.query.v1beta1.PageResponse
+	(*DelegationDelegatorReward)(nil),                // 29: cosmos.distribution.v1beta1.DelegationDelegatorReward
+	(*NakamotoBonus)(nil),                            // 30: cosmos.distribution.v1beta1.NakamotoBonus
 }
 var file_cosmos_distribution_v1beta1_query_proto_depIdxs = []int32{
 	22, // 0: cosmos.distribution.v1beta1.QueryParamsResponse.params:type_name -> cosmos.distribution.v1beta1.Params
@@ -11531,33 +11545,34 @@ var file_cosmos_distribution_v1beta1_query_proto_depIdxs = []int32{
 	29, // 9: cosmos.distribution.v1beta1.QueryDelegationTotalRewardsResponse.rewards:type_name -> cosmos.distribution.v1beta1.DelegationDelegatorReward
 	23, // 10: cosmos.distribution.v1beta1.QueryDelegationTotalRewardsResponse.total:type_name -> cosmos.base.v1beta1.DecCoin
 	23, // 11: cosmos.distribution.v1beta1.QueryCommunityPoolResponse.pool:type_name -> cosmos.base.v1beta1.DecCoin
-	0,  // 12: cosmos.distribution.v1beta1.Query.Params:input_type -> cosmos.distribution.v1beta1.QueryParamsRequest
-	2,  // 13: cosmos.distribution.v1beta1.Query.ValidatorDistributionInfo:input_type -> cosmos.distribution.v1beta1.QueryValidatorDistributionInfoRequest
-	4,  // 14: cosmos.distribution.v1beta1.Query.ValidatorOutstandingRewards:input_type -> cosmos.distribution.v1beta1.QueryValidatorOutstandingRewardsRequest
-	6,  // 15: cosmos.distribution.v1beta1.Query.ValidatorCommission:input_type -> cosmos.distribution.v1beta1.QueryValidatorCommissionRequest
-	8,  // 16: cosmos.distribution.v1beta1.Query.ValidatorSlashes:input_type -> cosmos.distribution.v1beta1.QueryValidatorSlashesRequest
-	10, // 17: cosmos.distribution.v1beta1.Query.DelegationRewards:input_type -> cosmos.distribution.v1beta1.QueryDelegationRewardsRequest
-	12, // 18: cosmos.distribution.v1beta1.Query.DelegationTotalRewards:input_type -> cosmos.distribution.v1beta1.QueryDelegationTotalRewardsRequest
-	14, // 19: cosmos.distribution.v1beta1.Query.DelegatorValidators:input_type -> cosmos.distribution.v1beta1.QueryDelegatorValidatorsRequest
-	16, // 20: cosmos.distribution.v1beta1.Query.DelegatorWithdrawAddress:input_type -> cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressRequest
-	18, // 21: cosmos.distribution.v1beta1.Query.CommunityPool:input_type -> cosmos.distribution.v1beta1.QueryCommunityPoolRequest
-	20, // 22: cosmos.distribution.v1beta1.Query.NakamotoBonusCoefficient:input_type -> cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientRequest
-	1,  // 23: cosmos.distribution.v1beta1.Query.Params:output_type -> cosmos.distribution.v1beta1.QueryParamsResponse
-	3,  // 24: cosmos.distribution.v1beta1.Query.ValidatorDistributionInfo:output_type -> cosmos.distribution.v1beta1.QueryValidatorDistributionInfoResponse
-	5,  // 25: cosmos.distribution.v1beta1.Query.ValidatorOutstandingRewards:output_type -> cosmos.distribution.v1beta1.QueryValidatorOutstandingRewardsResponse
-	7,  // 26: cosmos.distribution.v1beta1.Query.ValidatorCommission:output_type -> cosmos.distribution.v1beta1.QueryValidatorCommissionResponse
-	9,  // 27: cosmos.distribution.v1beta1.Query.ValidatorSlashes:output_type -> cosmos.distribution.v1beta1.QueryValidatorSlashesResponse
-	11, // 28: cosmos.distribution.v1beta1.Query.DelegationRewards:output_type -> cosmos.distribution.v1beta1.QueryDelegationRewardsResponse
-	13, // 29: cosmos.distribution.v1beta1.Query.DelegationTotalRewards:output_type -> cosmos.distribution.v1beta1.QueryDelegationTotalRewardsResponse
-	15, // 30: cosmos.distribution.v1beta1.Query.DelegatorValidators:output_type -> cosmos.distribution.v1beta1.QueryDelegatorValidatorsResponse
-	17, // 31: cosmos.distribution.v1beta1.Query.DelegatorWithdrawAddress:output_type -> cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressResponse
-	19, // 32: cosmos.distribution.v1beta1.Query.CommunityPool:output_type -> cosmos.distribution.v1beta1.QueryCommunityPoolResponse
-	21, // 33: cosmos.distribution.v1beta1.Query.NakamotoBonusCoefficient:output_type -> cosmos.distribution.v1beta1.QueryNakamotoBonusCoefficientResponse
-	23, // [23:34] is the sub-list for method output_type
-	12, // [12:23] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	30, // 12: cosmos.distribution.v1beta1.QueryNakamotoBonusResponse.nakamoto_bonus:type_name -> cosmos.distribution.v1beta1.NakamotoBonus
+	0,  // 13: cosmos.distribution.v1beta1.Query.Params:input_type -> cosmos.distribution.v1beta1.QueryParamsRequest
+	2,  // 14: cosmos.distribution.v1beta1.Query.ValidatorDistributionInfo:input_type -> cosmos.distribution.v1beta1.QueryValidatorDistributionInfoRequest
+	4,  // 15: cosmos.distribution.v1beta1.Query.ValidatorOutstandingRewards:input_type -> cosmos.distribution.v1beta1.QueryValidatorOutstandingRewardsRequest
+	6,  // 16: cosmos.distribution.v1beta1.Query.ValidatorCommission:input_type -> cosmos.distribution.v1beta1.QueryValidatorCommissionRequest
+	8,  // 17: cosmos.distribution.v1beta1.Query.ValidatorSlashes:input_type -> cosmos.distribution.v1beta1.QueryValidatorSlashesRequest
+	10, // 18: cosmos.distribution.v1beta1.Query.DelegationRewards:input_type -> cosmos.distribution.v1beta1.QueryDelegationRewardsRequest
+	12, // 19: cosmos.distribution.v1beta1.Query.DelegationTotalRewards:input_type -> cosmos.distribution.v1beta1.QueryDelegationTotalRewardsRequest
+	14, // 20: cosmos.distribution.v1beta1.Query.DelegatorValidators:input_type -> cosmos.distribution.v1beta1.QueryDelegatorValidatorsRequest
+	16, // 21: cosmos.distribution.v1beta1.Query.DelegatorWithdrawAddress:input_type -> cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressRequest
+	18, // 22: cosmos.distribution.v1beta1.Query.CommunityPool:input_type -> cosmos.distribution.v1beta1.QueryCommunityPoolRequest
+	20, // 23: cosmos.distribution.v1beta1.Query.NakamotoBonusCoefficient:input_type -> cosmos.distribution.v1beta1.QueryNakamotoBonusRequest
+	1,  // 24: cosmos.distribution.v1beta1.Query.Params:output_type -> cosmos.distribution.v1beta1.QueryParamsResponse
+	3,  // 25: cosmos.distribution.v1beta1.Query.ValidatorDistributionInfo:output_type -> cosmos.distribution.v1beta1.QueryValidatorDistributionInfoResponse
+	5,  // 26: cosmos.distribution.v1beta1.Query.ValidatorOutstandingRewards:output_type -> cosmos.distribution.v1beta1.QueryValidatorOutstandingRewardsResponse
+	7,  // 27: cosmos.distribution.v1beta1.Query.ValidatorCommission:output_type -> cosmos.distribution.v1beta1.QueryValidatorCommissionResponse
+	9,  // 28: cosmos.distribution.v1beta1.Query.ValidatorSlashes:output_type -> cosmos.distribution.v1beta1.QueryValidatorSlashesResponse
+	11, // 29: cosmos.distribution.v1beta1.Query.DelegationRewards:output_type -> cosmos.distribution.v1beta1.QueryDelegationRewardsResponse
+	13, // 30: cosmos.distribution.v1beta1.Query.DelegationTotalRewards:output_type -> cosmos.distribution.v1beta1.QueryDelegationTotalRewardsResponse
+	15, // 31: cosmos.distribution.v1beta1.Query.DelegatorValidators:output_type -> cosmos.distribution.v1beta1.QueryDelegatorValidatorsResponse
+	17, // 32: cosmos.distribution.v1beta1.Query.DelegatorWithdrawAddress:output_type -> cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressResponse
+	19, // 33: cosmos.distribution.v1beta1.Query.CommunityPool:output_type -> cosmos.distribution.v1beta1.QueryCommunityPoolResponse
+	21, // 34: cosmos.distribution.v1beta1.Query.NakamotoBonusCoefficient:output_type -> cosmos.distribution.v1beta1.QueryNakamotoBonusResponse
+	24, // [24:35] is the sub-list for method output_type
+	13, // [13:24] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_cosmos_distribution_v1beta1_query_proto_init() }
@@ -11808,7 +11823,7 @@ func file_cosmos_distribution_v1beta1_query_proto_init() {
 			}
 		}
 		file_cosmos_distribution_v1beta1_query_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryNakamotoBonusCoefficientRequest); i {
+			switch v := v.(*QueryNakamotoBonusRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -11820,7 +11835,7 @@ func file_cosmos_distribution_v1beta1_query_proto_init() {
 			}
 		}
 		file_cosmos_distribution_v1beta1_query_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryNakamotoBonusCoefficientResponse); i {
+			switch v := v.(*QueryNakamotoBonusResponse); i {
 			case 0:
 				return &v.state
 			case 1:
