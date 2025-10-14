@@ -80,7 +80,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	lowAvg := avg(low)
 	coefficient := nakamotoCoefficient
 
-	// Adjust coefficient: if avgHigh >= 3x avgLow, increase eta, else decrease
+	// Adjust coefficient: if avgHigh >= 3x avgLow, increase Nakamoto Bonus, else decrease
 	// NakamotoBonusStep should be a decimal value, e.g. 0.03 for 3%
 	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(params.NakamotoBonus.Step) {
 		coefficient = coefficient.Add(params.NakamotoBonus.Step)
