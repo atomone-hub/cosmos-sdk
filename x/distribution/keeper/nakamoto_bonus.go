@@ -27,7 +27,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	}
 
 	if !params.NakamotoBonus.Enabled {
-		// Always set eta to zero and skip dynamic update
+		// Always set Nakamoto Bonus to zero and skip dynamic update
 		if nakamotoCoefficient.IsZero() {
 			// Already zero, nothing to do
 			return nil
