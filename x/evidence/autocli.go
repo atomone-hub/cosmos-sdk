@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	evidencev1beta1 "cosmossdk.io/api/cosmos/evidence/v1beta1"
 
+	evidencev1beta1 "cosmossdk.io/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/version"
 )
 
@@ -13,7 +13,7 @@ import (
 func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 	return &autocliv1.ModuleOptions{
 		Query: &autocliv1.ServiceCommandDescriptor{
-			Service: evidencev1beta1.Query_ServiceDesc.ServiceName,
+			Service: evidencev1beta1.Query_serviceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod:      "Evidence",

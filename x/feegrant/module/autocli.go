@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	feegrantv1beta1 "cosmossdk.io/api/cosmos/feegrant/v1beta1"
 
+	feegrantv1beta1 "cosmossdk.io/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/version"
 )
 
 func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 	return &autocliv1.ModuleOptions{
 		Query: &autocliv1.ServiceCommandDescriptor{
-			Service: feegrantv1beta1.Query_ServiceDesc.ServiceName,
+			Service: feegrantv1beta1.Query_serviceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "Allowance",
@@ -47,7 +47,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			},
 		},
 		Tx: &autocliv1.ServiceCommandDescriptor{
-			Service: feegrantv1beta1.Msg_ServiceDesc.ServiceName,
+			Service: feegrantv1beta1.Msg_serviceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "RevokeAllowance",
