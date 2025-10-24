@@ -201,7 +201,6 @@ require (
 // replace (
 // 	<temporary replace>
 // )
-replace cosmossdk.io/x/upgrade => ../x/upgrade
 
 // Below are the long-lived replace for tests.
 replace (
