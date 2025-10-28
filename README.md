@@ -1,13 +1,13 @@
 # Cosmos SDK Fork
 
-Fork of Cosmos SDK **v0.50.x** for **Atom One**.
+Fork of Cosmos SDK **v0.50.x** for **AtomOne**.
 
 ---
 
 ## Overview
 
 This fork is based on the official [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) and includes specific changes
-required by Atom One.  
+required by AtomOne.  
 We now depend directly on the upstream SDK for most modules — **local copies of SDK packages have been removed** to
 reduce maintenance overhead and ensure alignment with upstream development.
 
