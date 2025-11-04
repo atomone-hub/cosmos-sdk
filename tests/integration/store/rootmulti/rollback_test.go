@@ -10,8 +10,8 @@ import (
 	"gotest.tools/v3/assert"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/simapp"
 
+	"github.com/cosmos/cosmos-sdk/simapp"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 )
 
