@@ -10,8 +10,6 @@ import (
 
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
-	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/comet"
@@ -20,6 +18,7 @@ import (
 	"cosmossdk.io/core/header"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
+	depinjectappconfig "cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/tx/signing"
@@ -31,6 +30,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	authmodulev1 "github.com/cosmos/cosmos-sdk/x/auth/types/module"
+	stakingmodulev1 "github.com/cosmos/cosmos-sdk/x/staking/types/module"
 )
 
 type appModule struct {
@@ -60,8 +61,8 @@ type BaseAppOption func(*baseapp.BaseApp)
 func (b BaseAppOption) IsManyPerContainerType() {}
 
 func init() {
-	appmodule.Register(&runtimev1alpha1.Module{},
-		appmodule.Provide(
+	depinjectappconfig.RegisterModule(&runtimev1alpha1.Module{},
+		depinjectappconfig.Provide(
 			ProvideApp,
 			ProvideInterfaceRegistry,
 			ProvideKVStoreKey,
@@ -77,7 +78,7 @@ func init() {
 			ProvideBasicManager,
 			ProvideAddressCodec,
 		),
-		appmodule.Invoke(SetupAppBuilder),
+		depinjectappconfig.Invoke(SetupAppBuilder),
 	)
 }
 
