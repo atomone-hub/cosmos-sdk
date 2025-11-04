@@ -7,12 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
+	"github.com/cosmos/cosmos-sdk/client/v2/autocli"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
