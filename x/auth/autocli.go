@@ -8,7 +8,7 @@ import (
 	_ "cosmossdk.io/api/cosmos/crypto/secp256r1" // register so that it shows up in protoregistry.GlobalTypes
 
 	"github.com/cosmos/cosmos-sdk/version"
-	authv1beta1 "github.com/cosmos/cosmos-sdk/x/authz"
+	authv1beta1 "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.
