@@ -6,10 +6,11 @@ package client
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/testutil/network"
+	"cosmossdk.io/simapp"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/cosmos/cosmos-sdk/testutil/network"
 )
 
 func TestE2ETestSuite(t *testing.T) {

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/simapp"
+	"cosmossdk.io/simapp/simd/cmd"
+
 	clientv2helpers "github.com/cosmos/cosmos-sdk/client/v2/helpers"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/simapp/simd/cmd"
 )
 
 func main() {
