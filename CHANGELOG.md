@@ -51,12 +51,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 * (proto) [#15](https://github.com/atomone-hub/cosmos-sdk/pull/15) bump grpc to `v1.72.0` and go to `v1.24.5`.
+* [#22](https://github.com/atomone-hub/cosmos-sdk/pull/22) Remove unnecessary project workspaces.
+* [#25](https://github.com/atomone-hub/cosmos-sdk/pull/25) feat: remove `client/v2` workspace.
 
 ## [Unreleased]
 
 ### Improvements
 
 * (x/gov) [#24386](https://github.com/cosmos/cosmos-sdk/pull/24386) Improve helpers to easily create governance proposals from CLI.
+* (x/staking) [#12](https://github.com/atomone-hub/cosmos-sdk/pull/12) Fix some typos and improve the code readability.
 
 ### Bug Fixes
 
