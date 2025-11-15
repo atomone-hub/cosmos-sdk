@@ -550,7 +550,10 @@ func randomDeposit(
 	}
 
 	params, _ := k.Params.Get(ctx)
-	minDeposit := params.MinDeposit
+	minDeposit := params.MinDepositThrottler.FloorValue
+	if len(minDeposit) == 0 {
+		return nil, true, nil // skip if no deposit denoms configured
+	}
 	denomIndex := r.Intn(len(minDeposit))
 	denom := minDeposit[denomIndex].Denom
 
@@ -570,12 +573,17 @@ func randomDeposit(
 
 	minAmount := sdkmath.ZeroInt()
 	if useMinAmount {
-		minDepositPercent, err := sdkmath.LegacyNewDecFromStr(params.MinInitialDepositRatio)
-		if err != nil {
-			return nil, false, err
-		}
+		// MinInitialDepositRatio is deprecated; skip if empty
+		if params.MinInitialDepositRatio == "" {
+			minAmount = sdkmath.ZeroInt()
+		} else {
+			minDepositPercent, err := sdkmath.LegacyNewDecFromStr(params.MinInitialDepositRatio)
+			if err != nil {
+				return nil, false, err
+			}
 
-		minAmount = sdkmath.LegacyNewDecFromInt(minDepositAmount).Mul(minDepositPercent).TruncateInt()
+			minAmount = sdkmath.LegacyNewDecFromInt(minDepositAmount).Mul(minDepositPercent).TruncateInt()
+		}
 	}
 
 	amount, err := simtypes.RandPositiveInt(r, minDepositAmount.Sub(minAmount))

@@ -87,9 +87,10 @@ func ConvertToLegacyTallyResult(tally *v1.TallyResult) (v1beta1.TallyResult, err
 	}
 
 	return v1beta1.TallyResult{
-		Yes:     yes,
-		No:      no,
-		Abstain: abstain,
+		Yes:        yes,
+		No:         no,
+		Abstain:    abstain,
+		NoWithVeto: math.ZeroInt(),
 	}, nil
 }
 

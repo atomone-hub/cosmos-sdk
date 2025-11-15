@@ -195,8 +195,18 @@ func TestDepositAmount(t *testing.T) {
 
 			params, _ := govKeeper.Params.Get(ctx)
 			params.MinDepositRatio = tc.minDepositRatio
-			params.MinDeposit = sdk.NewCoins(params.MinDeposit...).Add(sdk.NewCoin("zcoin", sdkmath.NewInt(10000))) // coins must be sorted by denom
+			// Update throttler floor value to include zcoin (coins must be sorted by denom)
+			params.MinDepositThrottler.FloorValue = sdk.NewCoins(params.MinDepositThrottler.FloorValue...).Add(sdk.NewCoin("zcoin", sdkmath.NewInt(10000)))
 			err := govKeeper.Params.Set(ctx, params)
+			require.NoError(t, err)
+
+			// Update LastMinDeposit to reflect the new floor value
+			sdkCtx := sdk.UnwrapSDKContext(ctx)
+			blockTime := sdkCtx.BlockTime()
+			err = govKeeper.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
+				Value: params.MinDepositThrottler.FloorValue,
+				Time:  &blockTime,
+			})
 			require.NoError(t, err)
 
 			tp := TestProposal
@@ -404,10 +414,13 @@ func TestChargeDeposit(t *testing.T) {
 					require.NoError(t, err)
 					newBalanceAfterCancelProposal := bankKeeper.GetBalance(ctx, accAddr, sdk.DefaultBondDenom)
 					cancellationCharges := sdkmath.NewInt(0)
-					for _, deposits := range allDeposits {
-						for _, deposit := range deposits.Amount {
-							burnAmount := sdkmath.LegacyNewDecFromInt(deposit.Amount).Mul(sdkmath.LegacyMustNewDecFromStr(params.MinInitialDepositRatio)).TruncateInt()
-							cancellationCharges = cancellationCharges.Add(burnAmount)
+					// MinInitialDepositRatio is deprecated; skip calculation if empty
+					if params.MinInitialDepositRatio != "" {
+						for _, deposits := range allDeposits {
+							for _, deposit := range deposits.Amount {
+								burnAmount := sdkmath.LegacyNewDecFromInt(deposit.Amount).Mul(sdkmath.LegacyMustNewDecFromStr(params.MinInitialDepositRatio)).TruncateInt()
+								cancellationCharges = cancellationCharges.Add(burnAmount)
+							}
 						}
 					}
 					require.True(t, newBalanceAfterCancelProposal.Equal(prevBalance.Add(sdk.NewCoin(sdk.DefaultBondDenom, cancellationCharges))))
