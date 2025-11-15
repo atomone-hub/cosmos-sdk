@@ -53,7 +53,7 @@ func TestNormalizeWeightedVoteOptions(t *testing.T) {
 
 	for _, tc := range cases {
 		normalized := utils.NormalizeWeightedVoteOptions(tc.options)
-		require.Equal(t, normalized, tc.normalized)
+		require.Equal(t, tc.normalized, normalized)
 	}
 }
 

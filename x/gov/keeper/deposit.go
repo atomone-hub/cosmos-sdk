@@ -282,34 +282,33 @@ func (keeper Keeper) RefundAndDeleteDeposits(ctx context.Context, proposalID uin
 // validateInitialDeposit validates if initial deposit is greater than or equal to the minimum
 // required at the time of proposal submission. This threshold amount is determined by
 // the deposit parameters. Returns nil on success, error otherwise.
-func (keeper Keeper) validateInitialDeposit(_ context.Context, params v1.Params, initialDeposit sdk.Coins) error {
+func (keeper Keeper) validateInitialDeposit(ctx context.Context, params v1.Params, initialDeposit sdk.Coins) error {
 	if !initialDeposit.IsValid() || initialDeposit.IsAnyNegative() {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, initialDeposit.String())
 	}
 
-	minInitialDepositRatio, err := sdkmath.LegacyNewDecFromStr(params.MinInitialDepositRatio)
-	if err != nil {
-		return err
-	}
-	if minInitialDepositRatio.IsZero() {
-		return nil
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	minInitialDepositCoins := keeper.GetMinInitialDeposit(sdkCtx)
+	if !initialDeposit.IsAllGTE(minInitialDepositCoins) {
+		return types.ErrMinDepositTooSmall.Wrapf("was (%s), need (%s)", initialDeposit, minInitialDepositCoins)
 	}
 
-	minDepositCoins := params.MinDeposit
-	for i := range minDepositCoins {
-		minDepositCoins[i].Amount = sdkmath.LegacyNewDecFromInt(minDepositCoins[i].Amount).Mul(minInitialDepositRatio).RoundInt()
-	}
-	if !initialDeposit.IsAllGTE(minDepositCoins) {
-		return errors.Wrapf(types.ErrMinDepositTooSmall, "was (%s), need (%s)", initialDeposit, minDepositCoins)
-	}
 	return nil
 }
 
 // validateDepositDenom validates if the deposit denom is accepted by the governance module.
-func (keeper Keeper) validateDepositDenom(_ context.Context, params v1.Params, depositAmount sdk.Coins) error {
+func (keeper Keeper) validateDepositDenom(ctx context.Context, params v1.Params, depositAmount sdk.Coins) error {
+	// Use the floor value from MinDepositThrottler to determine accepted denoms
+	// The floor defines which denominations are acceptable
+	acceptedCoins := params.MinDepositThrottler.FloorValue
+	if len(acceptedCoins) == 0 {
+		// Fallback to deprecated params.MinDeposit for backward compatibility
+		acceptedCoins = params.MinDeposit
+	}
+
 	denoms := []string{}
-	acceptedDenoms := make(map[string]bool, len(params.MinDeposit))
-	for _, coin := range params.MinDeposit {
+	acceptedDenoms := make(map[string]bool, len(acceptedCoins))
+	for _, coin := range acceptedCoins {
 		acceptedDenoms[coin.Denom] = true
 		denoms = append(denoms, coin.Denom)
 	}
@@ -319,6 +318,5 @@ func (keeper Keeper) validateDepositDenom(_ context.Context, params v1.Params, d
 			return errors.Wrapf(types.ErrInvalidDepositDenom, "deposited %s, but gov accepts only the following denom(s): %v", depositAmount, denoms)
 		}
 	}
-
 	return nil
 }
