@@ -144,6 +144,7 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 						return false, err
 					}
 					proposal.VotingEndTime = &endTime
+					proposal.TimesVotingPeriodExtended++
 					if err := keeper.ActiveProposalsQueue.Set(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id), proposal.Id); err != nil {
 						return false, err
 					}

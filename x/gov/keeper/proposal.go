@@ -261,7 +261,15 @@ func (keeper Keeper) ActivateVotingPeriod(ctx context.Context, proposal v1.Propo
 		return err
 	}
 
-	return keeper.ActiveProposalsQueue.Set(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id), proposal.Id)
+	err = keeper.ActiveProposalsQueue.Set(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id), proposal.Id)
+	if err != nil {
+		return err
+	}
+
+	// Add proposal to quorum check queue
+	quorumTimeoutTime := proposal.VotingStartTime.Add(*params.QuorumTimeout)
+	quorumCheckEntry := v1.NewQuorumCheckQueueEntry(quorumTimeoutTime, params.QuorumCheckCount)
+	return keeper.QuorumCheckQueue.Set(ctx, collections.Join(quorumTimeoutTime, proposal.Id), quorumCheckEntry)
 }
 
 // ProposalKinds returns a v1.ProposalKinds useful to determine which kind of
