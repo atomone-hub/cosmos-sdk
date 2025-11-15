@@ -91,11 +91,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Short:     "Query the current chain constitution",
 				},
 				{
-					RpcMethod: "MinDeposit",
-					Use:       "min-deposit",
-					Short:     "Query the minimum deposit currently needed for a proposal to enter voting period",
-				},
-				{
 					RpcMethod: "MinInitialDeposit",
 					Use:       "min-initial-deposit",
 					Short:     "Query the minimum initial deposit needed for a proposal to enter deposit period",
