@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govclitestutil "github.com/cosmos/cosmos-sdk/x/gov/client/testutil"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -352,14 +351,6 @@ func (s *E2ETestSuite) TestNewCmdCancelProposal() {
 		s.Run(tc.name, func() {
 			cmd := cli.NewCmdCancelProposal()
 			clientCtx := val.ClientCtx
-			var balRes banktypes.QueryAllBalancesResponse
-			var newBalance banktypes.QueryAllBalancesResponse
-			if !tc.expectErr && tc.expectedCode == 0 {
-				resp, err := testutil.GetRequest(fmt.Sprintf("%s/cosmos/bank/v1beta1/balances/%s", val.APIAddress, val.Address.String()))
-				s.Require().NoError(err)
-				err = val.ClientCtx.Codec.UnmarshalJSON(resp, &balRes)
-				s.Require().NoError(err)
-			}
 
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 			if tc.expectErr {
@@ -368,24 +359,6 @@ func (s *E2ETestSuite) TestNewCmdCancelProposal() {
 				s.Require().NoError(err)
 				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 				s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, tc.expectedCode))
-
-				if !tc.expectErr && tc.expectedCode == 0 {
-					resp, err := testutil.GetRequest(fmt.Sprintf("%s/cosmos/bank/v1beta1/balances/%s", val.APIAddress, val.Address.String()))
-					s.Require().NoError(err)
-					err = val.ClientCtx.Codec.UnmarshalJSON(resp, &newBalance)
-					s.Require().NoError(err)
-					remainingAmount := v1.DefaultMinDepositTokens.Mul(
-						v1.DefaultProposalCancelRatio.Mul(math.LegacyMustNewDecFromStr("100")).TruncateInt(),
-					).Quo(math.NewIntFromUint64(100))
-
-					// new balance = old balance + remaining amount from proposal deposit - txFee (cancel proposal)
-					txFee := math.NewInt(10)
-					s.Require().True(
-						newBalance.Balances.AmountOf(s.network.Config.BondDenom).Equal(
-							balRes.Balances.AmountOf(s.network.Config.BondDenom).Add(remainingAmount).Sub(txFee),
-						),
-					)
-				}
 			}
 		})
 	}

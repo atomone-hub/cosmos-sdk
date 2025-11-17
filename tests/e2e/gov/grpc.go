@@ -150,10 +150,9 @@ func (s *E2ETestSuite) TestGetProposalVoteGRPC() {
 			fmt.Sprintf("%s/cosmos/gov/v1/proposals/%s/votes/%s", val.APIAddress, "3", voterAddressBech32),
 			false,
 			v1.WeightedVoteOptions{
-				&v1.WeightedVoteOption{Option: v1.OptionYes, Weight: math.LegacyNewDecWithPrec(60, 2).String()},
+				&v1.WeightedVoteOption{Option: v1.OptionYes, Weight: math.LegacyNewDecWithPrec(65, 2).String()},
 				&v1.WeightedVoteOption{Option: v1.OptionNo, Weight: math.LegacyNewDecWithPrec(30, 2).String()},
 				&v1.WeightedVoteOption{Option: v1.OptionAbstain, Weight: math.LegacyNewDecWithPrec(5, 2).String()},
-				&v1.WeightedVoteOption{Option: v1.OptionNoWithVeto, Weight: math.LegacyNewDecWithPrec(5, 2).String()},
 			},
 		},
 	}
@@ -358,9 +357,9 @@ func (s *E2ETestSuite) TestGetParamsGRPC() {
 	val := s.network.Validators[0]
 
 	params := v1.DefaultParams()
-	dp := v1.NewDepositParams(params.MinDeposit, params.MaxDepositPeriod)          //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
-	vp := v1.NewVotingParams(params.VotingPeriod)                                  //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
-	tp := v1.NewTallyParams(params.Quorum, params.Threshold, params.VetoThreshold) //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
+	dp := v1.NewDepositParams(params.MinDeposit, params.MaxDepositPeriod) //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
+	vp := v1.NewVotingParams(params.VotingPeriod)                         //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
+	tp := v1.NewTallyParams(params.Quorum, params.Threshold)              //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
 
 	testCases := []struct {
 		name       string

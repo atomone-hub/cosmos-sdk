@@ -967,6 +967,9 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 		expRes *v1beta1.QueryParamsResponse
 	)
 
+	// Get actual params from the keeper to set expectations
+	actualParams, _ := suite.govKeeper.Params.Get(suite.ctx)
+
 	defaultTallyParams := v1beta1.TallyParams{
 		Quorum:        math.LegacyNewDec(0),
 		Threshold:     math.LegacyNewDec(0),
@@ -989,7 +992,8 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 			"deposit params request",
 			func() {
 				req = &v1beta1.QueryParamsRequest{ParamsType: v1beta1.ParamDeposit}
-				depositParams := v1beta1.DefaultDepositParams()
+				// Use actual params from the system, not v1beta1 defaults
+				depositParams := v1beta1.NewDepositParams(actualParams.MinDepositThrottler.FloorValue, *actualParams.MaxDepositPeriod)
 				expRes = &v1beta1.QueryParamsResponse{
 					DepositParams: depositParams,
 					TallyParams:   defaultTallyParams,
@@ -1001,7 +1005,8 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 			"voting params request",
 			func() {
 				req = &v1beta1.QueryParamsRequest{ParamsType: v1beta1.ParamVoting}
-				votingParams := v1beta1.DefaultVotingParams()
+				// Use actual params from the system, not v1beta1 defaults
+				votingParams := v1beta1.NewVotingParams(*actualParams.VotingPeriod)
 				expRes = &v1beta1.QueryParamsResponse{
 					VotingParams: votingParams,
 					TallyParams:  defaultTallyParams,
@@ -1013,7 +1018,13 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 			"tally params request",
 			func() {
 				req = &v1beta1.QueryParamsRequest{ParamsType: v1beta1.ParamTallying}
-				tallyParams := v1beta1.DefaultTallyParams()
+				// AtomOne sets deprecated tally params to default values for backward compatibility
+				// The threshold is 0.667 (AtomOne default), not 0.5 (v1beta1 default)
+				tallyParams := v1beta1.NewTallyParams(
+					v1beta1.DefaultQuorum,
+					math.LegacyNewDecWithPrec(667, 3), // AtomOne default threshold
+					v1beta1.DefaultVetoThreshold,
+				)
 				expRes = &v1beta1.QueryParamsResponse{
 					TallyParams: tallyParams,
 				}

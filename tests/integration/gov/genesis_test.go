@@ -82,11 +82,11 @@ func TestImportExportQueues(t *testing.T) {
 
 	ctx = s1.app.BaseApp.NewContext(false)
 	// Create two proposals, put the second into the voting period
-	proposal1, err := s1.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "test", "description", addrs[0], false)
+	proposal1, err := s1.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "test", "description", addrs[0])
 	assert.NilError(t, err)
 	proposalID1 := proposal1.Id
 
-	proposal2, err := s1.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "test", "description", addrs[0], false)
+	proposal2, err := s1.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "test", "description", addrs[0])
 	assert.NilError(t, err)
 	proposalID2 := proposal2.Id
 

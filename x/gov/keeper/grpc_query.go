@@ -434,6 +434,10 @@ func (q legacyQueryServer) Params(ctx context.Context, req *v1beta1.QueryParamsR
 
 	if resp.DepositParams != nil {
 		minDeposit := sdk.NewCoins(resp.DepositParams.MinDeposit...)
+		// If deprecated MinDeposit is empty, use throttler floor value from the params
+		if len(minDeposit) == 0 && resp.Params != nil {
+			minDeposit = resp.Params.MinDepositThrottler.FloorValue
+		}
 		response.DepositParams = v1beta1.NewDepositParams(minDeposit, *resp.DepositParams.MaxDepositPeriod)
 	}
 
@@ -442,17 +446,35 @@ func (q legacyQueryServer) Params(ctx context.Context, req *v1beta1.QueryParamsR
 	}
 
 	if resp.TallyParams != nil {
-		quorum, err := sdkmath.LegacyNewDecFromStr(resp.TallyParams.Quorum)
-		if err != nil {
-			return nil, err
+		// Handle deprecated fields - if empty, use v1beta1 defaults
+		var quorum, threshold, vetoThreshold sdkmath.LegacyDec
+		var err error
+
+		if resp.TallyParams.Quorum == "" {
+			quorum = v1beta1.DefaultQuorum
+		} else {
+			quorum, err = sdkmath.LegacyNewDecFromStr(resp.TallyParams.Quorum)
+			if err != nil {
+				return nil, err
+			}
 		}
-		threshold, err := sdkmath.LegacyNewDecFromStr(resp.TallyParams.Threshold)
-		if err != nil {
-			return nil, err
+
+		if resp.TallyParams.Threshold == "" {
+			threshold = v1beta1.DefaultThreshold
+		} else {
+			threshold, err = sdkmath.LegacyNewDecFromStr(resp.TallyParams.Threshold)
+			if err != nil {
+				return nil, err
+			}
 		}
-		vetoThreshold, err := sdkmath.LegacyNewDecFromStr(resp.TallyParams.VetoThreshold)
-		if err != nil {
-			return nil, err
+
+		if resp.TallyParams.VetoThreshold == "" {
+			vetoThreshold = v1beta1.DefaultVetoThreshold
+		} else {
+			vetoThreshold, err = sdkmath.LegacyNewDecFromStr(resp.TallyParams.VetoThreshold)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		response.TallyParams = v1beta1.NewTallyParams(quorum, threshold, vetoThreshold)

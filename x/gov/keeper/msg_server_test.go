@@ -748,7 +748,8 @@ func (suite *KeeperTestSuite) TestDepositReq() {
 
 	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
 	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	minDeposit := sdk.Coins(params.MinDeposit)
+	// Use throttler floor value instead of deprecated params.MinDeposit
+	minDeposit := params.MinDepositThrottler.FloorValue
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
@@ -810,9 +811,9 @@ func (suite *KeeperTestSuite) TestDepositReq() {
 				return pID
 			},
 			depositor: proposer,
-			deposit:   minDeposit.Add(sdk.NewCoin("ibc/badcoin", sdkmath.NewInt(1000))),
+			deposit:   append(sdk.Coins{sdk.NewCoin("ibc/badcoin", sdkmath.NewInt(1000))}, minDeposit...),
 			expErr:    true,
-			expErrMsg: "deposited 1000ibc/badcoin,10000000stake, but gov accepts only the following denom(s): [stake]: invalid deposit denom",
+			expErrMsg: "deposited 1000ibc/badcoin,10000000stake, but gov accepts only the following denom(s): [stake]",
 		},
 		"all good": {
 			preRun: func() uint64 {

@@ -304,12 +304,36 @@ func TestValidateInitialDeposit(t *testing.T) {
 
 			params := v1.DefaultParams()
 
+			// Update throttler floor values to match test expectations
+			params.MinDepositThrottler.FloorValue = tc.minDeposit
+			minInitialDepositRatio := sdkmath.LegacyNewDec(tc.minInitialDepositPercent).Quo(sdkmath.LegacyNewDec(100))
+
+			// Calculate minimum initial deposit floor from min deposit * ratio
+			var minInitialDepositFloor sdk.Coins
+			for _, coin := range tc.minDeposit {
+				amount := sdkmath.LegacyNewDecFromInt(coin.Amount).Mul(minInitialDepositRatio).TruncateInt()
+				if !amount.IsZero() {
+					minInitialDepositFloor = minInitialDepositFloor.Add(sdk.NewCoin(coin.Denom, amount))
+				}
+			}
+			params.MinInitialDepositThrottler.FloorValue = minInitialDepositFloor
+
+			// Set deprecated fields for backward compatibility
 			params.MinDeposit = tc.minDeposit
-			params.MinInitialDepositRatio = sdkmath.LegacyNewDec(tc.minInitialDepositPercent).Quo(sdkmath.LegacyNewDec(100)).String()
+			params.MinInitialDepositRatio = minInitialDepositRatio.String()
 
-			govKeeper.Params.Set(ctx, params)
+			err := govKeeper.Params.Set(ctx, params)
+			require.NoError(t, err)
 
-			err := govKeeper.ValidateInitialDeposit(ctx, tc.initialDeposit)
+			// Initialize LastMinInitialDeposit with the floor value
+			blockTime := ctx.BlockTime()
+			err = govKeeper.LastMinInitialDeposit.Set(ctx, v1.LastMinDeposit{
+				Value: minInitialDepositFloor,
+				Time:  &blockTime,
+			})
+			require.NoError(t, err)
+
+			err = govKeeper.ValidateInitialDeposit(ctx, tc.initialDeposit)
 
 			if tc.expectError {
 				require.Error(t, err)
