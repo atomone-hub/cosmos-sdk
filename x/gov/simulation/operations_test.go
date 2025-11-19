@@ -226,7 +226,8 @@ func TestSimulateMsgCancelProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	submitTime := ctx.BlockHeader().Time
-	params, _ := suite.GovKeeper.Params.Get(ctx)
+	params, err := suite.GovKeeper.Params.Get(ctx)
+	require.NoError(t, err)
 	depositPeriod := params.MaxDepositPeriod
 
 	proposal, err := v1.NewProposal([]sdk.Msg{contentMsg}, 1, submitTime, submitTime.Add(*depositPeriod), "", "title", "summary", proposer)

@@ -68,6 +68,8 @@ var (
 	DefaultMinInitialDepositDecreaseRatio                                   = math.LegacyNewDecWithPrec(5, 3)
 	DefaultTargetProposalsInDepositPeriod                     uint64        = 5
 	DefaultBurnDepositNoThreshold                                           = math.LegacyNewDecWithPrec(80, 2)
+	DefaultProposalCancelRatio                                              = math.LegacyMustNewDecFromStr("0.5")
+	DefaultProposalCancelDestAddress                                        = ""
 )
 
 // Deprecated: NewDepositParams creates a new DepositParams object
@@ -110,6 +112,7 @@ func NewParams(
 	maxQuorum string, minQuorum string,
 	maxConstitutionAmendmentQuorum string, minConstitutionAmendmentQuorum string,
 	maxLawQuorum string, minLawQuorum string,
+	proposalCancelRatio, proposalCancelDest string,
 ) Params {
 	return Params{
 		// MinDeposit:                     minDeposit, // Deprecated in favor of dynamic min deposit
@@ -119,6 +122,9 @@ func NewParams(
 		ConstitutionAmendmentThreshold: constitutionAmendmentThreshold,
 		LawThreshold:                   lawThreshold,
 		// MinInitialDepositRatio:         minInitialDepositRatio, // Deprecated in favor of dynamic min deposit
+		//
+		ProposalCancelRatio:        proposalCancelRatio,
+		ProposalCancelDest:         proposalCancelDest,
 		BurnProposalDepositPrevote: burnProposalDeposit,
 		BurnVoteQuorum:             burnVoteQuorum,
 		MinDepositRatio:            minDepositRatio,
@@ -160,7 +166,6 @@ func NewParams(
 // DefaultParams returns the default governance params
 func DefaultParams() Params {
 	return NewParams(
-		// sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, DefaultMinDepositTokens)),
 		DefaultDepositPeriod,
 		DefaultVotingPeriod,
 		DefaultThreshold.String(),
@@ -192,6 +197,8 @@ func DefaultParams() Params {
 		DefaultMinConstitutionAmendmentQuorum.String(),
 		DefaultMaxLawQuorum.String(),
 		DefaultMinLawQuorum.String(),
+		DefaultProposalCancelRatio.String(),
+		DefaultProposalCancelDestAddress,
 	)
 }
 
@@ -305,16 +312,6 @@ func (p Params) ValidateBasic() error {
 		return fmt.Errorf("voting period must be at least %s: %s", minVotingPeriod.String(), p.VotingPeriod.String())
 	}
 
-	// minInitialDepositRatio, err := math.LegacyNewDecFromStr(p.MinInitialDepositRatio)
-	// if err != nil {
-	// 	return fmt.Errorf("invalid mininum initial deposit ratio of proposal: %w", err)
-	// }
-	// if minInitialDepositRatio.IsNegative() {
-	// 	return fmt.Errorf("mininum initial deposit ratio of proposal must be positive: %s", minInitialDepositRatio)
-	// }
-	// if minInitialDepositRatio.GT(math.LegacyOneDec()) {
-	// 	return fmt.Errorf("mininum initial deposit ratio of proposal is too large: %s", minInitialDepositRatio)
-	// }
 	if len(p.MinInitialDepositRatio) > 0 {
 		return fmt.Errorf("manually setting min initial deposit ratio is deprecated in favor of a dynamic min initial deposit")
 	}
@@ -469,6 +466,24 @@ func (p Params) ValidateBasic() error {
 	}
 	if burnDepositNoThreshold.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("burnDepositNoThreshold too large: %s", burnDepositNoThreshold)
+	}
+
+	proposalCancelRate, err := math.LegacyNewDecFromStr(p.ProposalCancelRatio)
+	if err != nil {
+		return fmt.Errorf("invalid burn rate of cancel proposal: %w", err)
+	}
+	if proposalCancelRate.IsNegative() {
+		return fmt.Errorf("burn rate of cancel proposal must be positive: %s", proposalCancelRate)
+	}
+	if proposalCancelRate.GT(math.LegacyOneDec()) {
+		return fmt.Errorf("burn rate of cancel proposal is too large: %s", proposalCancelRate)
+	}
+
+	if len(p.ProposalCancelDest) != 0 {
+		_, err := sdk.AccAddressFromBech32(p.ProposalCancelDest)
+		if err != nil {
+			return fmt.Errorf("deposits destination address is invalid: %s", p.ProposalCancelDest)
+		}
 	}
 
 	return nil

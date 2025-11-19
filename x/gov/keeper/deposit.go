@@ -186,10 +186,6 @@ func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, deposito
 // send to a destAddress if defined or burn otherwise.
 // Remaining funds are send back to the depositor.
 func (keeper Keeper) ChargeDeposit(ctx context.Context, proposalID uint64, destAddress, proposalCancelRate string) error {
-	// If proposalCancelRate is empty, use zero rate (no cancellation fee)
-	if proposalCancelRate == "" {
-		proposalCancelRate = "0"
-	}
 	rate := sdkmath.LegacyMustNewDecFromStr(proposalCancelRate)
 	var cancellationCharges sdk.Coins
 
