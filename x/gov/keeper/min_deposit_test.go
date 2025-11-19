@@ -14,12 +14,27 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
+// createActiveProposals creates n active proposals for testing
+func createActiveProposals(t *testing.T, ctx sdk.Context, k *keeper.Keeper, n int) {
+	for i := 0; i < n; i++ {
+		tp := TestProposal
+		// Create a test address for the proposer
+		proposer := sdk.AccAddress([]byte("proposer" + string(rune(i))))
+		proposal, err := k.SubmitProposal(ctx, tp, "", "title", "summary", proposer)
+		require.NoError(t, err)
+
+		// Activate the proposal by meeting the minimum deposit
+		err = k.ActivateVotingPeriod(ctx, proposal)
+		require.NoError(t, err)
+	}
+}
+
 func TestGetMinDeposit(t *testing.T) {
 	var (
 		minDepositFloor   = v1.GetDefaultMinDepositFloor()
 		minDepositFloorX2 = minDepositFloor.MulInt(math.NewInt(2))
 		updatePeriod      = v1.DefaultMinDepositUpdatePeriod
-		// N                 = v1.DefaultTargetActiveProposals // TODO
+		N                 = int(v1.DefaultTargetActiveProposals)
 
 		// Handy function used to compute the min deposit time according to the
 		// number of ticksPassed required.
@@ -41,6 +56,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N-1 lastMinDeposit=minDepositFloor ticksPassed=0 : expectedMinDeposit=minDepositFloor",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N-1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloor,
 					Time:  minDepositTimeFromTicks(0),
@@ -53,6 +69,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N lastMinDeposit=minDepositFloor ticksPassed=0 : expectedMinDeposit>minDepositFloor",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloor,
 					Time:  minDepositTimeFromTicks(0),
@@ -65,6 +82,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N+1 lastMinDeposit=minDepositFloor ticksPassed=0 : expectedMinDeposit>minDepositFloor",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N+1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloor,
 					Time:  minDepositTimeFromTicks(0),
@@ -77,6 +95,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N+1 lastMinDeposit=otherCoins ticksPassed=0 : expectedMinDeposit>minDepositFloor",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N+1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: sdk.NewCoins(
 						sdk.NewInt64Coin("xxx", 1_000_000_000),
@@ -91,8 +110,9 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N-1 lastMinDeposit=minDepositFloor*2 ticksPassed=0 : minDeposit=minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N-1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
-					Value: minDepositFloor,
+					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(0),
 				})
 				require.NoError(t, err)
@@ -103,6 +123,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N lastMinDeposit=minDepositFloor*2 ticksPassed=0 : expectedMinDeposit>minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(0),
@@ -115,6 +136,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N+1 lastMinDeposit=minDepositFloor*2 ticksPassed=0 : expectedMinDeposit>minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N+1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(0),
@@ -127,6 +149,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N+1 lastMinDeposit=minDepositFloor*2 ticksPassed=0 (try time-based update) : expectedMinDeposit=minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N+1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(0),
@@ -139,6 +162,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N-1 lastMinDeposit=minDepositFloor*2 ticksPassed=1 : expectedMinDeposit<minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N-1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(1),
@@ -151,6 +175,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N lastMinDeposit=minDepositFloor*2 ticksPassed=1 : expectedMinDeposit=minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(1),
@@ -163,6 +188,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N+1 lastMinDeposit=minDepositFloor*2 ticksPassed=1 : expectedMinDeposit=minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N+1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(1),
@@ -175,6 +201,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N-1 lastMinDeposit=minDepositFloor*2 ticksPassed=2 : expectedMinDeposit<minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N-1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(2),
@@ -188,6 +215,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N lastMinDeposit=minDepositFloor*2 ticksPassed=2 : expectedMinDeposit=minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(2),
@@ -201,6 +229,7 @@ func TestGetMinDeposit(t *testing.T) {
 		{
 			name: "n=N+1 lastMinDeposit=minDepositFloor*2 ticksPassed=2 : expectedMinDeposit=minDepositFloor*2",
 			setup: func(ctx sdk.Context, k *keeper.Keeper) {
+				createActiveProposals(t, ctx, k, N+1)
 				err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 					Value: minDepositFloorX2,
 					Time:  minDepositTimeFromTicks(2),
