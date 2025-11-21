@@ -634,7 +634,7 @@ func randomProposalID(r *rand.Rand, k *keeper.Keeper, ctx sdk.Context, status v1
 
 // Pick a random voting option
 func randomVotingOption(r *rand.Rand) v1.VoteOption {
-	switch r.Intn(4) {
+	switch r.Intn(3) {
 	case 0:
 		return v1.OptionYes
 	case 1:
