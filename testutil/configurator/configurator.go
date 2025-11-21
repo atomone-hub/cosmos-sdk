@@ -1,7 +1,6 @@
 package configurator
 
 import (
-	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	circuitmodulev1 "cosmossdk.io/api/cosmos/circuit/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
@@ -12,6 +11,7 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
 
+	runtimemodule "github.com/cosmos/cosmos-sdk/runtime/module"
 	authmodulev1 "github.com/cosmos/cosmos-sdk/x/auth/types/module"
 	vestingmodulev1 "github.com/cosmos/cosmos-sdk/x/auth/vesting/types/module"
 	authzmodulev1 "github.com/cosmos/cosmos-sdk/x/authz/types/module"
@@ -329,7 +329,7 @@ func NewAppConfig(opts ...ModuleOption) depinject.Config {
 	beginBlockers := make([]string, 0)
 	endBlockers := make([]string, 0)
 	initGenesis := make([]string, 0)
-	overrides := make([]*runtimev1alpha1.StoreKeyConfig, 0)
+	overrides := make([]*runtimemodule.StoreKeyConfig, 0)
 
 	for _, s := range cfg.PreBlockersOrder {
 		if _, ok := cfg.ModuleConfigs[s]; ok {
@@ -356,10 +356,10 @@ func NewAppConfig(opts ...ModuleOption) depinject.Config {
 	}
 
 	if _, ok := cfg.ModuleConfigs["auth"]; ok {
-		overrides = append(overrides, &runtimev1alpha1.StoreKeyConfig{ModuleName: "auth", KvStoreKey: "acc"})
+		overrides = append(overrides, &runtimemodule.StoreKeyConfig{ModuleName: "auth", KvStoreKey: "acc"})
 	}
 
-	runtimeConfig := &runtimev1alpha1.Module{
+	runtimeConfig := &runtimemodule.Module{
 		AppName:           "TestApp",
 		PreBlockers:       preBlockers,
 		BeginBlockers:     beginBlockers,

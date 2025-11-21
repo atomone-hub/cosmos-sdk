@@ -8,7 +8,6 @@ import (
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
@@ -27,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	runtimemodule "github.com/cosmos/cosmos-sdk/runtime/module"
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
@@ -61,7 +61,7 @@ type BaseAppOption func(*baseapp.BaseApp)
 func (b BaseAppOption) IsManyPerContainerType() {}
 
 func init() {
-	appconfig.RegisterModule(&runtimev1alpha1.Module{},
+	appconfig.RegisterModule(&runtimemodule.Module{},
 		appconfig.Provide(
 			ProvideApp,
 			ProvideInterfaceRegistry,
@@ -129,7 +129,7 @@ type AppInputs struct {
 	depinject.In
 
 	AppConfig          *appv1alpha1.Config `optional:"true"`
-	Config             *runtimev1alpha1.Module
+	Config             *runtimemodule.Module
 	AppBuilder         *AppBuilder
 	Modules            map[string]appmodule.AppModule
 	CustomModuleBasics map[string]module.AppModuleBasic `optional:"true"`
@@ -190,7 +190,7 @@ func registerStoreKey(wrapper *AppBuilder, key storetypes.StoreKey) {
 	wrapper.app.storeKeys = append(wrapper.app.storeKeys, key)
 }
 
-func storeKeyOverride(config *runtimev1alpha1.Module, moduleName string) *runtimev1alpha1.StoreKeyConfig {
+func storeKeyOverride(config *runtimemodule.Module, moduleName string) *runtimemodule.StoreKeyConfig {
 	for _, cfg := range config.OverrideStoreKeys {
 		if cfg.ModuleName == moduleName {
 			return cfg
@@ -199,7 +199,7 @@ func storeKeyOverride(config *runtimev1alpha1.Module, moduleName string) *runtim
 	return nil
 }
 
-func ProvideKVStoreKey(config *runtimev1alpha1.Module, key depinject.ModuleKey, app *AppBuilder) *storetypes.KVStoreKey {
+func ProvideKVStoreKey(config *runtimemodule.Module, key depinject.ModuleKey, app *AppBuilder) *storetypes.KVStoreKey {
 	override := storeKeyOverride(config, key.Name())
 
 	var storeKeyName string
@@ -230,7 +230,7 @@ func ProvideGenesisTxHandler(appBuilder *AppBuilder) genesis.TxHandler {
 	return appBuilder.app
 }
 
-func ProvideKVStoreService(config *runtimev1alpha1.Module, key depinject.ModuleKey, app *AppBuilder) store.KVStoreService {
+func ProvideKVStoreService(config *runtimemodule.Module, key depinject.ModuleKey, app *AppBuilder) store.KVStoreService {
 	storeKey := ProvideKVStoreKey(config, key, app)
 	return kvStoreService{key: storeKey}
 }
