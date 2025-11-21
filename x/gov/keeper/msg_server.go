@@ -272,11 +272,33 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
 	}
 
+	// before params change, trigger an update of the last min deposit
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	blockTime := ctx.BlockTime()
+	minDeposit := k.GetMinDeposit(ctx)
+	newMinDeposit := v1.GetNewMinDeposit(msg.Params.MinDepositThrottler.FloorValue, minDeposit, math.LegacyOneDec())
+
+	if !minDeposit.Equal(newMinDeposit) {
+		k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
+			Value: newMinDeposit,
+			Time:  &blockTime,
+		})
+	}
+
+	minInitialDeposit := k.GetMinInitialDeposit(ctx)
+	newMinInitialDeposit := v1.GetNewMinDeposit(msg.Params.MinInitialDepositThrottler.FloorValue, minInitialDeposit, math.LegacyOneDec())
+
+	if !minInitialDeposit.Equal(newMinInitialDeposit) {
+		k.LastMinInitialDeposit.Set(ctx, v1.LastMinDeposit{
+			Value: newMinInitialDeposit,
+			Time:  &blockTime,
+		})
+	}
+
 	if err := msg.Params.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
 	if err := k.Params.Set(ctx, msg.Params); err != nil {
 		return nil, err
 	}
