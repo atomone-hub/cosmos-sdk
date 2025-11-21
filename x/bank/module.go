@@ -14,7 +14,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	corestore "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -197,10 +197,10 @@ func (am AppModule) WeightedOperations(simState module.SimulationState) []simtyp
 // App Wiring Setup
 
 func init() {
-	depinjectappconfig.RegisterModule(
+	appconfig.RegisterModule(
 		&modulev1.Module{},
-		depinjectappconfig.Provide(ProvideModule),
-		depinjectappconfig.Invoke(InvokeSetSendRestrictions),
+		appconfig.Provide(ProvideModule),
+		appconfig.Invoke(InvokeSetSendRestrictions),
 	)
 }
 

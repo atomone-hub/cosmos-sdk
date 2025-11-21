@@ -14,7 +14,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -171,9 +171,9 @@ func (am AppModule) PreBlock(ctx context.Context) (appmodule.ResponsePreBlock, e
 //
 
 func init() {
-	depinjectappconfig.RegisterModule(&modulev1.Module{},
-		depinjectappconfig.Provide(ProvideModule),
-		depinjectappconfig.Invoke(PopulateVersionMap),
+	appconfig.RegisterModule(&modulev1.Module{},
+		appconfig.Provide(ProvideModule),
+		appconfig.Invoke(PopulateVersionMap),
 	)
 }
 

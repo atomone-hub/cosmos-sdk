@@ -7,7 +7,7 @@ import (
 
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 	store "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -103,8 +103,8 @@ func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 //
 
 func init() {
-	depinjectappconfig.RegisterModule(&modulev1.Module{},
-		depinjectappconfig.Provide(
+	appconfig.RegisterModule(&modulev1.Module{},
+		appconfig.Provide(
 			ProvideModule,
 			ProvideSubspace,
 		))

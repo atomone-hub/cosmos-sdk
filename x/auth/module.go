@@ -11,7 +11,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -180,8 +180,8 @@ func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.Weighte
 //
 
 func init() {
-	depinjectappconfig.RegisterModule(&modulev1.Module{},
-		depinjectappconfig.Provide(ProvideModule),
+	appconfig.RegisterModule(&modulev1.Module{},
+		appconfig.Provide(ProvideModule),
 	)
 }
 

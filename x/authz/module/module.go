@@ -12,7 +12,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -152,9 +152,9 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 }
 
 func init() {
-	depinjectappconfig.RegisterModule(
+	appconfig.RegisterModule(
 		&modulev1.Module{},
-		depinjectappconfig.Provide(ProvideModule),
+		appconfig.Provide(ProvideModule),
 	)
 }
 

@@ -1,20 +1,20 @@
 package simapp
 
 import (
-	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	circuitmodulev1 "cosmossdk.io/api/cosmos/circuit/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
-	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
+	"cosmossdk.io/depinject/appconfig"
 	_ "cosmossdk.io/x/circuit" // import for side-effects
 	circuittypes "cosmossdk.io/x/circuit/types"
 	_ "cosmossdk.io/x/evidence" // import for side-effects
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
+	runtimemodule "github.com/cosmos/cosmos-sdk/runtime/module"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -88,7 +88,7 @@ var (
 		Modules: []*appv1alpha1.ModuleConfig{
 			{
 				Name: runtime.ModuleName,
-				Config: appconfig.WrapAny(&runtimev1alpha1.Module{
+				Config: appconfig.WrapAny(&runtimemodule.Module{
 					AppName: "SimApp",
 					// NOTE: upgrade module is required to be prioritized
 					PreBlockers: []string{
@@ -111,7 +111,7 @@ var (
 						stakingtypes.ModuleName,
 						feegrant.ModuleName,
 					},
-					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
+					OverrideStoreKeys: []*runtimemodule.StoreKeyConfig{
 						{
 							ModuleName: authtypes.ModuleName,
 							KvStoreKey: "acc",

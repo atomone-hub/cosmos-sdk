@@ -16,7 +16,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	store "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -155,10 +155,10 @@ func (am AppModule) IsOnePerModuleType() {}
 func (am AppModule) IsAppModule() {}
 
 func init() {
-	depinjectappconfig.RegisterModule(
+	appconfig.RegisterModule(
 		&modulev1.Module{},
-		depinjectappconfig.Provide(ProvideModule, ProvideKeyTable),
-		depinjectappconfig.Invoke(InvokeAddRoutes, InvokeSetHooks))
+		appconfig.Provide(ProvideModule, ProvideKeyTable),
+		appconfig.Invoke(InvokeAddRoutes, InvokeSetHooks))
 }
 
 type ModuleInputs struct {

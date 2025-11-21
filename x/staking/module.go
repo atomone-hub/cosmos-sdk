@@ -14,7 +14,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -189,10 +189,10 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 }
 
 func init() {
-	depinjectappconfig.RegisterModule(
+	appconfig.RegisterModule(
 		&modulev1.Module{},
-		depinjectappconfig.Provide(ProvideModule),
-		depinjectappconfig.Invoke(InvokeSetStakingHooks),
+		appconfig.Provide(ProvideModule),
+		appconfig.Invoke(InvokeSetStakingHooks),
 	)
 }
 

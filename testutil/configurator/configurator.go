@@ -9,9 +9,8 @@ import (
 	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
 	nftmodulev1 "cosmossdk.io/api/cosmos/nft/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
-	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
-	depinjectappconfig "cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/depinject/appconfig"
 
 	authmodulev1 "github.com/cosmos/cosmos-sdk/x/auth/types/module"
 	vestingmodulev1 "github.com/cosmos/cosmos-sdk/x/auth/vesting/types/module"
@@ -139,7 +138,7 @@ func BankModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["bank"] = &appv1alpha1.ModuleConfig{
 			Name:   "bank",
-			Config: depinjectappconfig.WrapAny(&bankmodulev1.Module{}),
+			Config: appconfig.WrapAny(&bankmodulev1.Module{}),
 		}
 	}
 }
@@ -148,7 +147,7 @@ func AuthModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["auth"] = &appv1alpha1.ModuleConfig{
 			Name: "auth",
-			Config: depinjectappconfig.WrapAny(&authmodulev1.Module{
+			Config: appconfig.WrapAny(&authmodulev1.Module{
 				Bech32Prefix: "cosmos",
 				ModuleAccountPermissions: []*authmodulev1.ModuleAccountPermission{
 					{Account: "fee_collector"},
@@ -168,7 +167,7 @@ func ParamsModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["params"] = &appv1alpha1.ModuleConfig{
 			Name:   "params",
-			Config: depinjectappconfig.WrapAny(&paramsmodulev1.Module{}),
+			Config: appconfig.WrapAny(&paramsmodulev1.Module{}),
 		}
 	}
 }
@@ -177,7 +176,7 @@ func TxModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["tx"] = &appv1alpha1.ModuleConfig{
 			Name:   "tx",
-			Config: depinjectappconfig.WrapAny(&txconfigv1.Config{}),
+			Config: appconfig.WrapAny(&txconfigv1.Config{}),
 		}
 	}
 }
@@ -186,7 +185,7 @@ func StakingModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["staking"] = &appv1alpha1.ModuleConfig{
 			Name:   "staking",
-			Config: depinjectappconfig.WrapAny(&stakingmodulev1.Module{}),
+			Config: appconfig.WrapAny(&stakingmodulev1.Module{}),
 		}
 	}
 }
@@ -195,7 +194,7 @@ func SlashingModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["slashing"] = &appv1alpha1.ModuleConfig{
 			Name:   "slashing",
-			Config: depinjectappconfig.WrapAny(&slashingmodulev1.Module{}),
+			Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
 		}
 	}
 }
@@ -204,7 +203,7 @@ func GenutilModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["genutil"] = &appv1alpha1.ModuleConfig{
 			Name:   "genutil",
-			Config: depinjectappconfig.WrapAny(&genutilmodulev1.Module{}),
+			Config: appconfig.WrapAny(&genutilmodulev1.Module{}),
 		}
 	}
 }
@@ -213,7 +212,7 @@ func DistributionModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["distribution"] = &appv1alpha1.ModuleConfig{
 			Name:   "distribution",
-			Config: depinjectappconfig.WrapAny(&distrmodulev1.Module{}),
+			Config: appconfig.WrapAny(&distrmodulev1.Module{}),
 		}
 	}
 }
@@ -222,7 +221,7 @@ func FeegrantModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["feegrant"] = &appv1alpha1.ModuleConfig{
 			Name:   "feegrant",
-			Config: depinjectappconfig.WrapAny(&feegrantmodulev1.Module{}),
+			Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
 		}
 	}
 }
@@ -231,7 +230,7 @@ func VestingModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["vesting"] = &appv1alpha1.ModuleConfig{
 			Name:   "vesting",
-			Config: depinjectappconfig.WrapAny(&vestingmodulev1.Module{}),
+			Config: appconfig.WrapAny(&vestingmodulev1.Module{}),
 		}
 	}
 }
@@ -240,7 +239,7 @@ func GovModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["gov"] = &appv1alpha1.ModuleConfig{
 			Name:   "gov",
-			Config: depinjectappconfig.WrapAny(&govmodulev1.Module{}),
+			Config: appconfig.WrapAny(&govmodulev1.Module{}),
 		}
 	}
 }
@@ -249,7 +248,7 @@ func ConsensusModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["consensus"] = &appv1alpha1.ModuleConfig{
 			Name:   "consensus",
-			Config: depinjectappconfig.WrapAny(&consensusmodulev1.Module{}),
+			Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
 		}
 	}
 }
@@ -258,7 +257,7 @@ func MintModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["mint"] = &appv1alpha1.ModuleConfig{
 			Name:   "mint",
-			Config: depinjectappconfig.WrapAny(&mintmodulev1.Module{}),
+			Config: appconfig.WrapAny(&mintmodulev1.Module{}),
 			GolangBindings: []*appv1alpha1.GolangBinding{
 				{
 					InterfaceType:  "github.com/cosmos/cosmos-sdk/x/mint/types/types.StakingKeeper",
@@ -282,7 +281,7 @@ func AuthzModule() ModuleOption {
 	return func(config *Config) {
 		config.ModuleConfigs["authz"] = &appv1alpha1.ModuleConfig{
 			Name:   "authz",
-			Config: depinjectappconfig.WrapAny(&authzmodulev1.Module{}),
+			Config: appconfig.WrapAny(&authzmodulev1.Module{}),
 		}
 	}
 }
