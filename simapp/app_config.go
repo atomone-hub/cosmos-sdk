@@ -14,9 +14,9 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
-	runtimemodule "github.com/cosmos/cosmos-sdk/runtime/module"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
+	runtimemodule "github.com/cosmos/cosmos-sdk/runtime/module"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
