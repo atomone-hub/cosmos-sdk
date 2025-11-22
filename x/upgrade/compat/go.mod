@@ -1,4 +1,4 @@
-module cosmossdk.io/x/upgrade/types
+module cosmossdk.io/x/upgrade
 
 go 1.24.5
 

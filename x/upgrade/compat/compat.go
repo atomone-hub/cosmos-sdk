@@ -5,6 +5,8 @@ import (
 
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	compat "cosmossdk.io/x/upgrade/types"
 )
 
 func NewUpgradeKeeperCompat(k *upgradekeeper.Keeper) *upgradeKeeperCompat {
@@ -17,13 +19,13 @@ type upgradeKeeperCompat struct {
 	*upgradekeeper.Keeper
 }
 
-func (u *upgradeKeeperCompat) GetUpgradePlan(ctx context.Context) (Plan, error) {
+func (u *upgradeKeeperCompat) GetUpgradePlan(ctx context.Context) (compat.Plan, error) {
 	plan, err := u.Keeper.GetUpgradePlan(ctx)
 	if err != nil {
-		return Plan{}, err
+		return compat.Plan{}, err
 	}
 
-	return Plan{
+	return compat.Plan{
 		Name:   plan.Name,
 		Height: plan.Height,
 		Info:   plan.Info,
@@ -38,7 +40,7 @@ func (u *upgradeKeeperCompat) GetUpgradedConsensusState(ctx context.Context, las
 	return u.Keeper.GetUpgradedConsensusState(ctx, lastHeight)
 }
 
-func (u *upgradeKeeperCompat) ScheduleUpgrade(ctx context.Context, plan Plan) error {
+func (u *upgradeKeeperCompat) ScheduleUpgrade(ctx context.Context, plan compat.Plan) error {
 	return u.Keeper.ScheduleUpgrade(ctx, upgradetypes.Plan{
 		Name:   plan.Name,
 		Height: plan.Height,
