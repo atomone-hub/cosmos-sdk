@@ -7,6 +7,12 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
+func NewUpgradeKeeperCompat(k *upgradekeeper.Keeper) *upgradeKeeperCompat {
+	return &upgradeKeeperCompat{
+		Keeper: k,
+	}
+}
+
 type upgradeKeeperCompat struct {
 	*upgradekeeper.Keeper
 }
