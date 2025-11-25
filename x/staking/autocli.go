@@ -5,15 +5,15 @@ import (
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	_ "cosmossdk.io/api/cosmos/crypto/ed25519" // register to that it shows up in protoregistry.GlobalTypes
-	stakingv1beta "cosmossdk.io/api/cosmos/staking/v1beta1"
 
 	"github.com/cosmos/cosmos-sdk/version"
+	stakingv1beta "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 	return &autocliv1.ModuleOptions{
 		Query: &autocliv1.ServiceCommandDescriptor{
-			Service: stakingv1beta.Query_ServiceDesc.ServiceName,
+			Service: stakingv1beta.Query_serviceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "Validators",
@@ -43,7 +43,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				{
 					RpcMethod: "ValidatorUnbondingDelegations",
 					Use:       "unbonding-delegations-from [validator-addr]",
-					Short:     "Query all unbonding delegatations from a validator",
+					Short:     "Query all unbonding delegations from a validator",
 					Long:      "Query delegations that are unbonding _from_ a validator.",
 					Example:   fmt.Sprintf("$ %s query staking unbonding-delegations-from [val-addr]", version.AppName),
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
@@ -140,7 +140,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			},
 		},
 		Tx: &autocliv1.ServiceCommandDescriptor{
-			Service: stakingv1beta.Msg_ServiceDesc.ServiceName,
+			Service: stakingv1beta.Msg_serviceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod:      "Delegate",
@@ -174,8 +174,12 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "validator_address"}, {ProtoField: "amount"}, {ProtoField: "creation_height"}},
 				},
 				{
-					RpcMethod: "UpdateParams",
-					Skip:      true, // skipped because authority gated
+					RpcMethod:      "UpdateParams",
+					Use:            "update-params-proposal [params]",
+					Short:          "Submit a proposal to update staking module params. Note: the entire params must be provided.",
+					Long:           fmt.Sprintf("Submit a proposal to update staking module params. Note: the entire params must be provided.\n See the fields to fill in by running `%s query staking params --output json`", version.AppName),
+					Example:        fmt.Sprintf(`%s tx staking update-params-proposal '{ "unbonding_time": "504h0m0s", ... }'`, version.AppName),
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "params"}},
 				},
 			},
 			EnhanceCustomCommand: false, // use custom commands only until v0.51

@@ -10,14 +10,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	modulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
+	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/x/upgrade/client/cli"
 	"cosmossdk.io/x/upgrade/keeper"
 	"cosmossdk.io/x/upgrade/types"
+	modulev1 "cosmossdk.io/x/upgrade/types/module"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -170,9 +171,9 @@ func (am AppModule) PreBlock(ctx context.Context) (appmodule.ResponsePreBlock, e
 //
 
 func init() {
-	appmodule.Register(&modulev1.Module{},
-		appmodule.Provide(ProvideModule),
-		appmodule.Invoke(PopulateVersionMap),
+	appconfig.RegisterModule(&modulev1.Module{},
+		appconfig.Provide(ProvideModule),
+		appconfig.Invoke(PopulateVersionMap),
 	)
 }
 
