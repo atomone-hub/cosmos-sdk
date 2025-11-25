@@ -879,6 +879,10 @@ func (suite *KeeperTestSuite) TestGRPCQueryParams() {
 	queryClient := suite.queryClient
 
 	params := v1.DefaultParams()
+	params.MinDeposit = params.MinDepositThrottler.FloorValue
+	params.Quorum = "0.300000000000000000"
+	params.ConstitutionAmendmentQuorum = "0.300000000000000000"
+	params.LawQuorum = "0.300000000000000000"
 
 	var (
 		req    *v1.QueryParamsRequest
@@ -887,52 +891,62 @@ func (suite *KeeperTestSuite) TestGRPCQueryParams() {
 
 	testCases := []struct {
 		msg      string
-		malleate func()
+		malleate func(*KeeperTestSuite)
 		expPass  bool
 	}{
 		{
-			"empty request (valid and returns all params)",
-			func() {
+			"empty request",
+			func(suite *KeeperTestSuite) {
 				req = &v1.QueryParamsRequest{}
+				expRes = &v1.QueryParamsResponse{
+					Params: &params,
+				}
 			},
 			true,
 		},
 		{
 			"deposit params request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1.QueryParamsRequest{ParamsType: v1.ParamDeposit}
-				depositParams := v1.NewDepositParams(params.MinDeposit, params.MaxDepositPeriod) //nolint:staticcheck // SA1019: params.MinDeposit is deprecated: Use MinInitialDeposit instead.
+				depositParams := v1.NewDepositParams(params.MinDeposit, params.MaxDepositPeriod)
 				expRes = &v1.QueryParamsResponse{
 					DepositParams: &depositParams,
+					Params:        &params,
 				}
 			},
 			true,
 		},
 		{
 			"voting params request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1.QueryParamsRequest{ParamsType: v1.ParamVoting}
-				votingParams := v1.NewVotingParams(params.VotingPeriod) //nolint:staticcheck // SA1019: params.VotingPeriod is deprecated: Use VotingPeriod instead.
+				votingParams := v1.NewVotingParams(params.VotingPeriod)
 				expRes = &v1.QueryParamsResponse{
 					VotingParams: &votingParams,
+					Params:       &params,
 				}
 			},
 			true,
 		},
 		{
 			"tally params request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1.QueryParamsRequest{ParamsType: v1.ParamTallying}
-				tallyParams := v1.NewTallyParams(params.Quorum, params.Threshold) //nolint:staticcheck // SA1019: params.Quorum is deprecated: Use Quorum instead.
+				tallyParams := v1.NewTallyParams(
+					"0.300000000000000000", params.Threshold,
+					"0.300000000000000000", params.ConstitutionAmendmentThreshold,
+					"0.300000000000000000", params.LawThreshold,
+				)
 				expRes = &v1.QueryParamsResponse{
 					TallyParams: &tallyParams,
+					Params:      &params,
 				}
 			},
 			true,
 		},
 		{
 			"invalid request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1.QueryParamsRequest{ParamsType: "wrongPath"}
 				expRes = &v1.QueryParamsResponse{}
 			},
@@ -942,15 +956,16 @@ func (suite *KeeperTestSuite) TestGRPCQueryParams() {
 
 	for _, testCase := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
-			testCase.malleate()
+			testCase.malleate(suite)
 
 			params, err := queryClient.Params(gocontext.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(expRes.GetDepositParams(), params.GetDepositParams()) //nolint:staticcheck // SA1019: params.MinDeposit is deprecated: Use MinInitialDeposit instead.
-				suite.Require().Equal(expRes.GetVotingParams(), params.GetVotingParams())   //nolint:staticcheck // SA1019: params.VotingPeriod is deprecated: Use VotingPeriod instead.
-				suite.Require().Equal(expRes.GetTallyParams(), params.GetTallyParams())     //nolint:staticcheck // SA1019: params.Quorum is deprecated: Use Quorum instead.
+				suite.Require().Equal(expRes.GetDepositParams(), params.GetDepositParams())
+				suite.Require().Equal(expRes.GetVotingParams(), params.GetVotingParams())
+				suite.Require().Equal(expRes.GetTallyParams(), params.GetTallyParams())
+				suite.Require().Equal(expRes.Params, params.Params)
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(params)

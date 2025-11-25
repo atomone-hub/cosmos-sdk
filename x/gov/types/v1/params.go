@@ -81,11 +81,17 @@ func NewDepositParams(minDeposit sdk.Coins, maxDepositPeriod *time.Duration) Dep
 }
 
 // Deprecated: NewTallyParams creates a new TallyParams object
-func NewTallyParams(quorum, threshold string,
+func NewTallyParams(quorum, threshold,
+	constitutionAmendmentQuorum, constitutionAmendmentThreshold,
+	lawQuorum, lawThreshold string,
 ) TallyParams {
 	return TallyParams{
-		Quorum:    quorum,
-		Threshold: threshold,
+		Quorum:                         quorum,
+		Threshold:                      threshold,
+		ConstitutionAmendmentQuorum:    constitutionAmendmentQuorum,
+		ConstitutionAmendmentThreshold: constitutionAmendmentThreshold,
+		LawQuorum:                      lawQuorum,
+		LawThreshold:                   lawThreshold,
 	}
 }
 

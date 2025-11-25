@@ -8,7 +8,7 @@ import (
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -164,6 +164,13 @@ func (q queryServer) Params(ctx context.Context, req *v1.QueryParamsRequest) (*v
 	if err != nil {
 		return nil, err
 	}
+
+	// NOTE: feed deprecated parameters with dynamic values for backward compat
+	params.MinDeposit = q.k.GetMinDeposit(ctx)
+	params.Quorum = q.k.GetQuorum(ctx).String()
+	params.ConstitutionAmendmentQuorum = q.k.GetConstitutionAmendmentQuorum(ctx).String()
+	params.LawQuorum = q.k.GetLawQuorum(ctx).String()
+
 	response := &v1.QueryParamsResponse{}
 
 	//nolint:staticcheck // needed for legacy parameters
@@ -177,7 +184,11 @@ func (q queryServer) Params(ctx context.Context, req *v1.QueryParamsRequest) (*v
 		response.VotingParams = &votingParams
 
 	case v1.ParamTallying:
-		tallyParams := v1.NewTallyParams(params.Quorum, params.Threshold)
+		tallyParams := v1.NewTallyParams(
+			params.Quorum, params.Threshold,
+			params.ConstitutionAmendmentQuorum, params.ConstitutionAmendmentThreshold,
+			params.LawQuorum, params.LawThreshold,
+		)
 		response.TallyParams = &tallyParams
 	default:
 		if len(req.ParamsType) > 0 {
@@ -427,17 +438,12 @@ func (q legacyQueryServer) Params(ctx context.Context, req *v1beta1.QueryParamsR
 	}
 
 	response := &v1beta1.QueryParamsResponse{}
-
 	if resp.DepositParams == nil && resp.VotingParams == nil && resp.TallyParams == nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%s is not a valid parameter type", req.ParamsType)
 	}
 
 	if resp.DepositParams != nil {
 		minDeposit := sdk.NewCoins(resp.DepositParams.MinDeposit...)
-		// If deprecated MinDeposit is empty, use throttler floor value from the params
-		if len(minDeposit) == 0 && resp.Params != nil {
-			minDeposit = resp.Params.MinDepositThrottler.FloorValue
-		}
 		response.DepositParams = v1beta1.NewDepositParams(minDeposit, *resp.DepositParams.MaxDepositPeriod)
 	}
 
@@ -446,38 +452,16 @@ func (q legacyQueryServer) Params(ctx context.Context, req *v1beta1.QueryParamsR
 	}
 
 	if resp.TallyParams != nil {
-		// Handle deprecated fields - if empty, use v1beta1 defaults
-		var quorum, threshold, vetoThreshold sdkmath.LegacyDec
-		var err error
-
-		if resp.TallyParams.Quorum == "" {
-			quorum = v1beta1.DefaultQuorum
-		} else {
-			quorum, err = sdkmath.LegacyNewDecFromStr(resp.TallyParams.Quorum)
-			if err != nil {
-				return nil, err
-			}
+		quorumRes, err := q.qs.Quorums(ctx, &v1.QueryQuorumsRequest{})
+		if err != nil {
+			return nil, err
 		}
-
-		if resp.TallyParams.Threshold == "" {
-			threshold = v1beta1.DefaultThreshold
-		} else {
-			threshold, err = sdkmath.LegacyNewDecFromStr(resp.TallyParams.Threshold)
-			if err != nil {
-				return nil, err
-			}
+		threshold, err := math.LegacyNewDecFromStr(resp.TallyParams.Threshold)
+		if err != nil {
+			return nil, err
 		}
-
-		if resp.TallyParams.VetoThreshold == "" {
-			vetoThreshold = v1beta1.DefaultVetoThreshold
-		} else {
-			vetoThreshold, err = sdkmath.LegacyNewDecFromStr(resp.TallyParams.VetoThreshold)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		response.TallyParams = v1beta1.NewTallyParams(quorum, threshold, vetoThreshold)
+		quorum := math.LegacyMustNewDecFromStr(quorumRes.Quorum)
+		response.TallyParams = v1beta1.NewTallyParams(quorum, threshold, math.LegacyZeroDec())
 	}
 
 	return response, nil
