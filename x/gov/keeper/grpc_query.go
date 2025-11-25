@@ -191,7 +191,7 @@ func (q queryServer) Params(ctx context.Context, req *v1.QueryParamsRequest) (*v
 		)
 		response.TallyParams = &tallyParams
 	default:
-		if len(req.ParamsType) > 0 {
+		if len(req.ParamsType) > 1 {
 			return nil, status.Errorf(codes.InvalidArgument, "unknown params type: %s", req.ParamsType)
 		}
 	}

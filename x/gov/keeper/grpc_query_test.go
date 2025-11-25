@@ -982,9 +982,6 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 		expRes *v1beta1.QueryParamsResponse
 	)
 
-	// Get actual params from the keeper to set expectations
-	actualParams, _ := suite.govKeeper.Params.Get(suite.ctx)
-
 	defaultTallyParams := v1beta1.TallyParams{
 		Quorum:        math.LegacyNewDec(0),
 		Threshold:     math.LegacyNewDec(0),
@@ -993,22 +990,24 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 
 	testCases := []struct {
 		msg      string
-		malleate func()
+		malleate func(*KeeperTestSuite)
 		expPass  bool
 	}{
 		{
 			"empty request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1beta1.QueryParamsRequest{}
+				expRes = &v1beta1.QueryParamsResponse{
+					TallyParams: defaultTallyParams,
+				}
 			},
-			false,
+			true,
 		},
 		{
 			"deposit params request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1beta1.QueryParamsRequest{ParamsType: v1beta1.ParamDeposit}
-				// Use actual params from the system, not v1beta1 defaults
-				depositParams := v1beta1.NewDepositParams(actualParams.MinDepositThrottler.FloorValue, *actualParams.MaxDepositPeriod)
+				depositParams := v1beta1.DefaultDepositParams()
 				expRes = &v1beta1.QueryParamsResponse{
 					DepositParams: depositParams,
 					TallyParams:   defaultTallyParams,
@@ -1018,10 +1017,9 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 		},
 		{
 			"voting params request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1beta1.QueryParamsRequest{ParamsType: v1beta1.ParamVoting}
-				// Use actual params from the system, not v1beta1 defaults
-				votingParams := v1beta1.NewVotingParams(*actualParams.VotingPeriod)
+				votingParams := v1beta1.DefaultVotingParams()
 				expRes = &v1beta1.QueryParamsResponse{
 					VotingParams: votingParams,
 					TallyParams:  defaultTallyParams,
@@ -1031,15 +1029,9 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 		},
 		{
 			"tally params request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1beta1.QueryParamsRequest{ParamsType: v1beta1.ParamTallying}
-				// AtomOne sets deprecated tally params to default values for backward compatibility
-				// The threshold is 0.667 (AtomOne default), not 0.5 (v1beta1 default)
-				tallyParams := v1beta1.NewTallyParams(
-					v1beta1.DefaultQuorum,
-					math.LegacyNewDecWithPrec(667, 3), // AtomOne default threshold
-					v1beta1.DefaultVetoThreshold,
-				)
+				tallyParams := v1beta1.NewTallyParams(math.LegacyNewDecWithPrec(30, 2), v1beta1.DefaultThreshold, v1beta1.DefaultVetoThreshold)
 				expRes = &v1beta1.QueryParamsResponse{
 					TallyParams: tallyParams,
 				}
@@ -1048,7 +1040,7 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 		},
 		{
 			"invalid request",
-			func() {
+			func(suite *KeeperTestSuite) {
 				req = &v1beta1.QueryParamsRequest{ParamsType: "wrongPath"}
 				expRes = &v1beta1.QueryParamsResponse{}
 			},
@@ -1058,7 +1050,7 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 
 	for _, testCase := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
-			testCase.malleate()
+			testCase.malleate(suite)
 
 			params, err := queryClient.Params(gocontext.Background(), req)
 

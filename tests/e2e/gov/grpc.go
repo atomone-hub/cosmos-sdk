@@ -357,9 +357,9 @@ func (s *E2ETestSuite) TestGetParamsGRPC() {
 	val := s.network.Validators[0]
 
 	params := v1.DefaultParams()
-	dp := v1.NewDepositParams(params.MinDeposit, params.MaxDepositPeriod) //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
-	vp := v1.NewVotingParams(params.VotingPeriod)                         //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
-	tp := v1.NewTallyParams(params.Quorum, params.Threshold)              //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
+	dp := v1.NewDepositParams(params.MinDeposit, params.MaxDepositPeriod)                                                                                                      //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
+	vp := v1.NewVotingParams(params.VotingPeriod)                                                                                                                              //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
+	tp := v1.NewTallyParams(params.Quorum, params.Threshold, params.ConstitutionAmendmentQuorum, params.ConstitutionAmendmentThreshold, params.LawQuorum, params.LawThreshold) //nolint:staticcheck // we use deprecated gov commands here, but we don't want to remove them
 
 	testCases := []struct {
 		name       string
