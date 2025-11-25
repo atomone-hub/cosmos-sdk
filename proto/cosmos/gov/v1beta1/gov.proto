@@ -25,6 +25,8 @@ enum VoteOption {
   VOTE_OPTION_ABSTAIN = 2 [(gogoproto.enumvalue_customname) = "OptionAbstain"];
   // VOTE_OPTION_NO defines a no vote option.
   VOTE_OPTION_NO = 3 [(gogoproto.enumvalue_customname) = "OptionNo"];
+  // VOTE_OPTION_NO_WITH_VETO defines a no with veto vote option.
+  VOTE_OPTION_NO_WITH_VETO = 4 [(gogoproto.enumvalue_customname) = "OptionNoWithVeto"];
 }
 
 // WeightedVoteOption defines a unit of vote for vote split.
@@ -141,6 +143,9 @@ enum ProposalStatus {
   // PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
   // failed.
   PROPOSAL_STATUS_FAILED = 5 [(gogoproto.enumvalue_customname) = "StatusFailed"];
+  // PROPOSAL_STATUS_VETOED defines a proposal status of a proposal that has
+  // been vetoed.
+  PROPOSAL_STATUS_VETOED = 6 [(gogoproto.enumvalue_customname) = "StatusVetoed"];
 }
 
 // TallyResult defines a standard tally for a governance proposal.

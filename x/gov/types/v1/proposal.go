@@ -21,6 +21,7 @@ const (
 	StatusPassed        = ProposalStatus_PROPOSAL_STATUS_PASSED
 	StatusRejected      = ProposalStatus_PROPOSAL_STATUS_REJECTED
 	StatusFailed        = ProposalStatus_PROPOSAL_STATUS_FAILED
+	StatusVetoed        = ProposalStatus_PROPOSAL_STATUS_VETOED
 )
 
 // ProposalKinds is a bitmask representing which messages are listed in a
@@ -65,12 +66,13 @@ func NewProposal(messages []sdk.Msg, id uint64, submitTime, depositEndTime time.
 		Title:            title,
 		Summary:          summary,
 		Proposer:         proposer.String(),
+		Endorsed:         false,
 	}
 
 	return p, nil
 }
 
-// GetMessages returns the proposal messages
+// GetMsgs returns the proposal messages
 func (p Proposal) GetMsgs() ([]sdk.Msg, error) {
 	return sdktx.GetMsgs(p.Messages, "sdk.MsgProposal")
 }
@@ -87,10 +89,10 @@ var _ types.UnpackInterfacesMessage = Proposals{}
 
 // String implements stringer interface
 func (p Proposals) String() string {
-	out := "ID - (Status) [Type] Title\n"
+	out := "ID - (Status) - Title\n"
 	for _, prop := range p {
-		out += fmt.Sprintf("%d - %s\n",
-			prop.Id, prop.Status)
+		out += fmt.Sprintf("%d - (%s) - %s\n",
+			prop.Id, prop.Status, prop.Title)
 	}
 	return strings.TrimSpace(out)
 }
@@ -124,10 +126,10 @@ func ProposalStatusFromString(str string) (ProposalStatus, error) {
 func (status ProposalStatus) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 's':
-		s.Write([]byte(status.String()))
+		s.Write([]byte(status.String())) //nolint:errcheck
 	default:
 		// TODO: Do this conversion more directly
-		s.Write([]byte(fmt.Sprintf("%v", byte(status))))
+		s.Write([]byte(fmt.Sprintf("%v", byte(status)))) //nolint:errcheck
 	}
 }
 
@@ -138,7 +140,8 @@ func ValidProposalStatus(status ProposalStatus) bool {
 		status == StatusVotingPeriod ||
 		status == StatusPassed ||
 		status == StatusRejected ||
-		status == StatusFailed {
+		status == StatusFailed ||
+		status == StatusVetoed {
 		return true
 	}
 	return false
