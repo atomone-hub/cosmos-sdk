@@ -90,26 +90,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:       "constitution",
 					Short:     "Query the current chain constitution",
 				},
-				// {
-				// 	RpcMethod: "MinDeposit",
-				// 	Use:       "min-deposit",
-				// 	Short:     "Queries the minimum deposit currently, required for a proposal to enter voting period.",
-				// },
-				// {
-				// 	RpcMethod: "MinInitialDeposit",
-				// 	Use:       "min-initial-deposit",
-				// 	Short:     "Query the minimum initial deposit needed for a proposal to enter deposit period",
-				// },
-				// {
-				// 	RpcMethod: "Quorums",
-				// 	Use:       "quorums",
-				// 	Short:     "Query the current state of the dynamic quorums",
-				// },
-				// {
-				// 	RpcMethod: "ParticipationEMAs",
-				// 	Use:       "participation",
-				// 	Short:     "Query the current state of the exponential moving average of the proposal participations",
-				// },
 			},
 			EnhanceCustomCommand: true, // We still have manual commands in gov that we want to keep
 		},
@@ -155,7 +135,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Skip:      true, // skipped because authority gated
 				},
 			},
-			EnhanceCustomCommand: false, // use custom commands only until v0.51
+			EnhanceCustomCommand: true, // use custom commands only until v0.51
 		},
 	}
 }
