@@ -53,9 +53,9 @@ func (h *MockGovHooksReceiver) AfterProposalVotingPeriodEnded(ctx context.Contex
 }
 
 func TestHooks(t *testing.T) {
-	minDepositFloor := v1.DefaultParams().MinDepositThrottler.FloorValue
 	govKeeper, authKeeper, bankKeeper, stakingKeeper, _, _, ctx := setupGovKeeper(t)
-	addrs := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 1, minDepositFloor[0].Amount)
+	minDeposit := govKeeper.GetMinDeposit(ctx)
+	addrs := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 1, minDeposit[0].Amount)
 
 	authKeeper.EXPECT().AddressCodec().Return(address.NewBech32Codec("cosmos")).AnyTimes()
 	stakingKeeper.EXPECT().ValidatorAddressCodec().Return(address.NewBech32Codec("cosmosvaloper")).AnyTimes()
@@ -88,7 +88,7 @@ func TestHooks(t *testing.T) {
 	p2, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
 	require.NoError(t, err)
 
-	activated, err := govKeeper.AddDeposit(ctx, p2.Id, addrs[0], minDepositFloor)
+	activated, err := govKeeper.AddDeposit(ctx, p2.Id, addrs[0], minDeposit, false)
 	require.True(t, activated)
 	require.NoError(t, err)
 	require.True(t, govHooksReceiver.AfterProposalDepositValid)

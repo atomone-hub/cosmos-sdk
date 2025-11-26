@@ -55,7 +55,7 @@ func TestDeposits(t *testing.T) {
 	require.Nil(t, proposal.VotingStartTime)
 
 	// Check first deposit
-	votingStarted, err := govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake)
+	votingStarted, err := govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake, false)
 	require.NoError(t, err)
 	require.False(t, votingStarted)
 	deposit, err := govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[0]))
@@ -68,7 +68,7 @@ func TestDeposits(t *testing.T) {
 	require.Equal(t, addr0Initial.Sub(fourStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
 
 	// Check a second deposit from same address
-	votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake)
+	votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake, false)
 	require.NoError(t, err)
 	require.False(t, votingStarted)
 	deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[0]))
@@ -81,7 +81,7 @@ func TestDeposits(t *testing.T) {
 	require.Equal(t, addr0Initial.Sub(fourStake...).Sub(fiveStake...), bankKeeper.GetAllBalances(ctx, TestAddrs[0]))
 
 	// Check third deposit from a new address
-	votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[1], fourStake)
+	votingStarted, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[1], fourStake, false)
 	require.NoError(t, err)
 	require.True(t, votingStarted)
 	deposit, err = govKeeper.Deposits.Get(ctx, collections.Join(proposalID, TestAddrs[1]))
@@ -128,7 +128,7 @@ func TestDeposits(t *testing.T) {
 	proposal, err = govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0])
 	require.NoError(t, err)
 	proposalID = proposal.Id
-	_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake)
+	_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fourStake, false)
 	require.NoError(t, err)
 	govKeeper.DeleteAndBurnDeposits(ctx, proposalID)
 	deposits, _ = govKeeper.GetDeposits(ctx, proposalID)
@@ -214,7 +214,7 @@ func TestDepositAmount(t *testing.T) {
 			require.NoError(t, err)
 			proposalID := proposal.Id
 
-			_, err = govKeeper.AddDeposit(ctx, proposalID, testAddrs[0], tc.deposit)
+			_, err = govKeeper.AddDeposit(ctx, proposalID, testAddrs[0], tc.deposit, false)
 			if tc.err != "" {
 				require.Error(t, err)
 				require.Equal(t, tc.err, err.Error())
@@ -410,7 +410,7 @@ func TestChargeDeposit(t *testing.T) {
 				proposalID := proposal.Id
 				// deposit to proposal
 				fiveStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 300)))
-				_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake)
+				_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake, false)
 				require.NoError(t, err)
 
 				codec := address.NewBech32Codec("cosmos")

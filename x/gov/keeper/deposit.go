@@ -60,7 +60,7 @@ func (keeper Keeper) IterateDeposits(ctx context.Context, proposalID uint64, cb 
 
 // AddDeposit adds or updates a deposit of a specific depositor on a specific proposal.
 // Activates voting period when appropriate and returns true in that case, else returns false.
-func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, depositorAddr sdk.AccAddress, depositAmount sdk.Coins) (bool, error) {
+func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, depositorAddr sdk.AccAddress, depositAmount sdk.Coins, skipMinDepositRatioCheck bool) (bool, error) {
 	// Checks to see if proposal exists
 	proposal, err := keeper.Proposals.Get(ctx, proposalID)
 	if err != nil {
@@ -78,20 +78,27 @@ func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, deposito
 		return false, err
 	}
 
-	minDepositAmount := keeper.GetMinDeposit(ctx)
-	minDepositRatio, err := sdkmath.LegacyNewDecFromStr(params.GetMinDepositRatio())
-	if err != nil {
-		return false, err
-	}
-
 	// the deposit must only contain valid denoms (listed in the min deposit param)
 	if err := keeper.validateDepositDenom(ctx, params, depositAmount); err != nil {
 		return false, err
 	}
 
+	minDepositAmount := keeper.GetMinDeposit(ctx)
+	// Check if deposit has already sufficient total funds to transition the proposal into the voting period
+	// perhaps because the min deposit was lowered in the meantime. If so, the minDepositRatio check is skipped,
+	// the user is using this message to trigger activation for a proposal already meeting the minimum deposit.
+	if proposal.Status == v1.StatusDepositPeriod && sdk.NewCoins(proposal.TotalDeposit...).IsAllGTE(minDepositAmount) {
+		skipMinDepositRatioCheck = true
+	}
+
+	minDepositRatio, err := sdkmath.LegacyNewDecFromStr(params.GetMinDepositRatio())
+	if err != nil {
+		return false, err
+	}
+
 	// If minDepositRatio is set, the deposit must be equal or greater than minDepositAmount*minDepositRatio
 	// for at least one denom. If minDepositRatio is zero we skip this check.
-	if !minDepositRatio.IsZero() {
+	if !minDepositRatio.IsZero() || !skipMinDepositRatioCheck {
 		var (
 			depositThresholdMet bool
 			thresholds          []string
