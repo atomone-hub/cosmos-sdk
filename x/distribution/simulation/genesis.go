@@ -13,8 +13,11 @@ import (
 
 // Simulation parameter constants
 const (
-	CommunityTax    = "community_tax"
-	WithdrawEnabled = "withdraw_enabled"
+	CommunityTax         = "community_tax"
+	WithdrawEnabled      = "withdraw_enabled"
+	NakamotoBonusEnabled = "nakamoto_bonus_enabled"
+	NakamotoBonusStep    = "nakamoto_bonus_step"
+	NakamotoBonusPeriod  = "nakamoto_bonus_enabled"
 )
 
 // GenCommunityTax randomized CommunityTax
@@ -27,6 +30,21 @@ func GenWithdrawEnabled(r *rand.Rand) bool {
 	return r.Int63n(101) <= 95 // 95% chance of withdraws being enabled
 }
 
+// GenNakamotoBonusEnabled returns a randomized NakamotoBonusEnabled parameter.
+func GenNakamotoBonusEnabled(r *rand.Rand) bool {
+	return r.Int63n(101) <= 70 // 70% chance of nakamoto bonus being enabled
+}
+
+// GenNakamotoBonusStep returns a randomized NakamotoBonusStep parameter.
+func GenNakamotoBonusStep(r *rand.Rand) math.LegacyDec {
+	return math.LegacyNewDecWithPrec(1, 2).Add(math.LegacyNewDecWithPrec(int64(r.Intn(10)), 2))
+}
+
+// GenNakamotoBonusPeriod returns a randomized NakamotoBonusPeriod parameter.
+func GenNakamotoBonusPeriod(r *rand.Rand) uint64 {
+	return (r.Uint64() % types.DefaultNakamotoBonusPeriod) + 1
+}
+
 // RandomizedGenState generates a random GenesisState for distribution
 func RandomizedGenState(simState *module.SimulationState) {
 	var communityTax math.LegacyDec
@@ -35,11 +53,25 @@ func RandomizedGenState(simState *module.SimulationState) {
 	var withdrawEnabled bool
 	simState.AppParams.GetOrGenerate(WithdrawEnabled, &withdrawEnabled, simState.Rand, func(r *rand.Rand) { withdrawEnabled = GenWithdrawEnabled(r) })
 
+	var nakamotoBonusEnabled bool
+	simState.AppParams.GetOrGenerate(NakamotoBonusEnabled, &nakamotoBonusEnabled, simState.Rand, func(r *rand.Rand) { nakamotoBonusEnabled = GenNakamotoBonusEnabled(r) })
+
+	var nakamotoBonusStep math.LegacyDec
+	simState.AppParams.GetOrGenerate(NakamotoBonusStep, &nakamotoBonusStep, simState.Rand, func(r *rand.Rand) { nakamotoBonusStep = GenNakamotoBonusStep(r) })
+
+	var nakamotoBonusPeriod uint64
+	simState.AppParams.GetOrGenerate(NakamotoBonusPeriod, &nakamotoBonusPeriod, simState.Rand, func(r *rand.Rand) { nakamotoBonusPeriod = GenNakamotoBonusPeriod(r) })
+
 	distrGenesis := types.GenesisState{
 		FeePool: types.InitialFeePool(),
 		Params: types.Params{
 			CommunityTax:        communityTax,
 			WithdrawAddrEnabled: withdrawEnabled,
+			NakamotoBonus: types.NakamotoBonus{
+				Enabled: nakamotoBonusEnabled,
+				Step:    nakamotoBonusStep,
+				Period:  nakamotoBonusPeriod,
+			},
 		},
 	}
 

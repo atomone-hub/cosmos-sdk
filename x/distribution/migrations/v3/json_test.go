@@ -52,9 +52,12 @@ func TestMigrateJSON(t *testing.T) {
 		"base_proposer_reward": "0.000000000000000000",
 		"bonus_proposer_reward": "0.000000000000000000",
 		"community_tax": "0.020000000000000000",
-		"nakamoto_bonus_coefficient": "0.030000000000000000",
-		"nakamoto_bonus_enabled": true,
 		"withdraw_addr_enabled": true
+		"nakamoto_bonus": {
+			"step": "3",
+			"enabled": true,
+			"period": "120000",
+		},
 	},
 	"previous_proposer": "",
 	"validator_accumulated_commissions": [],

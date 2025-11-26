@@ -691,6 +691,11 @@ func TestMsgUpdateParams(t *testing.T) {
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					BaseProposerReward:  math.LegacyZeroDec(),
 					BonusProposerReward: math.LegacyZeroDec(),
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    distrtypes.DefaultNakamotoBonusStep,
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr:    true,
@@ -705,6 +710,11 @@ func TestMsgUpdateParams(t *testing.T) {
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					BaseProposerReward:  math.LegacyZeroDec(),
 					BonusProposerReward: math.LegacyZeroDec(),
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    distrtypes.DefaultNakamotoBonusStep,
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr:    true,
@@ -719,6 +729,11 @@ func TestMsgUpdateParams(t *testing.T) {
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					BaseProposerReward:  math.LegacyZeroDec(),
 					BonusProposerReward: math.LegacyZeroDec(),
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    distrtypes.DefaultNakamotoBonusStep,
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr:    true,
@@ -733,6 +748,11 @@ func TestMsgUpdateParams(t *testing.T) {
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					BaseProposerReward:  math.LegacyZeroDec(),
 					BonusProposerReward: math.LegacyZeroDec(),
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    distrtypes.DefaultNakamotoBonusStep,
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr:    true,
@@ -747,6 +767,11 @@ func TestMsgUpdateParams(t *testing.T) {
 					BaseProposerReward:  math.LegacyNewDecWithPrec(1, 2),
 					BonusProposerReward: math.LegacyZeroDec(),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    distrtypes.DefaultNakamotoBonusStep,
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr:    true,
@@ -761,6 +786,11 @@ func TestMsgUpdateParams(t *testing.T) {
 					BaseProposerReward:  math.LegacyZeroDec(),
 					BonusProposerReward: math.LegacyNewDecWithPrec(1, 2),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
+					NakamotoBonus: distrtypes.NakamotoBonus{
+						Enabled: true,
+						Step:    distrtypes.DefaultNakamotoBonusStep,
+						Period:  distrtypes.DefaultNakamotoBonusPeriod,
+					},
 				},
 			},
 			expErr:    true,
@@ -784,8 +814,8 @@ func TestMsgUpdateParams(t *testing.T) {
 			},
 			expErr: false,
 		},
+		// TODO add nakamoto fail cases
 	}
-
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {

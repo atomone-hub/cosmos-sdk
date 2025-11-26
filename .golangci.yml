@@ -63,10 +63,6 @@ issues:
     - text: "leading space"
       linters:
         - nolintlint
-    - path: api
-      linters:
-        - gosec
-      text: 'G115: integer overflow conversion'
   max-issues-per-linter: 10000
   max-same-issues: 10000
 
