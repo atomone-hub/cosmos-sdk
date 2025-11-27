@@ -51,6 +51,11 @@ func (keeper Keeper) UpdateMinDeposit(ctx context.Context, checkElapsedTime bool
 
 	tick := params.MinDepositThrottler.UpdatePeriod
 	lastMinDeposit, err := keeper.LastMinDeposit.Get(ctx)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		keeper.Logger(ctx).Error("failed to get last min deposit", "error", err)
+		return
+	}
+
 	if checkElapsedTime && sdkCtx.BlockTime().Sub(*lastMinDeposit.Time).Nanoseconds() < tick.Nanoseconds() {
 		return
 	}

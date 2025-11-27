@@ -146,37 +146,8 @@ func TestTallyOnlyValidators51Yes(t *testing.T) {
 	assert.Assert(t, ok)
 	passes, burnDeposits, _, tallyResults, err := f.govKeeper.Tally(ctx, proposal)
 
-	assert.Assert(t, passes)
+	assert.Assert(t, !passes) // only validators doesn't pass quorum
 	assert.Assert(t, burnDeposits == false)
-	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
-}
-
-func TestTallyOnlyValidatorsVetoed(t *testing.T) {
-	t.Parallel()
-
-	f := initFixture(t)
-
-	ctx := f.ctx
-
-	valAccAddrs, _ := createValidators(t, f, []int64{6, 6, 7})
-
-	tp := TestProposal
-	proposal, err := f.govKeeper.SubmitProposal(ctx, tp, "", "test", "description", valAccAddrs[0])
-	assert.NilError(t, err)
-	proposalID := proposal.Id
-	proposal.Status = v1.StatusVotingPeriod
-	f.govKeeper.SetProposal(ctx, proposal)
-
-	assert.NilError(t, f.govKeeper.AddVote(ctx, proposalID, valAccAddrs[0], v1.NewNonSplitVoteOption(v1.OptionYes), ""))
-	assert.NilError(t, f.govKeeper.AddVote(ctx, proposalID, valAccAddrs[1], v1.NewNonSplitVoteOption(v1.OptionYes), ""))
-	assert.NilError(t, f.govKeeper.AddVote(ctx, proposalID, valAccAddrs[2], v1.NewNonSplitVoteOption(v1.OptionNo), ""))
-
-	proposal, ok := f.govKeeper.Proposals.Get(ctx, proposalID)
-	assert.Assert(t, ok)
-	passes, burnDeposits, _, tallyResults, err := f.govKeeper.Tally(ctx, proposal)
-
-	assert.Assert(t, passes == false)
-	assert.Assert(t, burnDeposits)
 	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
 }
 
@@ -202,10 +173,11 @@ func TestTallyOnlyValidatorsAbstainPasses(t *testing.T) {
 
 	proposal, ok := f.govKeeper.Proposals.Get(ctx, proposalID)
 	assert.Assert(t, ok)
-	passes, burnDeposits, _, tallyResults, err := f.govKeeper.Tally(ctx, proposal)
+	passes, burnDeposits, participation, tallyResults, err := f.govKeeper.Tally(ctx, proposal)
 
-	assert.Assert(t, passes)
+	assert.Assert(t, !passes)
 	assert.Assert(t, burnDeposits == false)
+	assert.Equal(t, participation, math.LegacyZeroDec()) // validators vote do not count
 	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
 }
 
@@ -306,7 +278,7 @@ func TestTallyDelgatorOverride(t *testing.T) {
 	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
 }
 
-func TestTallyDelgatorInherit(t *testing.T) {
+func TestTallyDelgatorInheritDisabled(t *testing.T) {
 	t.Parallel()
 
 	f := initFixture(t)
@@ -339,7 +311,7 @@ func TestTallyDelgatorInherit(t *testing.T) {
 	assert.NilError(t, err)
 	passes, burnDeposits, _, tallyResults, err := f.govKeeper.Tally(ctx, proposal)
 
-	assert.Assert(t, passes)
+	assert.Assert(t, !passes) // vote not inherited, proposal not passing
 	assert.Assert(t, burnDeposits == false)
 	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
 }

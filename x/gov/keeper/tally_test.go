@@ -10,7 +10,6 @@ import (
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -62,16 +61,16 @@ func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
 		stakingKeeper: stakingKeeper,
 	}
 	stakingKeeper.EXPECT().TotalBondedTokens(gomock.Any()).
-		DoAndReturn(func(_ context.Context) (sdkmath.Int, error) {
-			return sdkmath.NewInt(s.totalBonded), nil
+		DoAndReturn(func(_ context.Context) (math.Int, error) {
+			return math.NewInt(s.totalBonded), nil
 		}).AnyTimes()
 	// Mocks a bunch of validators
 	for i := 0; i < len(valAddrs); i++ {
 		s.validators = append(s.validators, stakingtypes.Validator{
 			OperatorAddress: valAddrs[i].String(),
 			Status:          stakingtypes.Bonded,
-			Tokens:          sdkmath.ZeroInt(),
-			DelegatorShares: sdkmath.LegacyZeroDec(),
+			Tokens:          math.ZeroInt(),
+			DelegatorShares: math.LegacyZeroDec(),
 		})
 		// validator self delegation
 		s.delegate(sdk.AccAddress(valAddrs[i]), valAddrs[i], 1)
