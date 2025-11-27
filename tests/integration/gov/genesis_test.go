@@ -91,7 +91,7 @@ func TestImportExportQueues(t *testing.T) {
 	proposalID2 := proposal2.Id
 
 	minDeposit := s1.GovKeeper.GetMinDeposit(ctx)
-	votingStarted, err := s1.GovKeeper.AddDeposit(ctx, proposalID2, addrs[0], minDeposit)
+	votingStarted, err := s1.GovKeeper.AddDeposit(ctx, proposalID2, addrs[0], minDeposit, false)
 	assert.NilError(t, err)
 	assert.Assert(t, votingStarted)
 
