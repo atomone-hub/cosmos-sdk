@@ -144,23 +144,8 @@ func setupGovKeeper(t *testing.T) (
 	err = govKeeper.Constitution.Set(ctx, "constitution")
 	require.NoError(t, err)
 
-	// Initialize dynamic deposit values
-	params, err := govKeeper.Params.Get(ctx)
-	require.NoError(t, err)
-	blockTime := ctx.BlockTime()
-	err = govKeeper.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
-		Value: params.MinDepositThrottler.FloorValue,
-		Time:  &blockTime,
-	})
-	require.NoError(t, err)
-	err = govKeeper.LastMinInitialDeposit.Set(ctx, v1.LastMinDeposit{
-		Value: params.MinInitialDepositThrottler.FloorValue,
-		Time:  &blockTime,
-	})
-	require.NoError(t, err)
-
 	// Initialize participation EMAs
-	defaultParticipationEma := math.LegacyMustNewDecFromStr("0.500000000000000000")
+	defaultParticipationEma := math.LegacyMustNewDecFromStr(v1.DefaultParticipationEma)
 	err = govKeeper.ParticipationEMA.Set(ctx, defaultParticipationEma)
 	require.NoError(t, err)
 	err = govKeeper.ConstitutionAmendmentParticipationEMA.Set(ctx, defaultParticipationEma)
