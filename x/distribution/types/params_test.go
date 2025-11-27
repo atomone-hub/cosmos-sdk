@@ -29,7 +29,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: false,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 			err: fmt.Errorf("community tax must be positive: -0.100000000000000000"),
@@ -41,7 +42,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: false,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 		},
@@ -52,7 +54,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: false,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 		},
@@ -63,7 +66,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: false,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 		},
@@ -74,7 +78,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: false,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 			err: fmt.Errorf("community tax too large: 1.100000000000000000"),
@@ -86,7 +91,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: false,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 			err: fmt.Errorf("community tax must be not nil"),
@@ -98,7 +104,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: true,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 			err: fmt.Errorf("community tax too large: 2.000000000000000000"),
@@ -110,7 +117,8 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: true,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 		},
@@ -121,45 +129,61 @@ func TestParams_ValidateBasic(t *testing.T) {
 				WithdrawAddrEnabled: true,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    types.DefaultNakamotoBonusStep,
 				},
 			},
 		},
 		{
-			name: "negative nakamoto bonus",
+			name: "negative nakamoto bonus step",
 			params: types.Params{
 				CommunityTax:        toDec("0.1"),
 				WithdrawAddrEnabled: true,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    toDec("-0.3"),
 				},
 			},
-			err: fmt.Errorf("nakamoto bonus coefficient must be positive: -0.300000000000000000"),
+			err: fmt.Errorf("nakamoto bonus step must be positive: -0.300000000000000000"),
 		},
 		{
-			name: "nakamoto bonus coefficient nil",
+			name: "nakamoto bonus step nil",
 			params: types.Params{
 				CommunityTax:        toDec("0.1"),
 				WithdrawAddrEnabled: true,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
 				},
 			},
-			err: fmt.Errorf("nakamoto bonus coefficient must be not nil"),
+			err: fmt.Errorf("nakamoto bonus step must be not nil"),
 		},
 		{
-			name: "nakamoto bonus too large",
+			name: "nakamoto bonus step too large",
 			params: types.Params{
 				CommunityTax:        toDec("0.1"),
 				WithdrawAddrEnabled: true,
 				NakamotoBonus: types.NakamotoBonus{
 					Enabled: true,
-					Period:  120_000,
+					Period:  types.DefaultNakamotoBonusPeriod,
+					Step:    sdkmath.LegacyOneDec().Add(sdkmath.LegacyNewDec(1)),
 				},
 			},
-			err: fmt.Errorf("nakamoto bonus coefficient too large: 2.000000000000000000"),
+			err: fmt.Errorf("nakamoto bonus step too large: 2.000000000000000000"),
+		},
+		{
+			name: "nakamoto bonus period zero",
+			params: types.Params{
+				CommunityTax:        toDec("0.1"),
+				WithdrawAddrEnabled: true,
+				NakamotoBonus: types.NakamotoBonus{
+					Enabled: true,
+					Period:  0,
+					Step:    types.DefaultNakamotoBonusStep,
+				},
+			},
+			err: fmt.Errorf("nakamoto bonus period must be greater than zero: 0"),
 		},
 	}
 	for _, tt := range tests {

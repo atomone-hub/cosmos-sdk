@@ -64,18 +64,23 @@ func validateWithdrawAddrEnabled(i interface{}) error {
 	return nil
 }
 
-func validateNakamotoBonus(v NakamotoBonus) error {
+func validateNakamotoBonus(i interface{}) error {
+	v, ok := i.(NakamotoBonus)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
 	if v.Period == 0 {
 		return fmt.Errorf("nakamoto bonus period must be greater than zero: %d", v.Period)
 	}
 
 	switch {
 	case v.Step.IsNil():
-		return fmt.Errorf("nakamoto bonus coefficient must be not nil")
+		return fmt.Errorf("nakamoto bonus step must be not nil")
 	case v.Step.IsNegative():
-		return fmt.Errorf("nakamoto bonus coefficient must be positive: %v", v)
+		return fmt.Errorf("nakamoto bonus step must be positive: %v", v.Step)
 	case v.Step.GT(math.LegacyOneDec()):
-		return fmt.Errorf("nakamoto bonus coefficient too large: %v", v)
+		return fmt.Errorf("nakamoto bonus step too large: %v", v.Step)
 	}
 	return nil
 }
