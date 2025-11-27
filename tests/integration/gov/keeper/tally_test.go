@@ -151,7 +151,7 @@ func TestTallyOnlyValidators51Yes(t *testing.T) {
 	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
 }
 
-func TestTallyOnlyValidatorsAbstainPasses(t *testing.T) {
+func TestTallyOnlyValidatorsAbstain(t *testing.T) {
 	t.Parallel()
 
 	f := initFixture(t)
@@ -177,7 +177,7 @@ func TestTallyOnlyValidatorsAbstainPasses(t *testing.T) {
 
 	assert.Assert(t, !passes)
 	assert.Assert(t, burnDeposits == false)
-	assert.Equal(t, participation, math.LegacyZeroDec()) // validators vote do not count
+	assert.Equal(t, participation.String(), math.LegacyOneDec().String()) // validators vote do not count
 	assert.Assert(t, tallyResults.Equals(v1.EmptyTallyResult()) == false)
 }
 
