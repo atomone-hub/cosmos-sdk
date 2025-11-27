@@ -45,7 +45,6 @@ const (
 // - 0x09: Params
 var (
 	FeePoolKey                        = collections.NewPrefix(0) // key for global distribution state
-	NakamotoBonusKey                  = collections.NewPrefix(1) // key for nakamoto bonus state
 	ProposerKey                       = []byte{0x01}             // key for the proposer operator address
 	ValidatorOutstandingRewardsPrefix = []byte{0x02}             // key for outstanding rewards
 
@@ -57,6 +56,8 @@ var (
 	ValidatorSlashEventPrefix            = []byte{0x08} // key for validator slash fraction
 
 	ParamsKey = collections.NewPrefix(9) // key for distribution module params
+
+	NakamotoBonusKey = collections.NewPrefix(10) // key for nakamoto bonus
 )
 
 // GetValidatorOutstandingRewardsAddress creates an address from a validator's outstanding rewards key.
