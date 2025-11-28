@@ -37,7 +37,7 @@ func (keeper Keeper) getMinInitialDeposit(ctx context.Context) (v1.LastMinDeposi
 			return v1.LastMinDeposit{}, fmt.Errorf("failed to get params: %w", err)
 		}
 
-		lastMinDeposit.Value = params.MinDepositThrottler.GetFloorValue()
+		lastMinDeposit.Value = params.MinInitialDepositThrottler.GetFloorValue()
 		lastMinDeposit.Time = &time.Time{}
 	} else if err != nil {
 		return v1.LastMinDeposit{}, fmt.Errorf("failed to get min deposit: %w", err)
