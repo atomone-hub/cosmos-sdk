@@ -69,13 +69,11 @@ func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, heig
 
 	require.NoError(t, distrKeeper.FeePool.Set(ctx, disttypes.InitialFeePool()))
 
-	params, err := distrKeeper.Params.Get(ctx)
-	require.NoError(t, err)
+	params := disttypes.DefaultParams()
 	params.NakamotoBonus.Period = uint64(height)
-	params.NakamotoBonus.Enabled = true
 	require.NoError(t, distrKeeper.Params.Set(ctx, params))
 
-	err = distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
+	err := distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
 	require.NoError(t, err)
 
 	return &suite{
