@@ -320,6 +320,11 @@ func SimulateMsgDeposit(
 			return simtypes.NoOpMsg(types.ModuleName, TypeMsgDeposit, "unable to generate proposalID"), nil, nil
 		}
 
+		_, err := k.Proposals.Get(ctx, proposalID)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, TypeMsgDeposit, "unable to get proposal"), nil, err
+		}
+
 		deposit, skip, err := randomDeposit(r, ctx, ak, bk, k, simAccount.Address, false)
 		switch {
 		case skip:
