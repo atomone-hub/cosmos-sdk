@@ -2,11 +2,9 @@ package keeper
 
 import (
 	"context"
-	"errors"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
-	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -52,10 +50,8 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 		return err
 	}
 
-	nakamotoCoefficient, err := k.NakamotoBonus.Get(ctx)
-	if errors.Is(err, collections.ErrNotFound) {
-		nakamotoCoefficient = math.LegacyZeroDec()
-	} else if err != nil {
+	nakamotoCoefficient, err := k.GetNakamotoBonus(ctx)
+	if err != nil {
 		return err
 	}
 

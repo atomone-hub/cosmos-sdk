@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/collections"
@@ -190,6 +191,15 @@ func (k Keeper) WithdrawValidatorCommission(ctx context.Context, valAddr sdk.Val
 	)
 
 	return commission, nil
+}
+
+// GetNakamotoBonus returns the nakamoto bonus from the store
+func (k Keeper) GetNakamotoBonus(ctx context.Context) (math.LegacyDec, error) {
+	nakamotoCoefficient, err := k.NakamotoBonus.Get(ctx)
+	if errors.Is(err, collections.ErrNotFound) {
+		return math.LegacyZeroDec(), nil
+	}
+	return nakamotoCoefficient, err
 }
 
 // GetTotalRewards returns the total amount of fee distribution rewards held in the store

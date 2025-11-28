@@ -372,7 +372,7 @@ func (k Querier) CommunityPool(ctx context.Context, _ *types.QueryCommunityPoolR
 
 // NakamotoBonusCoefficient returns the current Nakamoto bonus coefficient.
 func (k Querier) NakamotoBonusCoefficient(ctx context.Context, _ *types.QueryNakamotoBonusCoefficientRequest) (*types.QueryNakamotoBonusCoefficientResponse, error) {
-	coefficient, err := k.Keeper.NakamotoBonus.Get(ctx)
+	coefficient, err := k.GetNakamotoBonus(ctx)
 	if err != nil {
 		return nil, err
 	}

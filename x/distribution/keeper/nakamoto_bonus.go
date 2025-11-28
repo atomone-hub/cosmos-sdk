@@ -21,7 +21,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		return nil
 	}
 
-	nakamotoCoefficient, err := k.NakamotoBonus.Get(ctx)
+	nakamotoCoefficient, err := k.GetNakamotoBonus(ctx)
 	if err != nil {
 		return err
 	}

@@ -26,7 +26,7 @@ func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check η was increased (high/low avg ratio >= 3)
-	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyNewDecWithPrec(6, 2), nakamotoBonusCoefficient)
 }
@@ -45,7 +45,7 @@ func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check η was decreased and clamped at 0
-	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
 }
@@ -64,7 +64,7 @@ func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
 	require.NoError(t, err)
 
 	// Should stay at 1
-	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyOneDec(), nakamotoBonusCoefficient)
 }
@@ -83,7 +83,7 @@ func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
 	require.NoError(t, err)
 
 	// Should stay at 0
-	nakamotoBonusCoefficient, err := s.distrKeeper.NakamotoBonus.Get(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
 }
