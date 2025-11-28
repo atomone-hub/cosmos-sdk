@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"cosmossdk.io/collections"
@@ -16,26 +18,32 @@ import (
 // GetMinInitialDeposit returns the (dynamic) minimum initial deposit currently required for
 // proposal submission
 func (keeper Keeper) GetMinInitialDeposit(ctx sdk.Context) sdk.Coins {
-	minInitialDeposit, err := keeper.LastMinInitialDeposit.Get(ctx)
+	lastMinInitialDeposit, err := keeper.getMinInitialDeposit(ctx)
 	if err != nil {
 		keeper.Logger(ctx).Error("failed to get last min initial deposit", "error", err)
-		return sdk.Coins{}
+		return sdk.NewCoins()
 	}
 
-	if len(minInitialDeposit.Value) == 0 {
-		// ValidateBasic prevents an empty FloorValue
-		// (and thus an empty deposit), if LastMinInitialDeposit is empty
-		// it means it was never set, so we return the floor value
+	return lastMinInitialDeposit.Value
+}
+
+func (keeper Keeper) getMinInitialDeposit(ctx context.Context) (v1.LastMinDeposit, error) {
+	lastMinDeposit, err := keeper.LastMinInitialDeposit.Get(ctx)
+	if errors.Is(err, collections.ErrNotFound) || len(lastMinDeposit.Value) == 0 {
+		// if LastMinInitialDeposit is empty it means it was never set,
+		// so we return the floor value
 		params, err := keeper.Params.Get(ctx)
 		if err != nil {
-			keeper.Logger(ctx).Error("failed to get params", "error", err)
-			return sdk.Coins{}
+			return v1.LastMinDeposit{}, fmt.Errorf("failed to get params: %w", err)
 		}
 
-		return params.MinInitialDepositThrottler.GetFloorValue()
+		lastMinDeposit.Value = params.MinDepositThrottler.GetFloorValue()
+		lastMinDeposit.Time = &time.Time{}
+	} else if err != nil {
+		return v1.LastMinDeposit{}, fmt.Errorf("failed to get min deposit: %w", err)
 	}
 
-	return minInitialDeposit.Value
+	return lastMinDeposit, nil
 }
 
 // UpdateMinInitialDeposit updates the min initial deposit required for proposal submission
@@ -48,14 +56,15 @@ func (keeper Keeper) UpdateMinInitialDeposit(ctx context.Context, checkElapsedTi
 		return
 	}
 
-	tick := params.MinInitialDepositThrottler.UpdatePeriod
-	lastMinInitialDeposit, err := keeper.LastMinInitialDeposit.Get(ctx)
+	lastMinInitialDeposit, err := keeper.getMinInitialDeposit(ctx)
 	if err != nil {
 		logger.Error("failed to get last min initial deposit", "error", err)
 		return
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	tick := params.MinInitialDepositThrottler.UpdatePeriod
+
 	if checkElapsedTime && sdkCtx.BlockTime().Sub(*lastMinInitialDeposit.Time).Nanoseconds() < tick.Nanoseconds() {
 		return
 	}
@@ -71,7 +80,8 @@ func (keeper Keeper) UpdateMinInitialDeposit(ctx context.Context, checkElapsedTi
 		return false, nil
 	})
 	if err != nil {
-		panic(err)
+		keeper.Logger(ctx).Error("failed to update last min initial deposit", "error", err)
+		return
 	}
 
 	numInactiveProposals := math.NewIntFromUint64(countInactiveProposals)

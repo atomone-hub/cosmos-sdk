@@ -1053,7 +1053,6 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryParams() {
 			testCase.malleate(suite)
 
 			params, err := queryClient.Params(gocontext.Background(), req)
-
 			if testCase.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.GetDepositParams(), params.GetDepositParams())

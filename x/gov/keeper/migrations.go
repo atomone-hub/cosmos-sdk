@@ -22,5 +22,5 @@ func NewMigrator(keeper *Keeper, legacySubspace exported.ParamSubspace) Migrator
 
 // Migrate4to5 migrates from version 4 to 5.
 func (m Migrator) Migrate4to5(ctx sdk.Context) error {
-	return v5.MigrateStore(ctx, m.keeper.storeService, m.keeper.cdc, m.keeper.Constitution)
+	return v5.MigrateStore(ctx, m.keeper.storeService, m.keeper.cdc, m.keeper.Constitution, m.keeper.ParticipationEMA, m.keeper.ConstitutionAmendmentParticipationEMA, m.keeper.LawParticipationEMA)
 }

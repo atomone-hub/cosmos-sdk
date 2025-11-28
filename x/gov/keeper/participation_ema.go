@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
@@ -54,7 +55,7 @@ func (k Keeper) UpdateParticipationEMA(ctx context.Context, proposal v1.Proposal
 func (k Keeper) GetQuorum(ctx context.Context) math.LegacyDec {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to get params: %w", err))
 	}
 
 	participation, err := k.ParticipationEMA.Get(ctx)
@@ -72,8 +73,9 @@ func (k Keeper) GetQuorum(ctx context.Context) math.LegacyDec {
 func (k Keeper) GetConstitutionAmendmentQuorum(ctx context.Context) math.LegacyDec {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to get params: %w", err))
 	}
+
 	participation, err := k.ConstitutionAmendmentParticipationEMA.Get(ctx)
 	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
@@ -89,7 +91,7 @@ func (k Keeper) GetConstitutionAmendmentQuorum(ctx context.Context) math.LegacyD
 func (k Keeper) GetLawQuorum(ctx context.Context) math.LegacyDec {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to get params: %w", err))
 	}
 
 	participation, err := k.LawParticipationEMA.Get(ctx)
