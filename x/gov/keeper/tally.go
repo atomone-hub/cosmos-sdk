@@ -91,7 +91,7 @@ func (keeper Keeper) HasReachedQuorum(ctx sdk.Context, proposal v1.Proposal) (bo
 		return false, nil
 	}
 
-	/* DISABLED on AtomOne - no possible increase of computation speed by
+	/* DISABLED on AtomOne SDK - no possible increase of computation speed by
 	 iterating over validators since vote inheritance is disabled.
 	 Keeping as comment because this should be adapted with governors loop
 
@@ -200,7 +200,7 @@ func (keeper Keeper) tallyVotes(
 		return totalVotingPower, results, err
 	}
 
-	/* DISABLED on AtomOne - Voting can only be done with your own stake
+	/* DISABLED on AtomOne SDK - Voting can only be done with your own stake
 	// iterate over the validators again to tally their voting power
 	for _, val := range currValidators {
 		if len(val.Vote) == 0 {

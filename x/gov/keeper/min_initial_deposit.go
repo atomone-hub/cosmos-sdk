@@ -29,7 +29,7 @@ func (keeper Keeper) GetMinInitialDeposit(ctx sdk.Context) sdk.Coins {
 
 func (keeper Keeper) getMinInitialDeposit(ctx context.Context) (v1.LastMinDeposit, error) {
 	lastMinDeposit, err := keeper.LastMinInitialDeposit.Get(ctx)
-	if errors.Is(err, collections.ErrNotFound) || len(lastMinDeposit.Value) == 0 {
+	if errors.Is(err, collections.ErrNotFound) {
 		// if LastMinInitialDeposit is empty it means it was never set,
 		// so we return the floor value
 		params, err := keeper.Params.Get(ctx)

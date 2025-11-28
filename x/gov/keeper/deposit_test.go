@@ -24,7 +24,12 @@ const (
 
 func TestDeposits(t *testing.T) {
 	govKeeper, authKeeper, bankKeeper, stakingKeeper, distKeeper, _, ctx := setupGovKeeper(t)
-	trackMockBalances(bankKeeper, distKeeper)
+	trackMockBalances(mocks{
+		accKeeper:          authKeeper,
+		bankKeeper:         bankKeeper,
+		stakingKeeper:      stakingKeeper,
+		distributionKeeper: distKeeper,
+	})
 
 	// With expedited proposals the minimum deposit is higher, so we must
 	// initialize and deposit an amount depositMultiplier times larger
@@ -188,7 +193,12 @@ func TestDepositAmount(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			govKeeper, authKeeper, bankKeeper, stakingKeeper, distrKeeper, _, ctx := setupGovKeeper(t)
-			trackMockBalances(bankKeeper, distrKeeper)
+			trackMockBalances(mocks{
+				accKeeper:          authKeeper,
+				bankKeeper:         bankKeeper,
+				stakingKeeper:      stakingKeeper,
+				distributionKeeper: distrKeeper,
+			})
 
 			testAddrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdkmath.NewInt(1000000000000000))
 			authKeeper.EXPECT().AddressCodec().Return(address.NewBech32Codec("cosmos")).AnyTimes()

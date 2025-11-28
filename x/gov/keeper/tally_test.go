@@ -44,10 +44,12 @@ type tallyFixture struct {
 //   - setup IterateBondedValidatorsByPower call
 //   - setup IterateDelegations call for validators
 func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
-	valAddrs []sdk.ValAddress, delAddrs []sdk.AccAddress, govKeeper *keeper.Keeper,
+	valAddrs []sdk.ValAddress, delAddrs []sdk.AccAddress,
+	govKeeper *keeper.Keeper,
 	acctKeeper *govtestutil.MockAccountKeeper,
 	bankKeeper *govtestutil.MockBankKeeper,
 	stakingKeeper *govtestutil.MockStakingKeeper,
+	modifier func(*tallyFixture),
 ) *tallyFixture {
 	s := &tallyFixture{
 		t:             t,
@@ -60,10 +62,11 @@ func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
 		bankKeeper:    bankKeeper,
 		stakingKeeper: stakingKeeper,
 	}
+
 	stakingKeeper.EXPECT().TotalBondedTokens(gomock.Any()).
 		DoAndReturn(func(_ context.Context) (math.Int, error) {
 			return math.NewInt(s.totalBonded), nil
-		}).AnyTimes()
+		}).MaxTimes(1)
 	// Mocks a bunch of validators
 	for i := 0; i < len(valAddrs); i++ {
 		s.validators = append(s.validators, stakingtypes.Validator{
@@ -95,6 +98,11 @@ func newTallyFixture(t *testing.T, ctx sdk.Context, proposal v1.Proposal,
 				}
 				return nil
 			}).AnyTimes()
+
+	if modifier != nil {
+		modifier(s)
+	}
+
 	return s
 }
 
@@ -512,7 +520,7 @@ func TestTally(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, _, _, ctx := setupGovKeeper(t)
+			govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, _, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
 
 			params := v1.DefaultParams()
 			// Ensure params value are different than false
@@ -533,11 +541,9 @@ func TestTally(t *testing.T) {
 			if tt.endorse {
 				proposal.Endorsed = true
 			}
+
 			// Create the test fixture
-			s := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper)
-			if tt.setup != nil {
-				tt.setup(s)
-			}
+			_ = newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, tt.setup)
 
 			pass, burn, _, tally, err := govKeeper.Tally(ctx, proposal)
 
@@ -643,7 +649,7 @@ func TestHasReachedQuorum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, _, _, ctx := setupGovKeeper(t)
+			govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, _, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
 			var (
 				numVals       = 10
 				numDelegators = 5
@@ -655,12 +661,12 @@ func TestHasReachedQuorum(t *testing.T) {
 			proposal, err := govKeeper.SubmitProposal(ctx, tt.proposalMsgs, "", "title", "summary", delAddrs[0])
 			require.NoError(t, err)
 			govKeeper.ActivateVotingPeriod(ctx, proposal)
-			suite := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper)
-			tt.setup(suite)
+
+			suite := newTallyFixture(t, ctx, proposal, valAddrs, delAddrs, govKeeper, mockAccountKeeper, mockBankKeeper, mockStakingKeeper, tt.setup)
 
 			quorum, err := govKeeper.HasReachedQuorum(ctx, proposal)
-
 			require.NoError(t, err)
+
 			assert.Equal(t, tt.expectedQuorum, quorum)
 			if tt.expectedQuorum {
 				// Assert votes are still here after HasReachedQuorum
