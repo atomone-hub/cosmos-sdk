@@ -520,7 +520,7 @@ func (s *E2ETestSuite) TestNewCmdWeightedVote() {
 			"invalid valid split vote string",
 			[]string{
 				"1",
-				"yes/0.6,no/0.3,abstain/0.05",
+				"yes/0.6,no/0.3,abstain/0.1",
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
@@ -532,7 +532,7 @@ func (s *E2ETestSuite) TestNewCmdWeightedVote() {
 			"valid split vote",
 			[]string{
 				"1",
-				"yes=0.6,no=0.3,abstain=0.05",
+				"yes=0.6,no=0.3,abstain=0.1",
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
