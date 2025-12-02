@@ -171,6 +171,50 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			panic(err)
 		}
 	}
+
+	// set governors
+	for _, governor := range data.Governors {
+		// check that base account exists
+		accAddr := sdk.AccAddress(governor.GetAddress())
+		acc := ak.GetAccount(ctx, accAddr)
+		if acc == nil {
+			panic(fmt.Sprintf("account %s does not exist", accAddr.String()))
+		}
+
+		k.SetGovernor(ctx, *governor)
+		if governor.IsActive() {
+			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
+			if err != nil {
+				panic(fmt.Sprintf("failed to delegate to governor %s: %v", governor.GetAddress().String(), err))
+			}
+		}
+	}
+	// set governance delegations
+	for _, delegation := range data.GovernanceDelegations {
+		delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
+		govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
+		// check delegator exists
+		acc := ak.GetAccount(ctx, delAddr)
+		if acc == nil {
+			panic(fmt.Sprintf("account %s does not exist", delAddr.String()))
+		}
+		// check governor exists
+		_, found := k.GetGovernor(ctx, govAddr)
+		if !found {
+			panic(fmt.Sprintf("governor %s does not exist", govAddr.String()))
+		}
+
+		// if account is active governor and delegation is not to self, error
+		delGovAddr := types.GovernorAddress(delAddr)
+		if _, found = k.GetGovernor(ctx, delGovAddr); found && !delGovAddr.Equals(govAddr) {
+			panic(fmt.Sprintf("account %s is an active governor and cannot delegate", delAddr.String()))
+		}
+
+		err := k.DelegateToGovernor(ctx, delAddr, govAddr)
+		if err != nil {
+			panic(fmt.Sprintf("failed to delegate to governor %s: %v", govAddr.String(), err))
+		}
+	}
 }
 
 // ExportGenesis - output genesis parameters
@@ -244,6 +288,13 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) (*v1.GenesisState, error) 
 		panic(err)
 	}
 
+	governors := k.GetAllGovernors(ctx)
+	var governanceDelegations []*v1.GovernanceDelegation
+	for _, g := range governors {
+		delegations := k.GetAllGovernanceDelegationsByGovernor(ctx, g.GetAddress())
+		governanceDelegations = append(governanceDelegations, delegations...)
+	}
+
 	return &v1.GenesisState{
 		StartingProposalId:                    startingProposalID,
 		Deposits:                              proposalsDeposits,
@@ -256,5 +307,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) (*v1.GenesisState, error) 
 		ParticipationEma:                      participationEma.String(),
 		ConstitutionAmendmentParticipationEma: constitutionAmendmentParticipationEma.String(),
 		LawParticipationEma:                   lawParticipationEma.String(),
+		Governors:                             governors,
+		GovernanceDelegations:                 governanceDelegations,
 	}, nil
 }
