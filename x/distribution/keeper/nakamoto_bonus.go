@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"sort"
 
 	"cosmossdk.io/math"
@@ -21,7 +22,12 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		return err
 	}
 
-	if ctx.BlockHeight()%int64(params.NakamotoBonus.Period) != 0 {
+	period := int64(params.NakamotoBonus.Period)
+	if period <= 0 {
+		// misconfigured, do nothing
+		return nil
+	}
+	if ctx.BlockHeight()%period != 0 {
 		return nil
 	}
 
@@ -31,11 +37,14 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	}
 
 	if !params.NakamotoBonus.Enabled {
-		// Force eta to zero if NB disabled
-		if nakamotoCoefficient.IsZero() {
-			return nil
-		}
-		return k.NakamotoBonus.Set(ctx, math.LegacyZeroDec())
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeNakamotoBonusDisabled,
+				sdk.NewAttribute(types.AttributeNakamotoCoefficient, nakamotoCoefficient.String()),
+				sdk.NewAttribute(types.AttributeKeyBlockHeight, fmt.Sprintf("%d", ctx.BlockHeight())),
+			),
+		)
+		return nil
 	}
 
 	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
@@ -96,6 +105,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 			sdk.NewEvent(
 				types.EventTypeUpdateNakamotoCoefficient,
 				sdk.NewAttribute(types.AttributeNakamotoCoefficient, newCoefficient.String()),
+				sdk.NewAttribute(types.AttributeKeyBlockHeight, fmt.Sprintf("%d", ctx.BlockHeight())),
 			),
 		)
 	}

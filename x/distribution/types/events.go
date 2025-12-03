@@ -9,9 +9,11 @@ const (
 	EventTypeWithdrawCommission        = "withdraw_commission"
 	EventTypeProposerReward            = "proposer_reward"
 	EventTypeUpdateNakamotoCoefficient = "update_nakamoto_coefficient"
+	EventTypeNakamotoBonusDisabled     = "nakamoto_bonus_disabled"
 
 	AttributeKeyWithdrawAddress  = "withdraw_address"
 	AttributeKeyValidator        = "validator"
 	AttributeKeyDelegator        = "delegator"
 	AttributeNakamotoCoefficient = "nakamoto_coefficient"
+	AttributeKeyBlockHeight      = "block_height"
 )
