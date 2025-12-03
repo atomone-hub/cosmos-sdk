@@ -175,7 +175,9 @@ func TestTallyOnlyValidatorsAbstain(t *testing.T) {
 
 	proposal, ok := f.govKeeper.Proposals.Get(ctx, proposalID)
 	assert.Assert(t, ok)
+
 	passes, burnDeposits, participation, tallyResults, err := f.govKeeper.Tally(ctx, proposal)
+	assert.NilError(t, err)
 
 	assert.Assert(t, !passes)
 	assert.Assert(t, burnDeposits == false)

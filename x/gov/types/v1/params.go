@@ -55,7 +55,7 @@ var (
 
 	DefaultQuorumTimeout                                             = DefaultVotingPeriod - (time.Hour * 24 * 1) // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
 	DefaultMaxVotingPeriodExtension                                  = DefaultVotingPeriod - DefaultQuorumTimeout // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
-	DefaultQuorumCheckCount                                   uint64 = 0                                          // disabled by default (0 means no check)
+	DefaultQuorumCheckCount                                   uint64 = 0                                          //nolint:revive // disabled by default (0 means no check)
 	DefaultMinDepositUpdatePeriod                                    = time.Hour * 24 * 7
 	DefaultMinDepositDecreaseSensitivityTargetDistance        uint64 = 2
 	DefaultMinDepositIncreaseRatio                                   = math.LegacyNewDecWithPrec(5, 2)
