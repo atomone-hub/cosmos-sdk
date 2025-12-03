@@ -236,7 +236,7 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 		if err != nil {
 			return false, err
 		}
-		
+
 		if err = keeper.ActiveProposalsQueue.Remove(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id)); err != nil {
 			return false, err
 		}

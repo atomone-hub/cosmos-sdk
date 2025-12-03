@@ -65,18 +65,18 @@ func ValidateGenesis(data *GenesisState) error {
 			proposalID uint64
 			Depositor  string
 		}
-		depositIds := make(map[depositKey]struct{})
+		depositIDs := make(map[depositKey]struct{})
 		for _, d := range data.Deposits {
 			if _, ok := proposalIDs[d.ProposalId]; !ok {
 				return fmt.Errorf("deposit %v has non-existent proposal id: %d", d, d.ProposalId)
 			}
 
 			dk := depositKey{d.ProposalId, d.Depositor}
-			if _, ok := depositIds[dk]; ok {
+			if _, ok := depositIDs[dk]; ok {
 				return fmt.Errorf("duplicate deposit: %v", d)
 			}
 
-			depositIds[dk] = struct{}{}
+			depositIDs[dk] = struct{}{}
 		}
 
 		return nil

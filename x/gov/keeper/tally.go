@@ -164,7 +164,7 @@ func (keeper Keeper) tallyVotes(
 		}
 
 		// iterate over all delegations from voter, deduct from any delegated-to validators
-		err = keeper.sk.IterateDelegations(ctx, voter, func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
+		err = keeper.sk.IterateDelegations(ctx, voter, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
 			valAddrStr := delegation.GetValidatorAddr()
 
 			if val, ok := currValidators[valAddrStr]; ok {
