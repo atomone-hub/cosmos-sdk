@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/collections"
 	sdkaddress "cosmossdk.io/core/address"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
@@ -69,11 +71,16 @@ func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, heig
 
 	require.NoError(t, distrKeeper.FeePool.Set(ctx, disttypes.InitialFeePool()))
 
-	params := disttypes.DefaultParams()
+	params, err := distrKeeper.Params.Get(ctx)
+	if errors.Is(err, collections.ErrNotFound) {
+		params = disttypes.DefaultParams()
+	} else {
+		require.NoError(t, err)
+	}
 	params.NakamotoBonus.Period = uint64(height)
 	require.NoError(t, distrKeeper.Params.Set(ctx, params))
 
-	err := distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
+	err = distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
 	require.NoError(t, err)
 
 	return &suite{
