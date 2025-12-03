@@ -115,9 +115,9 @@ func NewParams(
 	minInitialDepositFloor sdk.Coins, minInitialDepositUpdatePeriod time.Duration, minInitialDepositDecreaseSensitivityTargetDistance uint64,
 	minInitialDepositIncreaseRatio, minInitialDepositDecreaseRatio string, targetProposalsInDepositPeriod uint64,
 	burnDepositNoThreshold string,
-	maxQuorum string, minQuorum string,
-	maxConstitutionAmendmentQuorum string, minConstitutionAmendmentQuorum string,
-	maxLawQuorum string, minLawQuorum string,
+	maxQuorum, minQuorum string,
+	maxConstitutionAmendmentQuorum, minConstitutionAmendmentQuorum string,
+	maxLawQuorum, minLawQuorum string,
 	proposalCancelRatio, proposalCancelDest string,
 ) Params {
 	return Params{

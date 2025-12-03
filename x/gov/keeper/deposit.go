@@ -304,7 +304,7 @@ func (keeper Keeper) validateInitialDeposit(ctx context.Context, params v1.Param
 }
 
 // validateDepositDenom validates if the deposit denom is accepted by the governance module.
-func (keeper Keeper) validateDepositDenom(ctx context.Context, params v1.Params, depositAmount sdk.Coins) error {
+func (keeper Keeper) validateDepositDenom(_ context.Context, params v1.Params, depositAmount sdk.Coins) error {
 	// Use the floor value from MinDepositThrottler to determine accepted denoms
 	// The floor defines which denominations are acceptable
 	acceptedCoins := params.MinDepositThrottler.FloorValue

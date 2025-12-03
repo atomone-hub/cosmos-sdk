@@ -875,6 +875,7 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryVotes() {
 	}
 }
 
+//nolint:staticcheck // keep for backward compatibility
 func (suite *KeeperTestSuite) TestGRPCQueryParams() {
 	queryClient := suite.queryClient
 
