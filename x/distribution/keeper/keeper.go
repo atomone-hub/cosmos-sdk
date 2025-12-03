@@ -202,6 +202,17 @@ func (k Keeper) GetNakamotoBonus(ctx context.Context) (math.LegacyDec, error) {
 	return nakamotoCoefficient, err
 }
 
+// SetNakamotoBonus sets Nakamoto Bonus with bounds checks.
+func (k Keeper) SetNakamotoBonus(ctx sdk.Context, nb math.LegacyDec) error {
+	if nb.IsNegative() || nb.GT(math.LegacyOneDec()) {
+		return fmt.Errorf("eta must be within [0,1], got %s", nb.String())
+	}
+	if err := k.NakamotoBonus.Set(ctx, nb); err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetTotalRewards returns the total amount of fee distribution rewards held in the store
 func (k Keeper) GetTotalRewards(ctx context.Context) (totalRewards sdk.DecCoins) {
 	k.IterateValidatorOutstandingRewards(ctx,

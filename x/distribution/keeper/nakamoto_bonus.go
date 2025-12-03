@@ -11,6 +11,10 @@ import (
 )
 
 // AdjustNakamotoBonusCoefficient is called to adjust η dynamically for each block.
+// Every 'period' blocks:
+// - If avg(high group) >= 3x avg(low group), eta += step
+// - Else eta -= step
+// Clamp eta to [0, 1]. If disabled, force to 0.
 func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
@@ -27,9 +31,8 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	}
 
 	if !params.NakamotoBonus.Enabled {
-		// Always set Nakamoto Bonus to zero and skip dynamic update
+		// Force eta to zero if NB disabled
 		if nakamotoCoefficient.IsZero() {
-			// Already zero, nothing to do
 			return nil
 		}
 		return k.NakamotoBonus.Set(ctx, math.LegacyZeroDec())
@@ -41,27 +44,18 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	}
 	n := len(validators)
 	if n < 3 {
-		return nil // Not enough validators to split into three groups
+		return nil // need 3 groups; skip if small set
 	}
+
+	// sort by bonded tokens descending
 	sort.Slice(validators, func(i, j int) bool {
 		return validators[i].GetBondedTokens().GT(validators[j].GetBondedTokens())
 	})
 
-	// Dynamically divide into three groups (high, medium, low) as evenly as possible
-	// high: first groupSize, medium: next groupSize, low: rest
+	// split into 3 groups as evenly as possible: high, medium, low
 	groupSize := n / 3
-
-	highEnd := groupSize
-	mediumEnd := groupSize * 2
-
-	// If there is a remainder, distribute it to the last group ("low")
-	// So low group will have groupSize + remainder
-	lowStart := mediumEnd
-	lowEnd := n
-
-	var high, low []stakingtypes.Validator
-	high = validators[:highEnd]
-	low = validators[lowStart:lowEnd]
+	high := validators[:groupSize]
+	low := validators[groupSize*2:]
 
 	sum := func(vals []stakingtypes.Validator) math.Int {
 		total := math.ZeroInt()
@@ -76,32 +70,34 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		}
 		return math.LegacyNewDecFromInt(sum(vals)).QuoInt64(int64(len(vals)))
 	}
+
 	highAvg := avg(high)
 	lowAvg := avg(low)
-	coefficient := nakamotoCoefficient
+	newCoefficient := nakamotoCoefficient
 
-	// Adjust coefficient: if avgHigh >= 3x avgLow, increase Nakamoto Bonus, else decrease
-	// NakamotoBonusStep should be a decimal value, e.g. 0.03 for 3%
-	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(params.NakamotoBonus.Step) {
-		coefficient = coefficient.Add(params.NakamotoBonus.Step)
+	// If lowAvg is zero, treat as increase case to spur NB
+	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(3)) {
+		newCoefficient = newCoefficient.Add(params.NakamotoBonus.Step)
 	} else {
-		coefficient = coefficient.Sub(params.NakamotoBonus.Step)
-	}
-	if coefficient.LT(math.LegacyZeroDec()) {
-		coefficient = math.LegacyZeroDec()
-	}
-	if coefficient.GT(math.LegacyOneDec()) {
-		coefficient = math.LegacyOneDec()
+		newCoefficient = newCoefficient.Sub(params.NakamotoBonus.Step)
 	}
 
-	if !coefficient.Equal(nakamotoCoefficient) {
+	// clamp to [0,1]
+	if newCoefficient.LT(math.LegacyZeroDec()) {
+		newCoefficient = math.LegacyZeroDec()
+	}
+	if newCoefficient.GT(math.LegacyOneDec()) {
+		newCoefficient = math.LegacyOneDec()
+	}
+
+	// emit event if changed
+	if !newCoefficient.Equal(nakamotoCoefficient) {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventTypeNakamotoCoefficient,
-				sdk.NewAttribute(types.AttributeNakamotoCoefficient, coefficient.String()),
+				types.EventTypeUpdateNakamotoCoefficient,
+				sdk.NewAttribute(types.AttributeNakamotoCoefficient, newCoefficient.String()),
 			),
 		)
 	}
-
-	return k.NakamotoBonus.Set(ctx, coefficient)
+	return k.NakamotoBonus.Set(ctx, newCoefficient)
 }
