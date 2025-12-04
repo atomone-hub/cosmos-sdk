@@ -13,9 +13,9 @@ import (
 
 // AdjustNakamotoBonusCoefficient is called to adjust η dynamically for each block.
 // Every 'period' blocks:
-// - If avg(high group) >= 3x avg(low group), eta += step
-// - Else eta -= step
-// Clamp eta to [0, 1]. If disabled, force to 0.
+// - If avg(high group) >= 3x avg(low group), nb += step
+// - Else nb -= step
+// Clamp nb to [0, 1]. If disabled, force to 0.
 func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	params, err := k.Params.Get(ctx)
 	if err != nil {

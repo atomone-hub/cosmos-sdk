@@ -205,7 +205,7 @@ func (k Keeper) GetNakamotoBonus(ctx context.Context) (math.LegacyDec, error) {
 // SetNakamotoBonus sets Nakamoto Bonus with bounds checks.
 func (k Keeper) SetNakamotoBonus(ctx sdk.Context, nb math.LegacyDec) error {
 	if nb.IsNegative() || nb.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("eta must be within [0,1], got %s", nb.String())
+		return fmt.Errorf("nakamoto bonus must be within [0,1], got %s", nb.String())
 	}
 	if err := k.NakamotoBonus.Set(ctx, nb); err != nil {
 		return err
