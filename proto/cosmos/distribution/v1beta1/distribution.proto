@@ -1,13 +1,13 @@
 syntax = "proto3";
 package cosmos.distribution.v1beta1;
 
-option go_package            = "github.com/cosmos/cosmos-sdk/x/distribution/types";
-option (gogoproto.equal_all) = true;
-
-import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
-import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package            = "github.com/cosmos/cosmos-sdk/x/distribution/types";
+option (gogoproto.equal_all) = true;
 
 // NakamotoBonus defines the nakamoto bonus parameters
 message NakamotoBonus {
@@ -23,6 +23,20 @@ message NakamotoBonus {
   ];
 
   uint64 period = 3;
+
+  string minimum = 4 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)   = false
+  ];
+
+  string maximum = 5 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (amino.dont_omitempty) = true,
+    (gogoproto.nullable)   = false
+  ];
 }
 
 // Params defines the set of params for the distribution module.

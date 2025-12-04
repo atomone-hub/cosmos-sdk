@@ -28,10 +28,11 @@ type Keeper struct {
 	// should be the x/gov module account.
 	authority string
 
-	Schema        collections.Schema
-	Params        collections.Item[types.Params]
-	FeePool       collections.Item[types.FeePool]
-	NakamotoBonus collections.Item[math.LegacyDec]
+	Schema               collections.Schema
+	Params               collections.Item[types.Params]
+	FeePool              collections.Item[types.FeePool]
+	NakamotoBonus        collections.Item[math.LegacyDec]
+	NakamotoLastUpdateAt collections.Item[uint64] // unix seconds
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
@@ -42,23 +43,24 @@ func NewKeeper(
 	ak types.AccountKeeper, bk types.BankKeeper, sk types.StakingKeeper,
 	feeCollectorName, authority string,
 ) Keeper {
-	// ensure distribution module account is set
+	// ensure the distribution module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
 	sb := collections.NewSchemaBuilder(storeService)
 	k := Keeper{
-		storeService:     storeService,
-		cdc:              cdc,
-		authKeeper:       ak,
-		bankKeeper:       bk,
-		stakingKeeper:    sk,
-		feeCollectorName: feeCollectorName,
-		authority:        authority,
-		Params:           collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		FeePool:          collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
-		NakamotoBonus:    collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
+		storeService:         storeService,
+		cdc:                  cdc,
+		authKeeper:           ak,
+		bankKeeper:           bk,
+		stakingKeeper:        sk,
+		feeCollectorName:     feeCollectorName,
+		authority:            authority,
+		Params:               collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		FeePool:              collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
+		NakamotoBonus:        collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
+		NakamotoLastUpdateAt: collections.NewItem(sb, types.NakamotoLastUpdateKey, "nakamoto_last_update_unix", collections.Uint64Value),
 	}
 
 	schema, err := sb.Build()

@@ -10,10 +10,18 @@ const (
 	// DefaultNakamotoBonusPeriod represents default nakamoto bonus period (in blocks)
 	DefaultNakamotoBonusPeriod = 120_000
 	// defaultNakamotoBonusStep represents the default step to increase or decrease η
-	defaultNakamotoBonusStep = 3
+	defaultNakamotoBonusStep = 1
+	// defaultNakamotoBonusMinimum represents the default step to increase or decrease η
+	defaultNakamotoBonusMinimum = 1
+	// defaultNakamotoBonusMaximum represents the default step to increase or decrease η
+	defaultNakamotoBonusMaximum = 1
 )
 
-var DefaultNakamotoBonusStep = math.LegacyNewDecWithPrec(defaultNakamotoBonusStep, 2)
+var (
+	DefaultNakamotoBonusStep    = math.LegacyNewDecWithPrec(defaultNakamotoBonusStep, 2)
+	DefaultNakamotoBonusMinimum = math.LegacyNewDecWithPrec(defaultNakamotoBonusMinimum, 2)
+	DefaultNakamotoBonusMaximum = math.LegacyNewDecWithPrec(defaultNakamotoBonusMaximum, 2)
+)
 
 // DefaultParams returns default distribution parameters
 func DefaultParams() Params {
@@ -26,6 +34,8 @@ func DefaultParams() Params {
 			Enabled: true,
 			Step:    DefaultNakamotoBonusStep,
 			Period:  DefaultNakamotoBonusPeriod,
+			Minimum: DefaultNakamotoBonusMinimum,
+			Maximum: DefaultNakamotoBonusMaximum,
 		},
 	}
 }
@@ -77,10 +87,33 @@ func validateNakamotoBonus(i interface{}) error {
 	switch {
 	case v.Step.IsNil():
 		return fmt.Errorf("nakamoto bonus step must be not nil")
-	case v.Step.IsNegative():
+	case v.Step.IsNegative() || v.Step.IsZero():
 		return fmt.Errorf("nakamoto bonus step must be positive: %v", v.Step)
 	case v.Step.GT(math.LegacyOneDec()):
 		return fmt.Errorf("nakamoto bonus step too large: %v", v.Step)
 	}
+
+	switch {
+	case v.Minimum.IsNil():
+		return fmt.Errorf("nakamoto bonus minimum must be not nil")
+	case v.Minimum.IsNegative() || v.Minimum.IsZero():
+		return fmt.Errorf("nakamoto bonus minimum must be positive: %v", v.Minimum)
+	case v.Minimum.GT(math.LegacyOneDec()):
+		return fmt.Errorf("nakamoto bonus minimum too large: %v", v.Minimum)
+	}
+
+	switch {
+	case v.Maximum.IsNil():
+		return fmt.Errorf("nakamoto bonus maximum must be not nil")
+	case v.Maximum.IsNegative() || v.Maximum.IsZero():
+		return fmt.Errorf("nakamoto bonus maximum must be positive: %v", v.Step)
+	case v.Maximum.GT(math.LegacyOneDec()):
+		return fmt.Errorf("nakamoto bonus maximum too large: %v", v.Maximum)
+	}
+
+	if v.Minimum.GT(v.Maximum) {
+		return fmt.Errorf("nakamoto bonus minimum (%v) can't be greater than maximum (%v)", v.Minimum, v.Maximum)
+	}
+
 	return nil
 }
