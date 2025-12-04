@@ -18,18 +18,11 @@ func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, c
 	}
 
 	var params stakingtypes.Params
-	err = cdc.Unmarshal(paramsBz, &params)
-	if err != nil {
+	if err = cdc.Unmarshal(paramsBz, &params); err != nil {
 		return err
 	}
 
 	defaultParams := stakingtypes.DefaultParams()
-	params.UnbondingTime = defaultParams.UnbondingTime
-	params.MaxValidators = defaultParams.MaxValidators
-	params.MaxEntries = defaultParams.MaxEntries
-	params.HistoricalEntries = defaultParams.HistoricalEntries
-	params.BondDenom = defaultParams.BondDenom
-	params.MinCommissionRate = defaultParams.MinCommissionRate
 	params.MaxCommissionRate = defaultParams.MaxCommissionRate
 
 	bz, err := cdc.Marshal(&params)
@@ -37,9 +30,5 @@ func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, c
 		return err
 	}
 
-	if err := store.Set(stakingtypes.ParamsKey, bz); err != nil {
-		return err
-	}
-
-	return nil
+	return store.Set(stakingtypes.ParamsKey, bz)
 }
