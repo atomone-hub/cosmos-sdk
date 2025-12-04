@@ -325,7 +325,7 @@ func (s *KeeperTestSuite) TestMsgEditValidator() {
 				MinSelfDelegation: &newSelfDel,
 			},
 			expErr:    true,
-			expErrMsg: "commission rate must be between 0 and 1 (inclusive)",
+			expErrMsg: "commission rate (2.000000000000000000) must be between 0.000000000000000000 and 1.000000000000000000: commission rate is out of bounds",
 		},
 		{
 			name: "validator does not exist",
