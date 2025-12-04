@@ -37,7 +37,7 @@ func TestAdjustEta_NakamotoDisabled(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
+	require.Equal(t, types.DefaultNakamotoBonus, nakamotoBonusCoefficient)
 }
 
 func TestAdjustEta_NoInterval(t *testing.T) {
