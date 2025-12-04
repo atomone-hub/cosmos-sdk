@@ -614,7 +614,13 @@ func TestTally(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			govKeeper, accKeeper, bankKeeper, stakingKeeper, distrKeeper, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			mocks := mocks{
+				accKeeper:          accKeeper,
+				bankKeeper:         bankKeeper,
+				stakingKeeper:      stakingKeeper,
+				distributionKeeper: distrKeeper,
+			}
 			params := v1.DefaultParams()
 			// Ensure params value are different than false
 			params.BurnVoteQuorum = true
@@ -764,7 +770,13 @@ func TestHasReachedQuorum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			govKeeper, accKeeper, bankKeeper, stakingKeeper, distrKeeper, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			mocks := mocks{
+				accKeeper:          accKeeper,
+				bankKeeper:         bankKeeper,
+				stakingKeeper:      stakingKeeper,
+				distributionKeeper: distrKeeper,
+			}
 			params := v1.DefaultParams()
 			params.MinGovernorSelfDelegation = "1"
 			err := govKeeper.Params.Set(ctx, params)

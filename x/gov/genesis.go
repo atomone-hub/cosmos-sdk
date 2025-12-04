@@ -181,7 +181,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			panic(fmt.Sprintf("account %s does not exist", accAddr.String()))
 		}
 
-		k.SetGovernor(ctx, *governor)
+		k.Governors.Set(ctx, governor.GetAddress(), *governor)
 		if governor.IsActive() {
 			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 			if err != nil {
@@ -199,18 +199,18 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			panic(fmt.Sprintf("account %s does not exist", delAddr.String()))
 		}
 		// check governor exists
-		_, found := k.GetGovernor(ctx, govAddr)
-		if !found {
-			panic(fmt.Sprintf("governor %s does not exist", govAddr.String()))
+		_, err := k.Governors.Get(ctx, govAddr)
+		if err != nil {
+			panic(fmt.Sprintf("error getting governor %s: %v", govAddr.String(), err))
 		}
 
 		// if account is active governor and delegation is not to self, error
 		delGovAddr := types.GovernorAddress(delAddr)
-		if _, found = k.GetGovernor(ctx, delGovAddr); found && !delGovAddr.Equals(govAddr) {
+		if _, err = k.Governors.Get(ctx, delGovAddr); err != nil && !delGovAddr.Equals(govAddr) {
 			panic(fmt.Sprintf("account %s is an active governor and cannot delegate", delAddr.String()))
 		}
 
-		err := k.DelegateToGovernor(ctx, delAddr, govAddr)
+		err = k.DelegateToGovernor(ctx, delAddr, govAddr)
 		if err != nil {
 			panic(fmt.Sprintf("failed to delegate to governor %s: %v", govAddr.String(), err))
 		}
@@ -288,7 +288,14 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) (*v1.GenesisState, error) 
 		panic(err)
 	}
 
-	governors := k.GetAllGovernors(ctx)
+	var governors []*v1.Governor
+	err = k.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, value v1.Governor) (stop bool, err error) {
+		governors = append(governors, &value)
+		return false, nil
+	})
+	if err != nil {
+		return nil, err
+	}
 	var governanceDelegations []*v1.GovernanceDelegation
 	for _, g := range governors {
 		delegations := k.GetAllGovernanceDelegationsByGovernor(ctx, g.GetAddress())

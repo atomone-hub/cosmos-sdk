@@ -72,7 +72,7 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 	// if the delegator is also an active governor, ensure min self-delegation requirement is met,
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
-	if governor, found := h.k.GetGovernor(sdkCtx, delGovAddr); found && governor.IsActive() {
+	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {
 			panic("active governor delegating to another governor")
 		}
@@ -81,7 +81,7 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 			governor.Status = v1.Inactive
 			now := sdkCtx.BlockTime()
 			governor.LastStatusChangeTime = &now
-			h.k.SetGovernor(sdkCtx, governor)
+			h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor)
 		}
 	}
 
@@ -97,7 +97,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	// if the delegator is also an active governor, ensure min self-delegation requirement is met,
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
-	if governor, found := h.k.GetGovernor(sdkCtx, delGovAddr); found && governor.IsActive() {
+	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
 		govDelegation, found := h.k.GetGovernanceDelegation(sdkCtx, delAddr)
 		if !found {
 			panic("active governor without governance self-delegation")
@@ -110,7 +110,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 			governor.Status = v1.Inactive
 			now := sdkCtx.BlockTime()
 			governor.LastStatusChangeTime = &now
-			h.k.SetGovernor(sdkCtx, governor)
+			h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor)
 		}
 	}
 

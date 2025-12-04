@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
@@ -53,46 +54,6 @@ func (k Keeper) RemoveGovernanceDelegation(ctx sdk.Context, delegatorAddr sdk.Ac
 	store.Delete(types.GovernanceDelegationsByGovernorKey(govAddr, delAddr))
 }
 
-// SetGovernorValShares sets a governor validator shares in the store
-func (k Keeper) SetGovernorValShares(ctx sdk.Context, share v1.GovernorValShares) {
-	store := ctx.KVStore(k.storeKey)
-	b := k.cdc.MustMarshal(&share)
-	govAddr := types.MustGovernorAddressFromBech32(share.GovernorAddress)
-	valAddr, err := sdk.ValAddressFromBech32(share.ValidatorAddress)
-	if err != nil {
-		panic(err)
-	}
-	store.Set(types.ValidatorSharesByGovernorKey(govAddr, valAddr), b)
-}
-
-// GetGovernorValShares gets a governor validator shares from the store
-func (k Keeper) GetGovernorValShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress) (v1.GovernorValShares, bool) {
-	store := ctx.KVStore(k.storeKey)
-	b := store.Get(types.ValidatorSharesByGovernorKey(governorAddr, validatorAddr))
-	if b == nil {
-		return v1.GovernorValShares{}, false
-	}
-	var share v1.GovernorValShares
-	k.cdc.MustUnmarshal(b, &share)
-	return share, true
-}
-
-// IterateGovernorValShares iterates over all governor validator shares
-func (k Keeper) IterateGovernorValShares(ctx sdk.Context, governorAddr types.GovernorAddress, cb func(index int64, share v1.GovernorValShares) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := storetypes.KVStorePrefixIterator(store, types.ValidatorSharesByGovernorKey(governorAddr, []byte{}))
-	defer iterator.Close()
-
-	for i := int64(0); iterator.Valid(); iterator.Next() {
-		var share v1.GovernorValShares
-		k.cdc.MustUnmarshal(iterator.Value(), &share)
-		if cb(i, share) {
-			break
-		}
-		i++
-	}
-}
-
 // IterateGovernorDelegations iterates over all governor delegations
 func (k Keeper) IterateGovernorDelegations(ctx sdk.Context, governorAddr types.GovernorAddress, cb func(index int64, delegation v1.GovernanceDelegation) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
@@ -109,12 +70,6 @@ func (k Keeper) IterateGovernorDelegations(ctx sdk.Context, governorAddr types.G
 	}
 }
 
-// RemoveGovernorValShares removes a governor validator shares from the store
-func (k Keeper) RemoveGovernorValShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.ValidatorSharesByGovernorKey(governorAddr, validatorAddr))
-}
-
 // GetAllGovernanceDelegationsByGovernor gets all governance delegations for a specific governor
 func (k Keeper) GetAllGovernanceDelegationsByGovernor(ctx sdk.Context, governorAddr types.GovernorAddress) (delegations []*v1.GovernanceDelegation) {
 	store := ctx.KVStore(k.storeKey)
@@ -129,36 +84,25 @@ func (k Keeper) GetAllGovernanceDelegationsByGovernor(ctx sdk.Context, governorA
 	return delegations
 }
 
-// GetAllGovernorValShares gets all governor validators shares
-func (k Keeper) GetAllGovernorValShares(ctx sdk.Context, governorAddr types.GovernorAddress) []v1.GovernorValShares {
-	store := ctx.KVStore(k.storeKey)
-	iterator := storetypes.KVStorePrefixIterator(store, types.ValidatorSharesByGovernorKey(governorAddr, []byte{}))
-	defer iterator.Close()
-
-	var shares []v1.GovernorValShares
-	for ; iterator.Valid(); iterator.Next() {
-		var share v1.GovernorValShares
-		k.cdc.MustUnmarshal(iterator.Value(), &share)
-		shares = append(shares, share)
-	}
-	return shares
-}
-
 // IncreaseGovernorShares increases the governor validator shares in the store
 func (k Keeper) IncreaseGovernorShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress, shares math.LegacyDec) {
-	valShares, found := k.GetGovernorValShares(ctx, governorAddr, validatorAddr)
-	if !found {
+	valShares, err := k.ValidatorSharesByGovernor.Get(ctx, collections.Join(governorAddr, validatorAddr))
+	if err == collections.ErrEncoding {
+		panic("error decoding governor validator shares")
+	} else if err == collections.ErrNotFound {
 		valShares = v1.NewGovernorValShares(governorAddr, validatorAddr, shares)
 	} else {
 		valShares.Shares = valShares.Shares.Add(shares)
 	}
-	k.SetGovernorValShares(ctx, valShares)
+	k.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), valShares)
 }
 
 // DecreaseGovernorShares decreases the governor validator shares in the store
 func (k Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress, shares math.LegacyDec) {
-	share, found := k.GetGovernorValShares(ctx, governorAddr, validatorAddr)
-	if !found {
+	share, err := k.ValidatorSharesByGovernor.Get(ctx, collections.Join(governorAddr, validatorAddr))
+	if err == collections.ErrEncoding {
+		panic("error decoding governor validator shares")
+	} else if err == collections.ErrNotFound {
 		panic("cannot decrease shares for a non-existent governor delegation")
 	}
 	share.Shares = share.Shares.Sub(shares)
@@ -166,9 +110,9 @@ func (k Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.Gover
 		panic("negative shares")
 	}
 	if share.Shares.IsZero() {
-		k.RemoveGovernorValShares(ctx, governorAddr, validatorAddr)
+		k.ValidatorSharesByGovernor.Remove(ctx, collections.Join(governorAddr, validatorAddr))
 	} else {
-		k.SetGovernorValShares(ctx, share)
+		k.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), share)
 	}
 }
 

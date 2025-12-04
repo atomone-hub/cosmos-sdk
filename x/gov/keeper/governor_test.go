@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/collections"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -11,13 +12,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 func TestGovernor(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
-	govKeeper, _, _, ctx := setupGovKeeper(t)
+	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t)
 	addrs := simtestutil.CreateRandomAccounts(3)
 	govAddrs := convertAddrsToGovAddrs(addrs)
 
@@ -29,23 +31,28 @@ func TestGovernor(t *testing.T) {
 	gov2, err := v1.NewGovernor(govAddrs[1].String(), gov2Desc, time.Now().UTC())
 	gov2.Status = v1.Inactive
 	require.NoError(err)
-	govKeeper.SetGovernor(ctx, gov1)
-	govKeeper.SetGovernor(ctx, gov2)
+	govKeeper.Governors.Set(ctx, gov1.GetAddress(), gov1)
+	govKeeper.Governors.Set(ctx, gov2.GetAddress(), gov2)
 
 	// Get gov1
-	gov, found := govKeeper.GetGovernor(ctx, govAddrs[0])
-	if assert.True(found, "cant find gov1") {
+	gov, err := govKeeper.Governors.Get(ctx, govAddrs[0])
+	if assert.NoError(err, "cant find gov1") {
 		assert.Equal(gov1, gov)
 	}
 
 	// Get gov2
-	gov, found = govKeeper.GetGovernor(ctx, govAddrs[1])
-	if assert.True(found, "cant find gov2") {
+	gov, err = govKeeper.Governors.Get(ctx, govAddrs[1])
+	if assert.NoError(err, "cant find gov2") {
 		assert.Equal(gov2, gov)
 	}
 
 	// Get all govs
-	govs := govKeeper.GetAllGovernors(ctx)
+	var govs []*v1.Governor
+	err = govKeeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, gov v1.Governor) (stop bool, err error) {
+		govs = append(govs, &gov)
+		return false, nil
+	})
+	require.NoError(err)
 	if assert.Len(govs, 2, "expected 2 governors") {
 		// Insert order is not preserved, order is related to the address which is
 		// generated randomly, so the order of govs is random.
@@ -60,18 +67,24 @@ func TestGovernor(t *testing.T) {
 	}
 
 	// Get all active govs
-	govs = govKeeper.GetAllActiveGovernors(ctx)
+	govs = nil
+	err = govKeeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, gov v1.Governor) (stop bool, err error) {
+		if gov.IsActive() {
+			govs = append(govs, &gov)
+		}
+		return false, nil
+	})
 	if assert.Len(govs, 1, "expected 1 active governor") {
 		assert.Equal(gov1, *govs[0])
 	}
 
 	// IterateGovernors
 	govs = nil
-	govKeeper.IterateGovernors(ctx, func(i int64, govI v1.GovernorI) bool {
-		gov := govI.(v1.Governor)
+	err = govKeeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, gov v1.Governor) (stop bool, err error) {
 		govs = append(govs, &gov)
-		return false
+		return false, nil
 	})
+	require.NoError(err)
 	if assert.Len(govs, 2, "expected 2 governors") {
 		for i := 0; i < 2; i++ {
 			switch govs[i].GetAddress().String() {
@@ -84,12 +97,17 @@ func TestGovernor(t *testing.T) {
 	}
 
 	// Remove gov2
-	govKeeper.RemoveGovernor(ctx, govAddrs[1])
-	gov, found = govKeeper.GetGovernor(ctx, govAddrs[1])
-	assert.False(found, "expected gov2 to be removed")
+	govKeeper.Governors.Remove(ctx, govAddrs[1])
+	gov, err = govKeeper.Governors.Get(ctx, govAddrs[1])
+	assert.ErrorIs(err, collections.ErrNotFound, "expected gov2 to be removed")
 
 	// Get all govs after removal
-	govs = govKeeper.GetAllGovernors(ctx)
+	govs = nil
+	err = govKeeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, gov v1.Governor) (stop bool, err error) {
+		govs = append(govs, &gov)
+		return false, nil
+	})
+	require.NoError(err)
 	if assert.Len(govs, 1, "expected 1 governor after removal") {
 		assert.Equal(gov1, *govs[0])
 	}
@@ -161,7 +179,13 @@ func TestValidateGovernorMinSelfDelegation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			govKeeper, mocks, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			govKeeper, accKeeper, bankKeeper, stakingKeeper, distrKeeper, _, ctx := setupGovKeeper(t, mockAccountKeeperExpectations)
+			mocks := mocks{
+				accKeeper:          accKeeper,
+				bankKeeper:         bankKeeper,
+				stakingKeeper:      stakingKeeper,
+				distributionKeeper: distrKeeper,
+			}
 			s := newFixture(t, ctx, 2, 2, 2, govKeeper, mocks)
 			governor := tt.setup(s)
 

@@ -122,7 +122,7 @@ func newFixture(t *testing.T, ctx sdk.Context, numVals, numDelegators,
 	for i := 0; i < len(govAddrs)-1; i++ {
 		governor, err := v1.NewGovernor(govAddrs[i].String(), v1.GovernorDescription{}, time.Now())
 		require.NoError(t, err)
-		govKeeper.SetGovernor(ctx, governor)
+		govKeeper.Governors.Set(ctx, governor.GetAddress(), governor)
 		s.activeGovernors = append(s.activeGovernors, governor)
 	}
 	// Create one inactive governor
@@ -130,7 +130,7 @@ func newFixture(t *testing.T, ctx sdk.Context, numVals, numDelegators,
 	governor, err := v1.NewGovernor(inactiveGovAddr.String(), v1.GovernorDescription{}, time.Now())
 	require.NoError(t, err)
 	governor.Status = v1.Inactive
-	govKeeper.SetGovernor(ctx, governor)
+	govKeeper.Governors.Set(ctx, governor.GetAddress(), governor)
 	s.inactiveGovernor = governor
 	return s
 }

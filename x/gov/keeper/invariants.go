@@ -55,14 +55,15 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 			invariantStr string
 		)
 
-		keeper.IterateGovernors(ctx, func(index int64, governor v1.GovernorI) bool {
+		//keeper.IterateGovernors(ctx, func(index int64, governor v1.GovernorI) bool {
+		keeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, governor v1.Governor) (stop bool, err error) {
 			// check that if governor is active, it has a valid governance self-delegation
 			if governor.IsActive() {
 				if del, ok := keeper.GetGovernanceDelegation(ctx, sdk.AccAddress(governor.GetAddress())); !ok || !governor.GetAddress().Equals(types.MustGovernorAddressFromBech32(del.GovernorAddress)) {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						"active governor without governance self-delegation")
 					broken = true
-					return true
+					return true, nil
 				}
 			}
 
@@ -92,32 +93,34 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 			for _, valAddrStr := range valSharesKeys {
 				shares := valShares[valAddrStr]
 				validatorAddr, _ := sdk.ValAddressFromBech32(valAddrStr)
-				vs, ok := keeper.GetGovernorValShares(ctx, governor.GetAddress(), validatorAddr)
-				if !ok {
+				vs, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governor.GetAddress(), validatorAddr))
+				if err == collections.ErrEncoding {
+					panic("error decoding governor validator shares")
+				} else if err == collections.ErrNotFound {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						fmt.Sprintf("validator %s shares not found", valAddrStr))
 					broken = true
-					return true
+					return true, nil
 				}
 				if !vs.Shares.Equal(shares) {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						fmt.Sprintf("stored shares %s for validator %s do not match actual shares %s", vs.Shares, valAddrStr, shares))
 					broken = true
-					return true
+					return true, nil
 				}
 			}
 
-			keeper.IterateGovernorValShares(ctx, governor.GetAddress(), func(index int64, shares v1.GovernorValShares) bool {
+			keeper.ValidatorSharesByGovernor.Walk(ctx, nil, func(_ collections.Pair[types.GovernorAddress, sdk.ValAddress], shares v1.GovernorValShares) (stop bool, err error) {
 				if _, ok := valShares[shares.ValidatorAddress]; !ok && shares.Shares.GT(math.LegacyZeroDec()) {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						fmt.Sprintf("non-zero (%s) shares stored for validator %s where there should be none", shares.Shares, shares.ValidatorAddress))
 					broken = true
-					return true
+					return true, nil
 				}
-				return false
+				return false, nil
 			})
 
-			return broken
+			return broken, nil
 		})
 		return invariantStr, broken
 	}

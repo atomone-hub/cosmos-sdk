@@ -126,6 +126,7 @@ func (keeper Keeper) tallyVotes(
 	ctx context.Context, proposal v1.Proposal,
 	currValidators map[string]stakingtypes.ValidatorI, isFinal bool,
 ) (totalVotingPower math.LegacyDec, results map[v1.VoteOption]math.LegacyDec, err error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	totalVotingPower = math.LegacyZeroDec()
 	// keeps track of governors that voted or have delegators that voted
 	allGovernors := make(map[string]v1.GovernorGovInfo)
@@ -145,15 +146,24 @@ func (keeper Keeper) tallyVotes(
 			return false, err
 		}
 
-		gd, hasGovernor := keeper.GetGovernanceDelegation(ctx, voter)
+		gd, hasGovernor := keeper.GetGovernanceDelegation(sdkCtx, voter)
 		if hasGovernor {
 			if gi, ok := allGovernors[gd.GovernorAddress]; ok {
 				governor = gi
 			} else {
 				govAddr := types.MustGovernorAddressFromBech32(gd.GovernorAddress)
+
+				var shares []v1.GovernorValShares
+				err := keeper.ValidatorSharesByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.ValAddress](govAddr), func(_ collections.Pair[types.GovernorAddress, sdk.ValAddress], s v1.GovernorValShares) (stop bool, err error) {
+					shares = append(shares, s)
+					return false, nil
+				})
+				if err != nil {
+					return false, err
+				}
 				governor = v1.NewGovernorGovInfo(
 					govAddr,
-					keeper.GetAllGovernorValShares(ctx, govAddr),
+					shares,
 					v1.WeightedVoteOptions{},
 				)
 			}
@@ -207,7 +217,7 @@ func (keeper Keeper) tallyVotes(
 	}
 
 	// get only the voting governors that are active and have the niminum self-delegation requirement met.
-	currGovernors := keeper.getCurrGovernors(ctx, allGovernors)
+	currGovernors := keeper.getCurrGovernors(sdkCtx, allGovernors)
 
 	// iterate over the governors again to tally their voting power
 	// As active governor are simply voters that need to have 100% of their bonded tokens
@@ -279,7 +289,7 @@ func (keeper Keeper) getQuorumAndThreshold(ctx context.Context, proposal v1.Prop
 func (k Keeper) getCurrGovernors(ctx sdk.Context, allGovernors map[string]v1.GovernorGovInfo) (governors []v1.GovernorGovInfo) {
 	governorsInfos := make([]v1.GovernorGovInfo, 0)
 	for _, govInfo := range allGovernors {
-		governor, _ := k.GetGovernor(ctx, govInfo.Address)
+		governor, _ := k.Governors.Get(ctx, govInfo.Address)
 
 		if k.ValidateGovernorMinSelfDelegation(ctx, governor) && len(govInfo.Vote) > 0 {
 			governorsInfos = append(governorsInfos, govInfo)

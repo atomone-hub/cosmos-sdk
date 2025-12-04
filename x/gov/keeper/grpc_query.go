@@ -14,6 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v3 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v3"
+	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
@@ -340,7 +341,7 @@ func (q queryServer) ParticipationEMAs(c context.Context, _ *v1.QueryParticipati
 }
 
 // Governor queries governor information based on governor address.
-func (q Keeper) Governor(c context.Context, req *v1.QueryGovernorRequest) (*v1.QueryGovernorResponse, error) {
+func (q queryServer) Governor(c context.Context, req *v1.QueryGovernorRequest) (*v1.QueryGovernorResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -356,30 +357,21 @@ func (q Keeper) Governor(c context.Context, req *v1.QueryGovernorRequest) (*v1.Q
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	governor, found := q.GetGovernor(ctx, governorAddr)
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "governor %s doesn't exist", req.GovernorAddress)
+	governor, err := q.k.Governors.Get(ctx, governorAddr)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 
 	return &v1.QueryGovernorResponse{Governor: &governor}, nil
 }
 
 // Governors queries all governors.
-func (q Keeper) Governors(c context.Context, req *v1.QueryGovernorsRequest) (*v1.QueryGovernorsResponse, error) {
+func (q queryServer) Governors(c context.Context, req *v1.QueryGovernorsRequest) (*v1.QueryGovernorsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(q.storeKey)
-	governorStore := prefix.NewStore(store, types.GovernorKeyPrefix)
-
 	var governors []*v1.Governor
-	pageRes, err := query.Paginate(governorStore, req.Pagination, func(key []byte, value []byte) error {
-		var governor v1.Governor
-		if err := q.cdc.Unmarshal(value, &governor); err != nil {
-			return err
-		}
-
-		governors = append(governors, &governor)
-		return nil
+	governors, pageRes, err := query.CollectionPaginate(ctx, q.k.Governors, req.Pagination, func(_ types.GovernorAddress, governor v1.Governor) (*v1.Governor, error) {
+		return &governor, nil
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -389,7 +381,7 @@ func (q Keeper) Governors(c context.Context, req *v1.QueryGovernorsRequest) (*v1
 }
 
 // GovernanceDelegations queries all delegations of a governor.
-func (q Keeper) GovernanceDelegations(c context.Context, req *v1.QueryGovernanceDelegationsRequest) (*v1.QueryGovernanceDelegationsResponse, error) {
+func (q queryServer) GovernanceDelegations(c context.Context, req *v1.QueryGovernanceDelegationsRequest) (*v1.QueryGovernanceDelegationsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -426,7 +418,7 @@ func (q Keeper) GovernanceDelegations(c context.Context, req *v1.QueryGovernance
 }
 
 // GovernanceDelegation queries a delegation
-func (q Keeper) GovernanceDelegation(c context.Context, req *v1.QueryGovernanceDelegationRequest) (*v1.QueryGovernanceDelegationResponse, error) {
+func (q queryServer) GovernanceDelegation(c context.Context, req *v1.QueryGovernanceDelegationRequest) (*v1.QueryGovernanceDelegationResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -451,7 +443,7 @@ func (q Keeper) GovernanceDelegation(c context.Context, req *v1.QueryGovernanceD
 }
 
 // GovernorValShares queries all validator shares of a governor.
-func (q Keeper) GovernorValShares(c context.Context, req *v1.QueryGovernorValSharesRequest) (*v1.QueryGovernorValSharesResponse, error) {
+func (q queryServer) GovernorValShares(c context.Context, req *v1.QueryGovernorValSharesRequest) (*v1.QueryGovernorValSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}

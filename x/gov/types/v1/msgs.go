@@ -141,7 +141,7 @@ func (msg MsgCreateGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
+		return err
 	}
 
 	if _, err := msg.Description.EnsureLength(); err != nil {
@@ -164,7 +164,7 @@ func (msg MsgEditGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgEditGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
+		return err
 	}
 	return nil
 }
@@ -183,10 +183,10 @@ func (msg MsgDelegateGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgDelegateGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
+		return err
 	}
 	if _, err := types.GovernorAddressFromBech32(msg.GovernorAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid governor address: %s", err)
+		return err
 	}
 	return nil
 }
@@ -205,7 +205,7 @@ func (msg MsgUndelegateGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUndelegateGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
+		return err
 	}
 	return nil
 }
@@ -224,7 +224,7 @@ func (msg MsgUpdateGovernorStatus) Type() string { return sdk.MsgTypeURL(&msg) }
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUpdateGovernorStatus) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
+		return err
 	}
 	if !msg.Status.IsValid() {
 		return types.ErrInvalidGovernorStatus.Wrap(msg.Status.String())

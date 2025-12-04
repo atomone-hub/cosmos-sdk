@@ -36,8 +36,8 @@ var (
 	LawParticipationEMAKey                   = collections.NewPrefix(112)
 
 	// GovernorKeyPrefix is the prefix for governor key
-	GovernorKeyPrefix                        = []byte{0x80}
-	GovernanceDelegationKeyPrefix            = []byte{0x81}
-	ValidatorSharesByGovernorKeyPrefix       = []byte{0x82}
-	GovernanceDelegationsByGovernorKeyPrefix = []byte{0x83}
+	GovernorKeyPrefix                        = collections.NewPrefix(128)
+	GovernanceDelegationKeyPrefix            = collections.NewPrefix(129)
+	ValidatorSharesByGovernorKeyPrefix       = collections.NewPrefix(130)
+	GovernanceDelegationsByGovernorKeyPrefix = collections.NewPrefix(131)
 )
