@@ -10,10 +10,15 @@ import (
 )
 
 // NewGenesisState creates a new genesis state for the governance module
-func NewGenesisState(startingProposalID uint64, params Params) *GenesisState {
+func NewGenesisState(startingProposalID uint64, participationEma,
+	constitutionParticipationEma, lawParticipationEma string, params Params,
+) *GenesisState {
 	return &GenesisState{
-		StartingProposalId: startingProposalID,
-		Params:             &params,
+		StartingProposalId:                    startingProposalID,
+		ParticipationEma:                      participationEma,
+		ConstitutionAmendmentParticipationEma: constitutionParticipationEma,
+		LawParticipationEma:                   lawParticipationEma,
+		Params:                                &params,
 	}
 }
 
@@ -21,6 +26,9 @@ func NewGenesisState(startingProposalID uint64, params Params) *GenesisState {
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(
 		DefaultStartingProposalID,
+		DefaultParticipationEma,
+		DefaultParticipationEma,
+		DefaultParticipationEma,
 		DefaultParams(),
 	)
 }
@@ -54,7 +62,7 @@ func ValidateGenesis(data *GenesisState) error {
 	// weed out duplicate deposits
 	errGroup.Go(func() error {
 		type depositKey struct {
-			ProposalId uint64 //nolint:revive // staying consistent with main and v0.47
+			proposalID uint64
 			Depositor  string
 		}
 		depositIDs := make(map[depositKey]struct{})
@@ -77,7 +85,7 @@ func ValidateGenesis(data *GenesisState) error {
 	// weed out duplicate votes
 	errGroup.Go(func() error {
 		type voteKey struct {
-			ProposalId uint64 //nolint:revive // staying consistent with main and v0.47
+			proposalID uint64
 			Voter      string
 		}
 		voteIDs := make(map[voteKey]struct{})

@@ -1,5 +1,3 @@
-//go:build !app_v1
-
 package simapp
 
 import (
@@ -7,7 +5,6 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
-	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -18,6 +15,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	clienthelpers "github.com/cosmos/cosmos-sdk/client/v2/helpers"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"

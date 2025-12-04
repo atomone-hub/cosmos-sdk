@@ -1,12 +1,14 @@
-# Cosmos SDK Fork
+# Cosmos SDK for **AtomOne**
 
-Fork of Cosmos SDK v0.50.x for Atom One.
-The fork include the following changes compared to upstream:
+Fork of Cosmos SDK **v0.50.x** for **AtomOne**.
 
-* Store app version in consensus param store
-* Re-add query router for custom abci queries
-* Add v0.52 helpers to facilitate testing
-* Backport improvements for DOS protection for x/authz
-* Support historical account number queries 
+Compared to the original Cosmos SDK, this fork includes the following changes:
 
-Read the [CHANGELOG.md](CHANGELOG.md) for more details.
+- Store app version in consensus param store
+- Re-add query router for custom ABCI queries
+- Add v0.52 helpers to facilitate testing
+- Backport improvements for DOS protection in `x/authz`
+- Support historical account number queries
+- Removal of go modules to keep mono go.mod in monorepo.
+
+See the [CHANGELOG.md](CHANGELOG.md) for a complete list of modifications.
