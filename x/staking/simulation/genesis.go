@@ -17,6 +17,7 @@ const (
 	unbondingTime         = "unbonding_time"
 	maxValidators         = "max_validators"
 	historicalEntries     = "historical_entries"
+	minimumCommissionRate = "min_commission_rate"
 	maximumCommissionRate = "max_commission_rate"
 )
 
@@ -35,9 +36,14 @@ func getHistEntries(r *rand.Rand) uint32 {
 	return uint32(r.Intn(int(types.DefaultHistoricalEntries + 1)))
 }
 
-// getMaxCommissionRate returns randomized MaxCommissionRate between 0-100.
+// getMinCommissionRate returns randomized MinCommissionRate between 0-10.
+func getMinCommissionRate(r *rand.Rand) sdkmath.LegacyDec {
+	return sdkmath.LegacyNewDecWithPrec(int64(r.Intn(10)), 2)
+}
+
+// getMaxCommissionRate returns randomized MaxCommissionRate between 11-100.
 func getMaxCommissionRate(r *rand.Rand) sdkmath.LegacyDec {
-	return sdkmath.LegacyNewDecWithPrec(int64(r.Intn(types.DefaultMaxCommission+1)), 2)
+	return sdkmath.LegacyNewDecWithPrec(int64(r.Intn(90)+11), 2)
 }
 
 // RandomizedGenState generates a random GenesisState for staking
@@ -57,7 +63,9 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	simState.AppParams.GetOrGenerate(historicalEntries, &histEntries, simState.Rand, func(r *rand.Rand) { histEntries = getHistEntries(r) })
 
-	simState.AppParams.GetOrGenerate(maximumCommissionRate, &histEntries, simState.Rand, func(r *rand.Rand) { maxCommissionRate = getMaxCommissionRate(r) })
+	simState.AppParams.GetOrGenerate(minimumCommissionRate, &minCommissionRate, simState.Rand, func(r *rand.Rand) { minCommissionRate = getMinCommissionRate(r) })
+
+	simState.AppParams.GetOrGenerate(maximumCommissionRate, &maxCommissionRate, simState.Rand, func(r *rand.Rand) { maxCommissionRate = getMaxCommissionRate(r) })
 
 	// NOTE: the slashing module need to be defined after the staking module on the
 	// NewSimulationManager constructor for this to work
