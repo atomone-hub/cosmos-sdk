@@ -43,6 +43,8 @@ func TestAdjustEta_NakamotoDisabled(t *testing.T) {
 func TestAdjustEta_NoInterval(t *testing.T) {
 	s := setupTestKeeper(t, types.DefaultNakamotoBonusStep, 119_999)
 
+	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(10, 10)).AnyTimes()
+
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
