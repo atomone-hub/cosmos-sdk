@@ -86,8 +86,8 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Example:   fmt.Sprintf(`$ %s query distribution community-pool`, version.AppName),
 				},
 				{
-					RpcMethod: "NakamotoBonus",
-					Use:       "nakamoto-bonus",
+					RpcMethod: "NakamotoBonusCoefficient",
+					Use:       "nakamoto-bonus-coefficient",
 					Short:     "Query the Nakamoto Bonus coefficient",
 					Example:   fmt.Sprintf(`$ %s query distribution nakamoto-bonus`, version.AppName),
 				},
