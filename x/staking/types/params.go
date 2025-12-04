@@ -31,7 +31,7 @@ const (
 	DefaultHistoricalEntries uint32 = 10000
 
 	// DefaultMaxCommission default maximum commission.
-	DefaultMaxCommission = 100 // 30% (30/100 = 0.3 = 30%
+	DefaultMaxCommission = 100
 )
 
 var (
