@@ -1039,7 +1039,7 @@ func (s *KeeperTestSuite) TestMsgUpdateParams() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "minimum commission rate cannot be greater than 100%",
+			expErrMsg: "minimum commission rate: commission rate cannot be greater than 100%: 2.000000000000000000",
 		},
 		{
 			name: "invalid bond denom",
