@@ -29,17 +29,14 @@ const (
 	// value by not adding the staking module to the application module manager's
 	// SetOrderBeginBlockers.
 	DefaultHistoricalEntries uint32 = 10000
-
-	// DefaultMaxCommission default maximum commission.
-	DefaultMaxCommission = 100
 )
 
 var (
 	// DefaultMinCommissionRate is set to 0%
 	DefaultMinCommissionRate = math.LegacyZeroDec()
 
-	// DefaultMaxCommissionRate is set to 0%
-	DefaultMaxCommissionRate = math.LegacyNewDecWithPrec(DefaultMaxCommission, 2)
+	// DefaultMaxCommissionRate is set to 100%
+	DefaultMaxCommissionRate = math.LegacyOneDec()
 )
 
 // NewParams creates a new Params instance
