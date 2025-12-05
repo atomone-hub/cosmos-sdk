@@ -4,6 +4,7 @@ import (
 	context "context"
 
 	"cosmossdk.io/collections"
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,10 +33,9 @@ func (h Hooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.A
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
 	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-	switch err {
-	case collections.ErrEncoding:
+	if errors.IsOf(err, collections.ErrEncoding) {
 		return err
-	case collections.ErrNotFound:
+	} else if errors.IsOf(err, collections.ErrNotFound) {
 		return nil
 	}
 	govAddr := types.MustGovernorAddressFromBech32(govDelegation.GovernorAddress)
@@ -56,10 +56,9 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
 	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-	switch err {
-	case collections.ErrEncoding:
+	if errors.IsOf(err, collections.ErrEncoding) {
 		return err
-	case collections.ErrNotFound:
+	} else if errors.IsOf(err, collections.ErrNotFound) {
 		return nil
 	}
 
@@ -106,10 +105,9 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
 	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
 		govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-		switch err {
-		case collections.ErrEncoding:
+		if errors.IsOf(err, collections.ErrEncoding) {
 			return err
-		case collections.ErrNotFound:
+		} else if errors.IsOf(err, collections.ErrNotFound) {
 			panic("active governor without governance self-delegation")
 		}
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {

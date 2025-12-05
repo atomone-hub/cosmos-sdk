@@ -66,7 +66,7 @@ type Keeper struct {
 	QuorumCheckQueue                      collections.Map[collections.Pair[time.Time, uint64], v1.QuorumCheckQueueEntry]
 	Governors                             collections.Map[types.GovernorAddress, v1.Governor]
 	GovernanceDelegations                 collections.Map[sdk.AccAddress, v1.GovernanceDelegation]
-	GovernanceDelegationsByGovernor       collections.Map[collections.Pair[types.GovernorAddress, sdk.AccAddress], *v1.GovernanceDelegation]
+	GovernanceDelegationsByGovernor       collections.Map[collections.Pair[types.GovernorAddress, sdk.AccAddress], v1.GovernanceDelegation]
 	ValidatorSharesByGovernor             collections.Map[collections.Pair[types.GovernorAddress, sdk.ValAddress], v1.GovernorValShares]
 }
 
@@ -127,6 +127,10 @@ func NewKeeper(
 		LawParticipationEMA:                   collections.NewItem(sb, types.LawParticipationEMAKey, "law_participation_ema", sdk.LegacyDecValue),
 		ConstitutionAmendmentParticipationEMA: collections.NewItem(sb, types.ConstitutionAmendmentParticipationEMAKey, "constitution_amendment_participation_ema", sdk.LegacyDecValue),
 		QuorumCheckQueue:                      collections.NewMap(sb, types.QuorumCheckQueuePrefix, "quorum_check_queue", collections.PairKeyCodec(sdk.TimeKey, collections.Uint64Key), codec.CollValue[v1.QuorumCheckQueueEntry](cdc)),
+		Governors:                             collections.NewMap(sb, types.GovernorsKeyPrefix, "governors", types.GovernorAddressKey, codec.CollValue[v1.Governor](cdc)),
+		GovernanceDelegations:                 collections.NewMap(sb, types.GovernanceDelegationKeyPrefix, "governance_delegations", sdk.AccAddressKey, codec.CollValue[v1.GovernanceDelegation](cdc)),
+		GovernanceDelegationsByGovernor:       collections.NewMap(sb, types.GovernanceDelegationsByGovernorKeyPrefix, "governance_delegations_by_governor", collections.PairKeyCodec(types.GovernorAddressKey, sdk.AccAddressKey), codec.CollValue[v1.GovernanceDelegation](cdc)),
+		ValidatorSharesByGovernor:             collections.NewMap(sb, types.ValidatorSharesByGovernorKeyPrefix, "validator_shares_by_governor", collections.PairKeyCodec(types.GovernorAddressKey, sdk.ValAddressKey), codec.CollValue[v1.GovernorValShares](cdc)),
 	}
 	schema, err := sb.Build()
 	if err != nil {

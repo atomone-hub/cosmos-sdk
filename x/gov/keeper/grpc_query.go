@@ -397,8 +397,8 @@ func (q queryServer) GovernanceDelegations(c context.Context, req *v1.QueryGover
 	ctx := sdk.UnwrapSDKContext(c)
 
 	var delegations []*v1.GovernanceDelegation
-	delegations, pageRes, err := query.CollectionPaginate(ctx, q.k.GovernanceDelegationsByGovernor, req.Pagination, func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (*v1.GovernanceDelegation, error) {
-		return delegation, nil
+	delegations, pageRes, err := query.CollectionPaginate(ctx, q.k.GovernanceDelegationsByGovernor, req.Pagination, func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (*v1.GovernanceDelegation, error) {
+		return &delegation, nil
 	}, query.WithCollectionPaginationPairPrefix[types.GovernorAddress, sdk.AccAddress](governorAddr))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -425,10 +425,9 @@ func (q queryServer) GovernanceDelegation(c context.Context, req *v1.QueryGovern
 	ctx := sdk.UnwrapSDKContext(c)
 
 	delegation, err := q.k.GovernanceDelegations.Get(ctx, delegatorAddr)
-	switch err {
-	case collections.ErrEncoding:
+	if errors.IsOf(err, collections.ErrEncoding) {
 		return nil, err
-	case collections.ErrNotFound:
+	} else if errors.IsOf(err, collections.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, "governance delegation for %s does not exist", req.DelegatorAddress)
 	}
 

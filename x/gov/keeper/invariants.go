@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/collections"
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -69,7 +70,7 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 
 			valShares := make(map[string]math.LegacyDec)
 			valSharesKeys := make([]string, 0)
-			err = keeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (stop bool, err error) {
+			err = keeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
 				delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
 				err = keeper.sk.IterateDelegations(ctx, delAddr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
 					validatorAddr := delegation.GetValidatorAddr()
@@ -100,9 +101,9 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 				shares := valShares[valAddrStr]
 				validatorAddr, _ := sdk.ValAddressFromBech32(valAddrStr)
 				vs, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governor.GetAddress(), validatorAddr))
-				if err == collections.ErrEncoding {
+				if errors.IsOf(err, collections.ErrEncoding) {
 					panic("error decoding governor validator shares")
-				} else if err == collections.ErrNotFound {
+				} else if errors.IsOf(err, collections.ErrNotFound) {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						fmt.Sprintf("validator %s shares not found", valAddrStr))
 					broken = true

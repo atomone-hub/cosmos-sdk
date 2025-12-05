@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/collections"
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -147,7 +148,7 @@ func (keeper Keeper) tallyVotes(
 		}
 
 		gd, err := keeper.GovernanceDelegations.Get(sdkCtx, voter)
-		if err == collections.ErrEncoding {
+		if errors.IsOf(err, collections.ErrEncoding) {
 			return false, err
 		}
 		hasGovernor := err == nil

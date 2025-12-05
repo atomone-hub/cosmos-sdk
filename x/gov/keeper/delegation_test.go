@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -57,15 +58,15 @@ func TestGovernanceDelegate(t *testing.T) {
 	err = govKeeper.RedelegateToGovernor(ctx, s.delAddrs[0], s.inactiveGovernor.GetAddress())
 	assert.NoError(err)
 	var allDelegs []*v1.GovernanceDelegation
-	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.activeGovernors[0].GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (stop bool, err error) {
-		allDelegs = append(allDelegs, delegation)
+	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.activeGovernors[0].GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
+		allDelegs = append(allDelegs, &delegation)
 		return false, nil
 	})
 	assert.NoError(err)
 	assert.ElementsMatch(allDelegs, []*v1.GovernanceDelegation{&deleg2})
 	allDelegs = nil
-	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.inactiveGovernor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (stop bool, err error) {
-		allDelegs = append(allDelegs, delegation)
+	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.inactiveGovernor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
+		allDelegs = append(allDelegs, &delegation)
 		return false, nil
 	})
 	assert.NoError(err)
@@ -80,7 +81,7 @@ func TestGovernanceDelegate(t *testing.T) {
 		})
 	}
 	_, err = govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(s.activeGovernors[0].GetAddress(), s.valAddrs[1]))
-	assert.NoError(err)
+	assert.ErrorIs(err, collections.ErrNotFound, "valShare should be removed")
 	valShare2, err := govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(s.inactiveGovernor.GetAddress(), s.valAddrs[0]))
 	if assert.NoError(err, "valShare2 not found") {
 		assert.Equal(valShare2, v1.GovernorValShares{
@@ -102,15 +103,15 @@ func TestGovernanceDelegate(t *testing.T) {
 	err = govKeeper.UndelegateFromGovernor(ctx, s.delAddrs[0])
 	assert.NoError(err)
 	allDelegs = nil
-	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.activeGovernors[0].GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (stop bool, err error) {
-		allDelegs = append(allDelegs, delegation)
+	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.activeGovernors[0].GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
+		allDelegs = append(allDelegs, &delegation)
 		return false, nil
 	})
 	assert.NoError(err)
 	assert.ElementsMatch(allDelegs, []*v1.GovernanceDelegation{&deleg2})
 	allDelegs = nil
-	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.inactiveGovernor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (stop bool, err error) {
-		allDelegs = append(allDelegs, delegation)
+	err = govKeeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](s.inactiveGovernor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
+		allDelegs = append(allDelegs, &delegation)
 		return false, nil
 	})
 	assert.NoError(err)
@@ -125,9 +126,9 @@ func TestGovernanceDelegate(t *testing.T) {
 		})
 	}
 	_, err = govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(s.activeGovernors[0].GetAddress(), s.valAddrs[1]))
-	assert.NoError(err)
+	assert.ErrorIs(err, collections.ErrNotFound, "valShare should be removed")
 	_, err = govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(s.inactiveGovernor.GetAddress(), s.valAddrs[0]))
-	assert.NoError(err)
+	assert.ErrorIs(err, collections.ErrNotFound, "valShare should be removed")
 	valShare3, err = govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(s.inactiveGovernor.GetAddress(), s.valAddrs[1]))
 	if assert.NoError(err, "valShare3 not found") {
 		assert.Equal(valShare3, v1.GovernorValShares{

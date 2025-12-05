@@ -471,9 +471,9 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	// in case it didn't exist
 	if governor.IsActive() {
 		delegation, err := k.GovernanceDelegations.Get(ctx, addr)
-		if err == collections.ErrEncoding {
+		if errors.IsOf(err, collections.ErrEncoding) {
 			return nil, err
-		} else if err == collections.ErrNotFound {
+		} else if errors.IsOf(err, collections.ErrNotFound) {
 			err := k.DelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err
@@ -512,7 +512,7 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 
 	// Ensure the delegation is not already present
 	gd, err := k.GovernanceDelegations.Get(ctx, delAddr)
-	if err == collections.ErrEncoding {
+	if errors.IsOf(err, collections.ErrEncoding) {
 		return nil, err
 	}
 	if err == nil && govAddr.Equals(govtypes.MustGovernorAddressFromBech32(gd.GovernorAddress)) {
@@ -559,9 +559,9 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 
 	// Ensure the delegation exists
 	delegation, err := k.GovernanceDelegations.Get(ctx, delAddr)
-	if err == collections.ErrEncoding {
+	if errors.IsOf(err, collections.ErrEncoding) {
 		return nil, err
-	} else if err == collections.ErrNotFound {
+	} else if errors.IsOf(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernanceDelegationNotFound
 	}
 
@@ -590,8 +590,8 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 	}
 	if !governor.IsActive() {
 		var delegations []*v1.GovernanceDelegation
-		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], value *v1.GovernanceDelegation) (stop bool, err error) {
-			delegations = append(delegations, value)
+		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
+			delegations = append(delegations, &value)
 			return false, nil
 		})
 		if len(delegations) == 0 {
