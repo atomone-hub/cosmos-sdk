@@ -107,7 +107,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateCommissionRate(p.MinCommissionRate, p.MaxCommissionRate); err != nil {
+	if err := validateCommissionRates(p.MinCommissionRate, p.MaxCommissionRate); err != nil {
 		return err
 	}
 
@@ -192,51 +192,32 @@ func ValidatePowerReduction(i interface{}) error {
 	return nil
 }
 
-func validateMinCommissionRate(i interface{}) error {
+func validateCommissionRate(i interface{}) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
-		return fmt.Errorf("invalid minimum parameter type: %T", i)
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("minimum commission rate cannot be nil: %s", v)
+		return fmt.Errorf("commission rate cannot be nil: %s", v)
 	}
 	if v.IsNegative() {
-		return fmt.Errorf("minimum commission rate cannot be negative: %s", v)
+		return fmt.Errorf("commission rate cannot be negative: %s", v)
 	}
 	if v.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("minimum commission rate cannot be greater than 100%%: %s", v)
+		return fmt.Errorf("commission rate cannot be greater than 100%%: %s", v)
 	}
 
 	return nil
 }
 
-func validateMaxCommissionRate(i interface{}) error {
-	v, ok := i.(math.LegacyDec)
-	if !ok {
-		return fmt.Errorf("invalid maximum parameter type: %T", i)
+func validateCommissionRates(minimum, maximum interface{}) error {
+	if err := validateCommissionRate(minimum); err != nil {
+		return fmt.Errorf("minimum commission rate: %w", err)
 	}
 
-	if v.IsNil() {
-		return fmt.Errorf("minimum commission rate cannot be nil: %s", v)
-	}
-	if v.IsNegative() {
-		return fmt.Errorf("minimum commission rate cannot be negative: %s", v)
-	}
-	if v.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("minimum commission rate cannot be greater than 100%%: %s", v)
-	}
-
-	return nil
-}
-
-func validateCommissionRate(minimum, maximum interface{}) error {
-	if err := validateMinCommissionRate(minimum); err != nil {
-		return err
-	}
-
-	if err := validateMaxCommissionRate(maximum); err != nil {
-		return err
+	if err := validateCommissionRate(maximum); err != nil {
+		return fmt.Errorf("maximum commission rate: %w", err)
 	}
 
 	vMin, ok := minimum.(math.LegacyDec)

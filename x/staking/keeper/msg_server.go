@@ -52,17 +52,11 @@ func (k msgServer) CreateValidator(ctx context.Context, msg *types.MsgCreateVali
 		return nil, err
 	}
 
-	if maxCommRate.Equal(minCommRate) {
-		if !msg.Commission.Rate.Equal(minCommRate) {
-			return nil, errorsmod.Wrapf(types.ErrCommissionOutOfBound, "if the validity minimum and maximum commission rates are equal (%s), the commission rate (%s) must be equal too", minCommRate.String(), msg.Commission.Rate.String())
-		}
-	} else {
-		if msg.Commission.Rate.LT(minCommRate) || msg.Commission.Rate.GT(maxCommRate) {
-			return nil, errorsmod.Wrapf(types.ErrCommissionOutOfBound,
-				"commission rate (%s) must be between %s and %s",
-				msg.Commission.Rate.String(), minCommRate.String(), maxCommRate.String(),
-			)
-		}
+	if msg.Commission.Rate.LT(minCommRate) || msg.Commission.Rate.GT(maxCommRate) {
+		return nil, errorsmod.Wrapf(types.ErrCommissionOutOfBound,
+			"commission rate (%s) must be between %s and %s",
+			msg.Commission.Rate.String(), minCommRate.String(), maxCommRate.String(),
+		)
 	}
 
 	// check to see if the pubkey or sender has been registered before
