@@ -1023,7 +1023,7 @@ func (s *KeeperTestSuite) TestMsgUpdateParams() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "minimum commission rate cannot be negative",
+			expErrMsg: "minimum commission rate: commission rate cannot be negative: -10.000000000000000000",
 		},
 		{
 			name: "commission rate cannot be bigger than 100",
