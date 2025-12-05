@@ -3,6 +3,7 @@ package keeper
 import (
 	context "context"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,8 +31,11 @@ func (k Keeper) StakingHooks() Hooks {
 func (h Hooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
-	govDelegation, found := h.k.GetGovernanceDelegation(sdkCtx, delAddr)
-	if !found {
+	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
+	switch err {
+	case collections.ErrEncoding:
+		return err
+	case collections.ErrNotFound:
 		return nil
 	}
 	govAddr := types.MustGovernorAddressFromBech32(govDelegation.GovernorAddress)
@@ -51,8 +55,11 @@ func (h Hooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.A
 func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
-	govDelegation, found := h.k.GetGovernanceDelegation(sdkCtx, delAddr)
-	if !found {
+	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
+	switch err {
+	case collections.ErrEncoding:
+		return err
+	case collections.ErrNotFound:
 		return nil
 	}
 
@@ -98,8 +105,11 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
 	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
-		govDelegation, found := h.k.GetGovernanceDelegation(sdkCtx, delAddr)
-		if !found {
+		govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
+		switch err {
+		case collections.ErrEncoding:
+			return err
+		case collections.ErrNotFound:
 			panic("active governor without governance self-delegation")
 		}
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {

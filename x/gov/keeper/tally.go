@@ -146,7 +146,11 @@ func (keeper Keeper) tallyVotes(
 			return false, err
 		}
 
-		gd, hasGovernor := keeper.GetGovernanceDelegation(sdkCtx, voter)
+		gd, err := keeper.GovernanceDelegations.Get(sdkCtx, voter)
+		if err == collections.ErrEncoding {
+			return false, err
+		}
+		hasGovernor := err == nil
 		if hasGovernor {
 			if gi, ok := allGovernors[gd.GovernorAddress]; ok {
 				governor = gi

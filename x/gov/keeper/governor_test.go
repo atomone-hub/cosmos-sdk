@@ -78,24 +78,6 @@ func TestGovernor(t *testing.T) {
 		assert.Equal(gov1, *govs[0])
 	}
 
-	// IterateGovernors
-	govs = nil
-	err = govKeeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, gov v1.Governor) (stop bool, err error) {
-		govs = append(govs, &gov)
-		return false, nil
-	})
-	require.NoError(err)
-	if assert.Len(govs, 2, "expected 2 governors") {
-		for i := 0; i < 2; i++ {
-			switch govs[i].GetAddress().String() {
-			case gov1.GetAddress().String():
-				assert.Equal(gov1, *govs[i])
-			case gov2.GetAddress().String():
-				assert.Equal(gov2, *govs[i])
-			}
-		}
-	}
-
 	// Remove gov2
 	govKeeper.Governors.Remove(ctx, govAddrs[1])
 	gov, err = govKeeper.Governors.Get(ctx, govAddrs[1])

@@ -52,7 +52,7 @@ func (k Keeper) ValidateGovernorMinSelfDelegation(ctx sdk.Context, governor v1.G
 	}
 	delAddr := sdk.AccAddress(governor.GetAddress())
 
-	if del, found := k.GetGovernanceDelegation(ctx, delAddr); !found || governor.GovernorAddress != del.GovernorAddress {
+	if del, err := k.GovernanceDelegations.Get(ctx, delAddr); err != nil || governor.GovernorAddress != del.GovernorAddress {
 		panic("active governor without governance self-delegation")
 	}
 

@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -468,8 +470,10 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	// if status changes to active, create governance self-delegation
 	// in case it didn't exist
 	if governor.IsActive() {
-		delegation, found := k.GetGovernanceDelegation(ctx, addr)
-		if !found {
+		delegation, err := k.GovernanceDelegations.Get(ctx, addr)
+		if err == collections.ErrEncoding {
+			return nil, err
+		} else if err == collections.ErrNotFound {
 			err := k.DelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err
@@ -507,12 +511,15 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 	}
 
 	// Ensure the delegation is not already present
-	gd, found := k.GetGovernanceDelegation(ctx, delAddr)
-	if found && govAddr.Equals(govtypes.MustGovernorAddressFromBech32(gd.GovernorAddress)) {
+	gd, err := k.GovernanceDelegations.Get(ctx, delAddr)
+	if err == collections.ErrEncoding {
+		return nil, err
+	}
+	if err == nil && govAddr.Equals(govtypes.MustGovernorAddressFromBech32(gd.GovernorAddress)) {
 		return nil, govtypes.ErrGovernanceDelegationExists
 	}
 	// redelegate if a delegation to another governor already exists
-	if found {
+	if err == nil {
 		err := k.RedelegateToGovernor(ctx, delAddr, govAddr)
 		if err != nil {
 			return nil, err
@@ -551,8 +558,10 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 	delAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
 	// Ensure the delegation exists
-	delegation, found := k.GetGovernanceDelegation(ctx, delAddr)
-	if !found {
+	delegation, err := k.GovernanceDelegations.Get(ctx, delAddr)
+	if err == collections.ErrEncoding {
+		return nil, err
+	} else if err == collections.ErrNotFound {
 		return nil, govtypes.ErrGovernanceDelegationNotFound
 	}
 
@@ -580,7 +589,11 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 		panic("inconsistent state: governance delegation to non-existing governor")
 	}
 	if !governor.IsActive() {
-		delegations := k.GetAllGovernanceDelegationsByGovernor(ctx, governor.GetAddress())
+		var delegations []*v1.GovernanceDelegation
+		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], value *v1.GovernanceDelegation) (stop bool, err error) {
+			delegations = append(delegations, value)
+			return false, nil
+		})
 		if len(delegations) == 0 {
 			k.Governors.Remove(ctx, governor.GetAddress())
 		}

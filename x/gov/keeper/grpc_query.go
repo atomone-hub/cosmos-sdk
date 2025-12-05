@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/collections"
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	"cosmossdk.io/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -359,7 +358,7 @@ func (q queryServer) Governor(c context.Context, req *v1.QueryGovernorRequest) (
 
 	governor, err := q.k.Governors.Get(ctx, governorAddr)
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, err.Error())
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	return &v1.QueryGovernorResponse{Governor: &governor}, nil
@@ -397,19 +396,10 @@ func (q queryServer) GovernanceDelegations(c context.Context, req *v1.QueryGover
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(q.storeKey)
-	delegationStore := prefix.NewStore(store, types.GovernanceDelegationsByGovernorKey(governorAddr, []byte{}))
-
 	var delegations []*v1.GovernanceDelegation
-	pageRes, err := query.Paginate(delegationStore, req.Pagination, func(key []byte, value []byte) error {
-		var delegation v1.GovernanceDelegation
-		if err := q.cdc.Unmarshal(value, &delegation); err != nil {
-			return err
-		}
-
-		delegations = append(delegations, &delegation)
-		return nil
-	})
+	delegations, pageRes, err := query.CollectionPaginate(ctx, q.k.GovernanceDelegationsByGovernor, req.Pagination, func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (*v1.GovernanceDelegation, error) {
+		return delegation, nil
+	}, query.WithCollectionPaginationPairPrefix[types.GovernorAddress, sdk.AccAddress](governorAddr))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -434,8 +424,11 @@ func (q queryServer) GovernanceDelegation(c context.Context, req *v1.QueryGovern
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	delegation, found := q.GetGovernanceDelegation(ctx, delegatorAddr)
-	if !found {
+	delegation, err := q.k.GovernanceDelegations.Get(ctx, delegatorAddr)
+	switch err {
+	case collections.ErrEncoding:
+		return nil, err
+	case collections.ErrNotFound:
 		return nil, status.Errorf(codes.NotFound, "governance delegation for %s does not exist", req.DelegatorAddress)
 	}
 
@@ -459,20 +452,10 @@ func (q queryServer) GovernorValShares(c context.Context, req *v1.QueryGovernorV
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(q.storeKey)
-	valShareStore := prefix.NewStore(store, types.ValidatorSharesByGovernorKey(governorAddr, []byte{}))
-
 	var valShares []*v1.GovernorValShares
-	pageRes, err := query.Paginate(valShareStore, req.Pagination, func(key []byte, value []byte) error {
-		var valShare v1.GovernorValShares
-		if err := q.cdc.Unmarshal(value, &valShare); err != nil {
-			return err
-		}
-
-		valShares = append(valShares, &valShare)
-
-		return nil
-	})
+	valShares, pageRes, err := query.CollectionPaginate(ctx, q.k.ValidatorSharesByGovernor, req.Pagination, func(_ collections.Pair[types.GovernorAddress, sdk.ValAddress], valShare v1.GovernorValShares) (*v1.GovernorValShares, error) {
+		return &valShare, nil
+	}, query.WithCollectionPaginationPairPrefix[types.GovernorAddress, sdk.ValAddress](governorAddr))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

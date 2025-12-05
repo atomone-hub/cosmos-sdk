@@ -59,7 +59,7 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 		keeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, governor v1.Governor) (stop bool, err error) {
 			// check that if governor is active, it has a valid governance self-delegation
 			if governor.IsActive() {
-				if del, ok := keeper.GetGovernanceDelegation(ctx, sdk.AccAddress(governor.GetAddress())); !ok || !governor.GetAddress().Equals(types.MustGovernorAddressFromBech32(del.GovernorAddress)) {
+				if del, err := keeper.GovernanceDelegations.Get(ctx, sdk.AccAddress(governor.GetAddress())); err != nil || !governor.GetAddress().Equals(types.MustGovernorAddressFromBech32(del.GovernorAddress)) {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						"active governor without governance self-delegation")
 					broken = true
@@ -69,9 +69,9 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 
 			valShares := make(map[string]math.LegacyDec)
 			valSharesKeys := make([]string, 0)
-			keeper.IterateGovernorDelegations(ctx, governor.GetAddress(), func(index int64, delegation v1.GovernanceDelegation) bool {
+			err = keeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation *v1.GovernanceDelegation) (stop bool, err error) {
 				delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
-				err := keeper.sk.IterateDelegations(ctx, delAddr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
+				err = keeper.sk.IterateDelegations(ctx, delAddr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
 					validatorAddr := delegation.GetValidatorAddr()
 					shares := delegation.GetShares()
 					if _, ok := valShares[validatorAddr]; !ok {
@@ -85,10 +85,16 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						fmt.Sprintf("failed to iterate delegations: %v", err))
 					broken = true
-					return true
+					return true, nil
 				}
-				return false
+				return false, nil
 			})
+			if err != nil {
+				invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
+					fmt.Sprintf("failed to iterate governance delegations: %v", err))
+				broken = true
+				return true, nil
+			}
 
 			for _, valAddrStr := range valSharesKeys {
 				shares := valShares[valAddrStr]

@@ -65,7 +65,8 @@ type Keeper struct {
 	LawParticipationEMA                   collections.Item[math.LegacyDec]
 	QuorumCheckQueue                      collections.Map[collections.Pair[time.Time, uint64], v1.QuorumCheckQueueEntry]
 	Governors                             collections.Map[types.GovernorAddress, v1.Governor]
-	GovernanceDelegations                 collections.Map[collections.Pair[types.GovernorAddress, sdk.AccAddress], v1.GovernanceDelegation]
+	GovernanceDelegations                 collections.Map[sdk.AccAddress, v1.GovernanceDelegation]
+	GovernanceDelegationsByGovernor       collections.Map[collections.Pair[types.GovernorAddress, sdk.AccAddress], *v1.GovernanceDelegation]
 	ValidatorSharesByGovernor             collections.Map[collections.Pair[types.GovernorAddress, sdk.ValAddress], v1.GovernorValShares]
 }
 
