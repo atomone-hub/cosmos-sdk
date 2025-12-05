@@ -192,20 +192,11 @@ func (k msgServer) EditValidator(ctx context.Context, msg *types.MsgEditValidato
 			return nil, err
 		}
 
-		if maxCommissionRate.Equal(minCommissionRate) {
-			if !msg.CommissionRate.Equal(minCommissionRate) {
-				return nil, errorsmod.Wrapf(types.ErrCommissionOutOfBound,
-					"if the validity minimum and maximum commission rates are equal (%s), the commission rate (%s) must be equal too",
-					msg.CommissionRate.String(), minCommissionRate.String(),
-				)
-			}
-		} else {
-			if msg.CommissionRate.LT(minCommissionRate) || msg.CommissionRate.GT(maxCommissionRate) {
-				return nil, errorsmod.Wrapf(types.ErrCommissionOutOfBound,
-					"commission rate (%s) must be between %s and %s",
-					msg.CommissionRate.String(), minCommissionRate.String(), maxCommissionRate.String(),
-				)
-			}
+		if msg.CommissionRate.LT(minCommissionRate) || msg.CommissionRate.GT(maxCommissionRate) {
+			return nil, errorsmod.Wrapf(types.ErrCommissionOutOfBound,
+				"commission rate (%s) must be between %s and %s",
+				msg.CommissionRate.String(), minCommissionRate.String(), maxCommissionRate.String(),
+			)
 		}
 	}
 
