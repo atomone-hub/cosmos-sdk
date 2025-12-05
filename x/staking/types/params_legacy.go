@@ -9,7 +9,6 @@ var (
 	KeyBondDenom         = []byte("BondDenom")
 	KeyHistoricalEntries = []byte("HistoricalEntries")
 	KeyMinCommissionRate = []byte("MinCommissionRate")
-	KeyMaxCommissionRate = []byte("MaxCommissionRate")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -28,7 +27,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxEntries, &p.MaxEntries, validateMaxEntries),
 		paramtypes.NewParamSetPair(KeyHistoricalEntries, &p.HistoricalEntries, validateHistoricalEntries),
 		paramtypes.NewParamSetPair(KeyBondDenom, &p.BondDenom, validateBondDenom),
-		paramtypes.NewParamSetPair(KeyMinCommissionRate, &p.MinCommissionRate, validateMinCommissionRate),
-		paramtypes.NewParamSetPair(KeyMaxCommissionRate, &p.MaxCommissionRate, validateMaxCommissionRate),
+		paramtypes.NewParamSetPair(KeyMinCommissionRate, &p.MinCommissionRate, validateCommissionRate),
 	}
 }

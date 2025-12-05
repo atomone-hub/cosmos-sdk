@@ -211,7 +211,7 @@ func validateCommissionRate(i interface{}) error {
 	return nil
 }
 
-func validateCommissionRates(minimum, maximum interface{}) error {
+func validateCommissionRates(minimum, maximum math.LegacyDec) error {
 	if err := validateCommissionRate(minimum); err != nil {
 		return fmt.Errorf("minimum commission rate: %w", err)
 	}
@@ -220,18 +220,9 @@ func validateCommissionRates(minimum, maximum interface{}) error {
 		return fmt.Errorf("maximum commission rate: %w", err)
 	}
 
-	vMin, ok := minimum.(math.LegacyDec)
-	if !ok {
-		return fmt.Errorf("invalid minimum parameter type: %T", minimum)
-	}
-
-	vMax, ok := maximum.(math.LegacyDec)
-	if !ok {
-		return fmt.Errorf("invalid maximum parameter type: %T", maximum)
-	}
-
-	if vMin.GT(vMax) {
-		return fmt.Errorf("minimum commission (%s) rate cannot be greater than the maximum (%s)", vMin.String(), vMax.String())
+	if minimum.GT(maximum) {
+		return fmt.Errorf("minimum commission (%s) rate cannot be greater than the maximum (%s)",
+			minimum.String(), maximum.String())
 	}
 
 	return nil
