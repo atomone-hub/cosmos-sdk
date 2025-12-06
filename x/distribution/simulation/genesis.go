@@ -18,6 +18,8 @@ const (
 	NakamotoBonusEnabled = "nakamoto_bonus_enabled"
 	NakamotoBonusStep    = "nakamoto_bonus_step"
 	NakamotoBonusPeriod  = "nakamoto_bonus_enabled"
+	NakamotoBonusMax     = "nakamoto_bonus_maximum"
+	NakamotoBonusMin     = "nakamoto_bonus_minimum"
 )
 
 // GenCommunityTax randomized CommunityTax
@@ -62,6 +64,12 @@ func RandomizedGenState(simState *module.SimulationState) {
 	var nakamotoBonusPeriod uint64
 	simState.AppParams.GetOrGenerate(NakamotoBonusPeriod, &nakamotoBonusPeriod, simState.Rand, func(r *rand.Rand) { nakamotoBonusPeriod = GenNakamotoBonusPeriod(r) })
 
+	var nakamotoBonusMin math.LegacyDec
+	simState.AppParams.GetOrGenerate(NakamotoBonusMin, &nakamotoBonusMin, simState.Rand, func(r *rand.Rand) { nakamotoBonusMin = GenNakamotoBonusStep(r) })
+
+	var nakamotoBonusMax math.LegacyDec
+	simState.AppParams.GetOrGenerate(NakamotoBonusMax, &nakamotoBonusMax, simState.Rand, func(r *rand.Rand) { nakamotoBonusMax = GenNakamotoBonusStep(r) })
+
 	distrGenesis := types.GenesisState{
 		FeePool: types.InitialFeePool(),
 		Params: types.Params{
@@ -71,6 +79,8 @@ func RandomizedGenState(simState *module.SimulationState) {
 				Enabled: nakamotoBonusEnabled,
 				Step:    nakamotoBonusStep,
 				Period:  nakamotoBonusPeriod,
+				Minimum: nakamotoBonusMin,
+				Maximum: nakamotoBonusMax,
 			},
 		},
 	}
