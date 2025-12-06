@@ -1,9 +1,9 @@
 package v4
 
 import (
-	"fmt"
-
+	"cosmossdk.io/collections"
 	corestoretypes "cosmossdk.io/core/store"
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,7 +11,12 @@ import (
 )
 
 // MigrateStore migrates the x/distribution module state to version 6.
-func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, cdc codec.BinaryCodec) error {
+func MigrateStore(
+	ctx sdk.Context,
+	storeService corestoretypes.KVStoreService,
+	cdc codec.BinaryCodec,
+	nakamotoBonus collections.Item[math.LegacyDec],
+) error {
 	// Open the KVStore
 	store := storeService.OpenKVStore(ctx)
 
@@ -37,19 +42,11 @@ func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, c
 		return err
 	}
 
-	// Check if NakamotoBonus parameter already exists
-	nakamotoBonusKey := dstrtypes.NakamotoBonusKey
-	exists, err := store.Has(nakamotoBonusKey)
-	if err != nil {
-		return fmt.Errorf("error checking if nakamoto bonus key exists: %w", err)
-	}
-	if !exists {
-		// Set the default value
-		// defaultNakamotoBonus := dstrtypes.DefaultNakamotoBonus
-		// Marshal and set the parameter in the store
-		//if err := store.Set(nakamotoBonusKey, cdc.MustMarshal(&defaultNakamotoBonus)); err != nil {
-		//	return err
-		//}
+	defaultNakamotoBonus := dstrtypes.DefaultNakamotoBonus
+	if ok, err := nakamotoBonus.Has(ctx); !ok || err != nil {
+		if err := nakamotoBonus.Set(ctx, defaultNakamotoBonus); err != nil {
+			return err
+		}
 	}
 
 	return nil
