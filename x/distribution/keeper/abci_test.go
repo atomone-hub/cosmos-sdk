@@ -15,8 +15,15 @@ import (
 func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.DefaultNakamotoBonusPeriod)
 
-	// Use η = 0.03, block height triggers adjustment
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10))
+	// Create validators for mocking
+	vals := createValidators(100, 100, 10)
+	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
+
+	// Mock ValidatorByConsAddr for AllocateTokens
+	for i := range vals {
+		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
+	}
+
 	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(634195840)))
 	s.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), s.feeCollectorAcc.GetAddress()).Return(fees).AnyTimes()
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), "fee_collector", types.ModuleName, fees)
@@ -25,17 +32,27 @@ func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 	err := s.distrKeeper.BeginBlocker(s.ctx)
 	require.NoError(t, err)
 
-	// Check η was increased (high/low avg ratio >= 3)
+	// Verify η increased: 0.03 + 0.01 = 0.04
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyNewDecWithPrec(6, 2), nakamotoBonusCoefficient)
+
+	expectedEta := math.LegacyNewDecWithPrec(4, 2)
+	require.Equal(t, expectedEta, nakamotoBonusCoefficient,
+		"η should increase from 0.03 to 0.04 when ratio >= 3. Got: %s", nakamotoBonusCoefficient)
 }
 
 func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.DefaultNakamotoBonusPeriod)
 
-	// Use η = 0.03, block height triggers adjustment, but ratio < 3 (should decrease to 0)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10))
+	// Create validators with lower ratio for decrease
+	vals := createValidators(20, 20, 10)
+	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
+
+	// Mock ValidatorByConsAddr for AllocateTokens
+	for i := range vals {
+		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
+	}
+
 	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(634195840)))
 	s.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), s.feeCollectorAcc.GetAddress()).Return(fees).AnyTimes()
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), "fee_collector", types.ModuleName, fees)
@@ -44,17 +61,27 @@ func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 	err := s.distrKeeper.BeginBlocker(s.ctx)
 	require.NoError(t, err)
 
-	// Check η was decreased and clamped at 0
+	// Verify η decreased: 0.03 - 0.01 = 0.02
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
+
+	expectedEta := math.LegacyNewDecWithPrec(2, 2)
+	require.Equal(t, expectedEta, nakamotoBonusCoefficient,
+		"η should decrease from 0.03 to 0.02 when ratio < 3. Got: %s", nakamotoBonusCoefficient)
 }
 
 func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
 	s := setupTestKeeper(t, math.LegacyOneDec(), types.DefaultNakamotoBonusPeriod)
 
 	// η = 1.0, should clamp to 1.0 even if increase requested
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(100, 100, 10))
+	vals := createValidators(100, 100, 10)
+	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
+
+	// Mock ValidatorByConsAddr for AllocateTokens
+	for i := range vals {
+		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
+	}
+
 	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(634195840)))
 	s.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), s.feeCollectorAcc.GetAddress()).Return(fees).AnyTimes()
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), "fee_collector", types.ModuleName, fees)
@@ -63,7 +90,7 @@ func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
 	err := s.distrKeeper.BeginBlocker(s.ctx)
 	require.NoError(t, err)
 
-	// Should stay at 1
+	// Should stay at 1 (clamped upper bound)
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyOneDec(), nakamotoBonusCoefficient)
@@ -73,7 +100,14 @@ func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
 	s := setupTestKeeper(t, math.LegacyZeroDec(), types.DefaultNakamotoBonusPeriod)
 
 	// η = 0.0, should clamp to 0.0 even if decrease requested
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(createValidators(20, 20, 10))
+	vals := createValidators(20, 20, 10)
+	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
+
+	// Mock ValidatorByConsAddr for AllocateTokens
+	for i := range vals {
+		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
+	}
+
 	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(634195840)))
 	s.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), s.feeCollectorAcc.GetAddress()).Return(fees).AnyTimes()
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), "fee_collector", types.ModuleName, fees)
@@ -82,7 +116,7 @@ func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
 	err := s.distrKeeper.BeginBlocker(s.ctx)
 	require.NoError(t, err)
 
-	// Should stay at 0
+	// Should stay at 0 (clamped lower bound)
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)

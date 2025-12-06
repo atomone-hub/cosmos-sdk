@@ -16,6 +16,12 @@ import (
 // - If avg(high group) >= 3x avg(low group), nb += step
 // - Else nb -= step
 // Clamp nb to [0, 1]. If disabled, force to 0.
+//
+// Events emitted:
+//   - EventTypeUpdateNakamotoCoefficient: When η value changes
+//     Attributes: nakamoto_coefficient (new value), block_height
+//   - EventTypeNakamotoBonusDisabled: When feature is disabled
+//     Attributes: nakamoto_coefficient (current value), block_height
 func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
