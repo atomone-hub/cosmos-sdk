@@ -8,12 +8,20 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+const (
+	// ModuleName is the name of the x/staking module
+	ModuleName = "staking"
+)
+
+// ParamsKey prefix for parameters for module x/staking
+var ParamsKey = []byte{0x51}
+
 // MigrateStore migrates the x/staking module state to version 6.
 func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, cdc codec.BinaryCodec) error {
 	// Open the KVStore
 	store := storeService.OpenKVStore(ctx)
 
-	paramsBz, err := store.Get(stakingtypes.ParamsKey)
+	paramsBz, err := store.Get(ParamsKey)
 	if err != nil {
 		return err
 	}
@@ -31,5 +39,5 @@ func MigrateStore(ctx sdk.Context, storeService corestoretypes.KVStoreService, c
 		return err
 	}
 
-	return store.Set(stakingtypes.ParamsKey, bz)
+	return store.Set(ParamsKey, bz)
 }
