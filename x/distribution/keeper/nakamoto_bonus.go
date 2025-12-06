@@ -97,12 +97,12 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		newCoefficient = newCoefficient.Sub(params.NakamotoBonus.Step)
 	}
 
-	// clamp to [0,1]
-	if newCoefficient.LT(math.LegacyZeroDec()) {
-		newCoefficient = math.LegacyZeroDec()
+	// clamp to [min, max]
+	if newCoefficient.LT(params.NakamotoBonus.Minimum) {
+		newCoefficient = params.NakamotoBonus.Minimum
 	}
-	if newCoefficient.GT(math.LegacyOneDec()) {
-		newCoefficient = math.LegacyOneDec()
+	if newCoefficient.GT(params.NakamotoBonus.Maximum) {
+		newCoefficient = params.NakamotoBonus.Maximum
 	}
 
 	// emit event if changed

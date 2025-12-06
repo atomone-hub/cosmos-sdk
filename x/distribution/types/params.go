@@ -8,19 +8,13 @@ import (
 
 const (
 	// DefaultNakamotoBonusPeriod represents default nakamoto bonus period (in blocks)
-	DefaultNakamotoBonusPeriod = 120_000
-	// defaultNakamotoBonusStep represents the default step to increase or decrease η
-	defaultNakamotoBonusStep = 1
-	// defaultNakamotoBonusMinimum represents the default step to increase or decrease η
-	defaultNakamotoBonusMinimum = 1
-	// defaultNakamotoBonusMaximum represents the default step to increase or decrease η
-	defaultNakamotoBonusMaximum = 1
+	DefaultNakamotoBonusPeriod = uint64(100_800) // ~7 days at 6s blocks (604,800s / 6s)
 )
 
 var (
-	DefaultNakamotoBonusStep    = math.LegacyNewDecWithPrec(defaultNakamotoBonusStep, 2)
-	DefaultNakamotoBonusMinimum = math.LegacyNewDecWithPrec(defaultNakamotoBonusMinimum, 2)
-	DefaultNakamotoBonusMaximum = math.LegacyNewDecWithPrec(defaultNakamotoBonusMaximum, 2)
+	DefaultNakamotoBonusStep    = math.LegacyNewDecWithPrec(1, 2)
+	DefaultNakamotoBonusMinimum = math.LegacyNewDecWithPrec(3, 2)
+	DefaultNakamotoBonusMaximum = math.LegacyOneDec()
 )
 
 // DefaultParams returns default distribution parameters

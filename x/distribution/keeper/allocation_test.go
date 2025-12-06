@@ -38,7 +38,7 @@ type suite struct {
 	valCodec        sdkaddress.Codec
 }
 
-func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, height int64) *suite {
+func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, height uint64) *suite {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
@@ -46,7 +46,7 @@ func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, heig
 	storeService := runtime.NewKVStoreService(key)
 	testCtx := testutil.DefaultContextWithDB(t, key, storetypes.NewTransientStoreKey("transient_test"))
 	encCfg := moduletestutil.MakeTestEncodingConfig(distribution.AppModuleBasic{})
-	ctx := testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Now(), Height: height})
+	ctx := testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Now(), Height: int64(height)})
 
 	bankKeeper := distrtestutil.NewMockBankKeeper(ctrl)
 	stakingKeeper := distrtestutil.NewMockStakingKeeper(ctrl)

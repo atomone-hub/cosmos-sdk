@@ -100,7 +100,7 @@ func TestAdjustEta_NotEnoughValidators(t *testing.T) {
 }
 
 func TestAdjustEta_Increase(t *testing.T) {
-	initialEta := types.DefaultNakamotoBonusStep
+	initialEta := math.LegacyNewDecWithPrec(5, 2) // Start at 0.05 (above minimum)
 	s := setupTestKeeper(t, initialEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, should increase
@@ -116,13 +116,13 @@ func TestAdjustEta_Increase(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	expectedEta := initialEta.Add(types.DefaultNakamotoBonusStep)
+	expectedEta := initialEta.Add(types.DefaultNakamotoBonusStep) // 0.05 + 0.01 = 0.06
 	require.Equal(t, expectedEta, nakamotoBonusCoefficient,
 		"η should increase by step when ratio >= 3")
 }
 
 func TestAdjustEta_Decrease(t *testing.T) {
-	initialEta := types.DefaultNakamotoBonusStep
+	initialEta := math.LegacyNewDecWithPrec(5, 2) // Start at 0.05 (above minimum)
 	s := setupTestKeeper(t, initialEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, should decrease
@@ -138,16 +138,17 @@ func TestAdjustEta_Decrease(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	// 0.03 - 0.03 = 0, clamped at 0
-	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient,
-		"η should decrease and clamp to 0 when ratio < 3")
+	// 0.05 - 0.01 = 0.04, which is above minimum, so no clamping needed
+	expectedEta := math.LegacyNewDecWithPrec(4, 2)
+	require.Equal(t, expectedEta, nakamotoBonusCoefficient,
+		"η should decrease by step when ratio < 3")
 }
 
 func TestAdjustEta_ClampZero(t *testing.T) {
-	initEta := math.LegacyZeroDec()
+	initEta := types.DefaultNakamotoBonusMinimum // Start at minimum (0.03)
 	s := setupTestKeeper(t, initEta, types.DefaultNakamotoBonusPeriod)
 
-	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, would decrease but already at 0
+	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, would decrease but already at min
 	vals := createValidators(20, 20, 10)
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
 
@@ -160,16 +161,16 @@ func TestAdjustEta_ClampZero(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	require.True(t, nakamotoBonusCoefficient.GTE(math.LegacyZeroDec()),
-		"η should never go below 0")
-	require.Equal(t, math.LegacyZeroDec(), nakamotoBonusCoefficient)
+	require.True(t, nakamotoBonusCoefficient.GTE(types.DefaultNakamotoBonusMinimum),
+		"η should never go below minimum (%s), got: %s", types.DefaultNakamotoBonusMinimum, nakamotoBonusCoefficient)
+	require.Equal(t, types.DefaultNakamotoBonusMinimum, nakamotoBonusCoefficient)
 }
 
 func TestAdjustEta_ClampOne(t *testing.T) {
-	initEta := math.LegacyOneDec()
+	initEta := types.DefaultNakamotoBonusMaximum // Start at maximum (1.0)
 	s := setupTestKeeper(t, initEta, types.DefaultNakamotoBonusPeriod)
 
-	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, would increase but already at 1
+	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, would increase but already at max
 	vals := createValidators(100, 100, 10)
 	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
 
@@ -182,9 +183,9 @@ func TestAdjustEta_ClampOne(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
 	require.NoError(t, err)
-	require.True(t, nakamotoBonusCoefficient.LTE(math.LegacyOneDec()),
-		"η should never exceed 1")
-	require.Equal(t, math.LegacyOneDec(), nakamotoBonusCoefficient)
+	require.True(t, nakamotoBonusCoefficient.LTE(types.DefaultNakamotoBonusMaximum),
+		"η should never exceed maximum (%s), got: %s", types.DefaultNakamotoBonusMaximum, nakamotoBonusCoefficient)
+	require.Equal(t, types.DefaultNakamotoBonusMaximum, nakamotoBonusCoefficient)
 }
 
 func TestAllocateTokensWithNakamotoBonusImbalancedValidators(t *testing.T) {
