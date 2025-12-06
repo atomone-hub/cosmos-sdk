@@ -66,17 +66,15 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 	}
 	proportionalReward := validatorTotalReward.Sub(nakamotoBonus)
 
-	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return err
-	}
-
 	// Compute per-validator fixed Nakamoto bonus
 	numValidators := int64(len(bondedVotes))
-	nbPerValidator := sdk.NewDecCoinFromDec(bondDenom, math.LegacyZeroDec())
+	nbPerValidator := sdk.NewDecCoins()
 	if numValidators > 0 && !nakamotoBonus.IsZero() {
-		amount := nakamotoBonus.AmountOf(bondDenom).Quo(math.LegacyNewDec(numValidators))
-		nbPerValidator = sdk.NewDecCoinFromDec(bondDenom, amount)
+		// Distribute Nakamoto bonus across all denominations
+		for _, coin := range nakamotoBonus {
+			amount := coin.Amount.Quo(math.LegacyNewDec(numValidators))
+			nbPerValidator = nbPerValidator.Add(sdk.NewDecCoinFromDec(coin.Denom, amount))
+		}
 	}
 
 	remaining := feesCollected
@@ -93,10 +91,9 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 		proportional := proportionalReward.MulDecTruncate(powerFraction)
 
 		// Add fixed Nakamoto bonus to proportional share
-		reward := proportional.Add(nbPerValidator)
+		reward := proportional.Add(nbPerValidator...)
 
-		err = k.AllocateTokensToValidator(ctx, validator, reward)
-		if err != nil {
+		if err = k.AllocateTokensToValidator(ctx, validator, reward); err != nil {
 			return err
 		}
 

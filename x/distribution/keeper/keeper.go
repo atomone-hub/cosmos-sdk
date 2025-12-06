@@ -28,11 +28,10 @@ type Keeper struct {
 	// should be the x/gov module account.
 	authority string
 
-	Schema               collections.Schema
-	Params               collections.Item[types.Params]
-	FeePool              collections.Item[types.FeePool]
-	NakamotoBonus        collections.Item[math.LegacyDec]
-	NakamotoLastUpdateAt collections.Item[uint64] // unix seconds
+	Schema        collections.Schema
+	Params        collections.Item[types.Params]
+	FeePool       collections.Item[types.FeePool]
+	NakamotoBonus collections.Item[math.LegacyDec]
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
@@ -50,17 +49,16 @@ func NewKeeper(
 
 	sb := collections.NewSchemaBuilder(storeService)
 	k := Keeper{
-		storeService:         storeService,
-		cdc:                  cdc,
-		authKeeper:           ak,
-		bankKeeper:           bk,
-		stakingKeeper:        sk,
-		feeCollectorName:     feeCollectorName,
-		authority:            authority,
-		Params:               collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		FeePool:              collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
-		NakamotoBonus:        collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
-		NakamotoLastUpdateAt: collections.NewItem(sb, types.NakamotoLastUpdateKey, "nakamoto_last_update_unix", collections.Uint64Value),
+		storeService:     storeService,
+		cdc:              cdc,
+		authKeeper:       ak,
+		bankKeeper:       bk,
+		stakingKeeper:    sk,
+		feeCollectorName: feeCollectorName,
+		authority:        authority,
+		Params:           collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		FeePool:          collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
+		NakamotoBonus:    collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
 	}
 
 	schema, err := sb.Build()

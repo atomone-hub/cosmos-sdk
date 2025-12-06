@@ -77,7 +77,7 @@ func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, heig
 	} else {
 		require.NoError(t, err)
 	}
-	params.NakamotoBonus.Period = uint64(height)
+	params.NakamotoBonus.Period = height
 	require.NoError(t, distrKeeper.Params.Set(ctx, params))
 
 	err = distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
