@@ -74,12 +74,7 @@ func validateWithdrawAddrEnabled(i interface{}) error {
 	return nil
 }
 
-func validateNakamotoBonus(i interface{}) error {
-	v, ok := i.(NakamotoBonus)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
+func validateNakamotoBonus(v NakamotoBonus) error {
 	if v.Period == 0 {
 		return fmt.Errorf("nakamoto bonus period must be greater than zero: %d", v.Period)
 	}
