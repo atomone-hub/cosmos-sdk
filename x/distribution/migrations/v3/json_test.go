@@ -47,19 +47,20 @@ func TestMigrateJSON(t *testing.T) {
 	"fee_pool": {
 		"community_pool": []
 	},
+	"nakamoto_bonus": "0.030000000000000000",
 	"outstanding_rewards": [],
 	"params": {
 		"base_proposer_reward": "0.000000000000000000",
 		"bonus_proposer_reward": "0.000000000000000000",
 		"community_tax": "0.020000000000000000",
-		"withdraw_addr_enabled": true
 		"nakamoto_bonus": {
 			"enabled": true,
 			"maximum": "0.010000000000000000",
 			"minimum": "0.010000000000000000",
-			"period": 120000,
-			"step": "0.030000000000000000",
+			"period": "120000",
+			"step": "0.010000000000000000"
 		},
+		"withdraw_addr_enabled": true
 	},
 	"previous_proposer": "",
 	"validator_accumulated_commissions": [],
