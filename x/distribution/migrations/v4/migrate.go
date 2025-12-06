@@ -10,6 +10,18 @@ import (
 	dstrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
+const (
+	ModuleName = "distribution"
+)
+
+var (
+	// ParamsKey is the key of x/distribution params
+	ParamsKey = collections.NewPrefix(9)
+
+	// NakamotoBonusKey is the key of x/distribution nakamoto bonus
+	NakamotoBonusKey = collections.NewPrefix(10)
+)
+
 // MigrateStore migrates the x/distribution module state to version 6.
 func MigrateStore(
 	ctx sdk.Context,
@@ -20,7 +32,7 @@ func MigrateStore(
 	// Open the KVStore
 	store := storeService.OpenKVStore(ctx)
 
-	paramsBz, err := store.Get(dstrtypes.ParamsKey)
+	paramsBz, err := store.Get(ParamsKey)
 	if err != nil {
 		return err
 	}
@@ -38,7 +50,7 @@ func MigrateStore(
 		return err
 	}
 
-	if err := store.Set(dstrtypes.ParamsKey, bz); err != nil {
+	if err := store.Set(ParamsKey, bz); err != nil {
 		return err
 	}
 
