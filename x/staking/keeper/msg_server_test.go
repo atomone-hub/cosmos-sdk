@@ -203,6 +203,30 @@ func (s *KeeperTestSuite) TestMsgCreateValidator() {
 			expErrMsg: "validator's self delegation must be greater than their minimum self delegation",
 		},
 		{
+			name: "rate more than expected msg",
+			input: &stakingtypes.MsgCreateValidator{
+				Description: stakingtypes.Description{
+					Moniker:         "NewValidator",
+					Identity:        "xyz",
+					Website:         "xyz.com",
+					SecurityContact: "xyz@gmail.com",
+					Details:         "details",
+				},
+				Commission: stakingtypes.CommissionRates{
+					Rate:          math.LegacyNewDec(1000),
+					MaxRate:       math.LegacyNewDecWithPrec(5, 1),
+					MaxChangeRate: math.LegacyNewDec(0),
+				},
+				MinSelfDelegation: math.NewInt(1),
+				DelegatorAddress:  Addr.String(),
+				ValidatorAddress:  ValAddr.String(),
+				Pubkey:            pubkey,
+				Value:             sdk.NewInt64Coin("stake", 10000),
+			},
+			expErr:    true,
+			expErrMsg: "commission cannot be more than the max rate",
+		},
+		{
 			name: "valid msg",
 			input: &stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
