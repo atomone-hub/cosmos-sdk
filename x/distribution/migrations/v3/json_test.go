@@ -54,9 +54,11 @@ func TestMigrateJSON(t *testing.T) {
 		"community_tax": "0.020000000000000000",
 		"withdraw_addr_enabled": true
 		"nakamoto_bonus": {
-			"step": "0.030000000000000000",
 			"enabled": true,
+			"maximum": "0.010000000000000000",
+			"minimum": "0.010000000000000000",
 			"period": 120000,
+			"step": "0.030000000000000000",
 		},
 	},
 	"previous_proposer": "",

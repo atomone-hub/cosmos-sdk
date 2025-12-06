@@ -54,6 +54,8 @@ func TestGRPCParams(t *testing.T) {
 						Enabled: true,
 						Step:    types.DefaultNakamotoBonusStep,
 						Period:  types.DefaultNakamotoBonusPeriod,
+						Minimum: types.DefaultNakamotoBonusMinimum,
+						Maximum: types.DefaultNakamotoBonusMaximum,
 					},
 				}
 
