@@ -20,6 +20,9 @@ var (
 
 	// NakamotoBonusKey is the key of x/distribution nakamoto bonus
 	NakamotoBonusKey = collections.NewPrefix(10)
+
+	// DefaultNakamotoBonus is the ADR's initial value: 3% (0.03)
+	DefaultNakamotoBonus = math.LegacyNewDecWithPrec(3, 2) // 0.03
 )
 
 // MigrateStore migrates the x/distribution module state to version 6.
@@ -54,7 +57,7 @@ func MigrateStore(
 		return err
 	}
 
-	defaultNakamotoBonus := dstrtypes.DefaultNakamotoBonus
+	defaultNakamotoBonus := DefaultNakamotoBonus
 	if ok, err := nakamotoBonus.Has(ctx); !ok || err != nil {
 		if err := nakamotoBonus.Set(ctx, defaultNakamotoBonus); err != nil {
 			return err

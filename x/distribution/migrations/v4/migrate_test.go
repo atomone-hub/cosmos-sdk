@@ -46,5 +46,5 @@ func TestMigrateStore(t *testing.T) {
 	// Check Nakamoto Bonus
 	nbResult, err := nakamotoBonusCollection.Get(ctx)
 	require.NoError(t, err)
-	require.Equal(t, dstrtypes.DefaultNakamotoBonus, nbResult)
+	require.Equal(t, v4.DefaultNakamotoBonus, nbResult)
 }
