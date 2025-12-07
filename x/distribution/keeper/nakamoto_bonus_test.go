@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"context"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -15,7 +16,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func createValidators(powers ...int64) []stakingtypes.Validator {
+func createValidators(ctx context.Context, stakingKeeper *distrtestutil.MockStakingKeeper, powers ...int64) []stakingtypes.Validator {
 	vals := make([]stakingtypes.Validator, len(powers))
 	for i, p := range powers {
 		vals[i] = stakingtypes.Validator{
@@ -25,6 +26,13 @@ func createValidators(powers ...int64) []stakingtypes.Validator {
 			Commission:      stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
 		}
 	}
+	stakingKeeper.EXPECT().GetBondedValidatorsByPower(ctx).Return(vals, nil).AnyTimes()
+
+	// Mock ValidatorByConsAddr for AllocateTokens
+	for i := range vals {
+		stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
+	}
+
 	return vals
 }
 
@@ -39,13 +47,7 @@ func TestAdjustEta_NakamotoDisabled(t *testing.T) {
 	require.NoError(t, s.distrKeeper.Params.Set(s.ctx, p))
 
 	// Even with validators that would trigger an increase, should not adjust
-	vals := createValidators(100, 100, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 100, 100, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
@@ -62,13 +64,7 @@ func TestAdjustEta_NoInterval(t *testing.T) {
 
 	// Block height is the default from setupTestKeeper (DefaultNakamotoBonusPeriod)
 	// Since height % period != 0, should skip adjustment
-	vals := createValidators(10, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 10, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
@@ -83,13 +79,7 @@ func TestAdjustEta_NotEnoughValidators(t *testing.T) {
 	s := setupTestKeeper(t, initialEta, types.DefaultNakamotoBonusPeriod)
 
 	// Only 2 validators (need at least 3 for grouping)
-	vals := createValidators(10, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 10, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
@@ -104,13 +94,7 @@ func TestAdjustEta_Increase(t *testing.T) {
 	s := setupTestKeeper(t, initialEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, should increase
-	vals := createValidators(100, 100, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 100, 100, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
@@ -126,13 +110,7 @@ func TestAdjustEta_Decrease(t *testing.T) {
 	s := setupTestKeeper(t, initialEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, should decrease
-	vals := createValidators(20, 20, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 20, 20, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
@@ -149,13 +127,7 @@ func TestAdjustEta_ClampZero(t *testing.T) {
 	s := setupTestKeeper(t, initEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, would decrease but already at min
-	vals := createValidators(20, 20, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 20, 20, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
@@ -171,13 +143,7 @@ func TestAdjustEta_ClampOne(t *testing.T) {
 	s := setupTestKeeper(t, initEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, would increase but already at max
-	vals := createValidators(100, 100, 10)
-	s.stakingKeeper.EXPECT().GetBondedValidatorsByPower(s.ctx).Return(vals, nil).AnyTimes()
-
-	// Mock ValidatorByConsAddr for AllocateTokens
-	for i := range vals {
-		s.stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
-	}
+	createValidators(s.ctx, s.stakingKeeper, 100, 100, 10)
 
 	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
 
