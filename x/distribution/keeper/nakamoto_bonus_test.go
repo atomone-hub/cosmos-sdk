@@ -16,7 +16,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func createValidators(ctx context.Context, stakingKeeper *distrtestutil.MockStakingKeeper, powers ...int64) []stakingtypes.Validator {
+func createValidators(ctx context.Context, stakingKeeper *distrtestutil.MockStakingKeeper, powers ...int64) {
 	vals := make([]stakingtypes.Validator, len(powers))
 	for i, p := range powers {
 		vals[i] = stakingtypes.Validator{
@@ -32,8 +32,6 @@ func createValidators(ctx context.Context, stakingKeeper *distrtestutil.MockStak
 	for i := range vals {
 		stakingKeeper.EXPECT().ValidatorByConsAddr(gomock.Any(), gomock.Any()).Return(vals[i], nil).AnyTimes()
 	}
-
-	return vals
 }
 
 func TestAdjustEta_NakamotoDisabled(t *testing.T) {
