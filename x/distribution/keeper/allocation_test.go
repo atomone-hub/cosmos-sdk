@@ -79,7 +79,7 @@ func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, heig
 	params.NakamotoBonus.Period = height
 	require.NoError(t, distrKeeper.Params.Set(ctx, params))
 
-	err = distrKeeper.NakamotoBonus.Set(ctx, nakamotoBonusCoefficient)
+	err = distrKeeper.NakamotoBonusCoefficient.Set(ctx, nakamotoBonusCoefficient)
 	require.NoError(t, err)
 
 	return &suite{
@@ -232,7 +232,7 @@ func TestAllocateTokens_NakamotoBonusDisabled(t *testing.T) {
 	require.NoError(t, s.distrKeeper.Params.Set(s.ctx, params))
 
 	// η can be any value, should have no effect
-	err = s.distrKeeper.NakamotoBonus.Set(s.ctx, math.LegacyNewDecWithPrec(5, 2))
+	err = s.distrKeeper.NakamotoBonusCoefficient.Set(s.ctx, math.LegacyNewDecWithPrec(5, 2))
 	require.NoError(t, err)
 
 	// Setup validators: two validators, equal power, 0% commission

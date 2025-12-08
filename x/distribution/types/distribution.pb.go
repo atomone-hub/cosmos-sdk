@@ -688,7 +688,7 @@ func (m *CommunityPoolSpendProposalWithDeposit) XXX_DiscardUnknown() {
 var xxx_messageInfo_CommunityPoolSpendProposalWithDeposit proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*NakamotoBonus)(nil), "cosmos.distribution.v1beta1.NakamotoBonus")
+	proto.RegisterType((*NakamotoBonus)(nil), "cosmos.distribution.v1beta1.NakamotoBonusCoefficient")
 	proto.RegisterType((*Params)(nil), "cosmos.distribution.v1beta1.Params")
 	proto.RegisterType((*ValidatorHistoricalRewards)(nil), "cosmos.distribution.v1beta1.ValidatorHistoricalRewards")
 	proto.RegisterType((*ValidatorCurrentRewards)(nil), "cosmos.distribution.v1beta1.ValidatorCurrentRewards")
@@ -2055,10 +2055,10 @@ func (m *NakamotoBonus) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: NakamotoBonus: wiretype end group for non-group")
+			return fmt.Errorf("proto: NakamotoBonusCoefficient: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: NakamotoBonus: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: NakamotoBonusCoefficient: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2376,7 +2376,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			m.WithdrawAddrEnabled = bool(v != 0)
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NakamotoBonus", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field NakamotoBonusCoefficient", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {

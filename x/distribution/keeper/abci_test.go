@@ -27,7 +27,7 @@ func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify η increased: 0.03 + 0.01 = 0.04
-	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
 
 	expectedEta := math.LegacyNewDecWithPrec(4, 2)
@@ -50,7 +50,7 @@ func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify η clamped at minimum: 0.03 - 0.01 = 0.02, but min is 0.03, so stays at 0.03
-	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
 
 	expectedEta := math.LegacyNewDecWithPrec(3, 2) // clamped at minimum 0.03
@@ -73,7 +73,7 @@ func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
 	require.NoError(t, err)
 
 	// Should stay at 1 (clamped upper bound)
-	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyOneDec(), nakamotoBonusCoefficient)
 }
@@ -93,7 +93,7 @@ func TestAllocateTokens_NakamotoBonusClampEtaZero(t *testing.T) {
 	require.NoError(t, err)
 
 	// Should clamp to minimum (0.03) since 0.0 < min
-	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonus(s.ctx)
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
 	require.Equal(t, math.LegacyNewDecWithPrec(3, 2), nakamotoBonusCoefficient,
 		"η starting at 0 should clamp to minimum (0.03). Got: %s", nakamotoBonusCoefficient)

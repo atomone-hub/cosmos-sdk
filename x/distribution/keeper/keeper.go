@@ -28,10 +28,10 @@ type Keeper struct {
 	// should be the x/gov module account.
 	authority string
 
-	Schema        collections.Schema
-	Params        collections.Item[types.Params]
-	FeePool       collections.Item[types.FeePool]
-	NakamotoBonus collections.Item[math.LegacyDec]
+	Schema                   collections.Schema
+	Params                   collections.Item[types.Params]
+	FeePool                  collections.Item[types.FeePool]
+	NakamotoBonusCoefficient collections.Item[math.LegacyDec]
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
@@ -49,16 +49,16 @@ func NewKeeper(
 
 	sb := collections.NewSchemaBuilder(storeService)
 	k := Keeper{
-		storeService:     storeService,
-		cdc:              cdc,
-		authKeeper:       ak,
-		bankKeeper:       bk,
-		stakingKeeper:    sk,
-		feeCollectorName: feeCollectorName,
-		authority:        authority,
-		Params:           collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		FeePool:          collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
-		NakamotoBonus:    collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
+		storeService:             storeService,
+		cdc:                      cdc,
+		authKeeper:               ak,
+		bankKeeper:               bk,
+		stakingKeeper:            sk,
+		feeCollectorName:         feeCollectorName,
+		authority:                authority,
+		Params:                   collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		FeePool:                  collections.NewItem(sb, types.FeePoolKey, "fee_pool", codec.CollValue[types.FeePool](cdc)),
+		NakamotoBonusCoefficient: collections.NewItem(sb, types.NakamotoBonusKey, "nakamoto_bonus", sdk.LegacyDecValue),
 	}
 
 	schema, err := sb.Build()
@@ -193,21 +193,21 @@ func (k Keeper) WithdrawValidatorCommission(ctx context.Context, valAddr sdk.Val
 	return commission, nil
 }
 
-// GetNakamotoBonus returns the nakamoto bonus from the store
-func (k Keeper) GetNakamotoBonus(ctx context.Context) (math.LegacyDec, error) {
-	nakamotoCoefficient, err := k.NakamotoBonus.Get(ctx)
+// GetNakamotoBonusCoefficient returns the nakamoto bonus from the store
+func (k Keeper) GetNakamotoBonusCoefficient(ctx context.Context) (math.LegacyDec, error) {
+	nb, err := k.NakamotoBonusCoefficient.Get(ctx)
 	if errors.Is(err, collections.ErrNotFound) {
 		return math.LegacyZeroDec(), nil
 	}
-	return nakamotoCoefficient, err
+	return nb, err
 }
 
-// SetNakamotoBonus sets Nakamoto Bonus with bounds checks.
-func (k Keeper) SetNakamotoBonus(ctx sdk.Context, nb math.LegacyDec) error {
+// SetNakamotoBonusCoefficient sets Nakamoto Bonus with bounds checks.
+func (k Keeper) SetNakamotoBonusCoefficient(ctx sdk.Context, nb math.LegacyDec) error {
 	if nb.IsNegative() || nb.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("nakamoto bonus must be within [0,1], got %s", nb.String())
+		return fmt.Errorf("nakamoto bonus coefficient must be within [0,1], got %s", nb.String())
 	}
-	if err := k.NakamotoBonus.Set(ctx, nb); err != nil {
+	if err := k.NakamotoBonusCoefficient.Set(ctx, nb); err != nil {
 		return err
 	}
 	return nil

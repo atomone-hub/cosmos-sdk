@@ -37,7 +37,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		return nil
 	}
 
-	nakamotoCoefficient, err := k.GetNakamotoBonus(ctx)
+	nbCoefficient, err := k.GetNakamotoBonusCoefficient(ctx)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeNakamotoBonusDisabled,
-				sdk.NewAttribute(types.AttributeNakamotoCoefficient, nakamotoCoefficient.String()),
+				sdk.NewAttribute(types.AttributeNakamotoCoefficient, nbCoefficient.String()),
 				sdk.NewAttribute(types.AttributeKeyBlockHeight, fmt.Sprintf("%d", ctx.BlockHeight())),
 			),
 		)
@@ -88,7 +88,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 
 	highAvg := avg(high)
 	lowAvg := avg(low)
-	newCoefficient := nakamotoCoefficient
+	newCoefficient := nbCoefficient
 
 	// If lowAvg is zero, treat as increase case to spur NB
 	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(3)) {
@@ -106,7 +106,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	}
 
 	// emit event if changed
-	if !newCoefficient.Equal(nakamotoCoefficient) {
+	if !newCoefficient.Equal(nbCoefficient) {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdateNakamotoCoefficient,
@@ -115,5 +115,5 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 			),
 		)
 	}
-	return k.NakamotoBonus.Set(ctx, newCoefficient)
+	return k.NakamotoBonusCoefficient.Set(ctx, newCoefficient)
 }

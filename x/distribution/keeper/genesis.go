@@ -135,11 +135,11 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) error {
 	// set Nakamoto Bonus
 	if data.NakamotoBonus.IsZero() {
 		// zero is allowed but ADR default is 0.03. If not provided, set default.
-		if err := k.SetNakamotoBonus(ctx, types.DefaultNakamotoBonus); err != nil {
+		if err := k.SetNakamotoBonusCoefficient(ctx, types.DefaultNakamotoBonus); err != nil {
 			return err
 		}
 	} else {
-		if err := k.SetNakamotoBonus(ctx, data.NakamotoBonus); err != nil {
+		if err := k.SetNakamotoBonusCoefficient(ctx, data.NakamotoBonus); err != nil {
 			return err
 		}
 	}
@@ -244,7 +244,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) (*types.GenesisState, error) {
 		},
 	)
 
-	nb, err := k.GetNakamotoBonus(ctx)
+	nb, err := k.GetNakamotoBonusCoefficient(ctx)
 	if err != nil {
 		return nil, err
 	}

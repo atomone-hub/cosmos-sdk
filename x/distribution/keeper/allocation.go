@@ -50,7 +50,7 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 		return err
 	}
 
-	nakamotoCoefficient, err := k.GetNakamotoBonus(ctx)
+	nakamotoCoefficient, err := k.GetNakamotoBonusCoefficient(ctx)
 	if err != nil {
 		return err
 	}
