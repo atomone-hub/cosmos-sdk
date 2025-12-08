@@ -58,22 +58,25 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 	// Compute total validator rewards (after community tax)
 	voteMultiplier := math.LegacyOneDec().Sub(communityTax)
 	validatorTotalReward := feesCollected.MulDecTruncate(voteMultiplier)
-
-	// Split reward into Proportional (PR_i) and Nakamoto Bonus (NB_i)
-	nakamotoBonus := sdk.DecCoins{}
-	if params.NakamotoBonus.Enabled {
-		nakamotoBonus = validatorTotalReward.MulDecTruncate(nakamotoCoefficient)
-	}
-	proportionalReward := validatorTotalReward.Sub(nakamotoBonus)
-
-	// Compute per-validator fixed Nakamoto bonus
-	numValidators := int64(len(bondedVotes))
 	nbPerValidator := sdk.NewDecCoins()
-	if numValidators > 0 && !nakamotoBonus.IsZero() {
-		// Distribute Nakamoto bonus across all denominations
-		for _, coin := range nakamotoBonus {
-			amount := coin.Amount.Quo(math.LegacyNewDec(numValidators))
-			nbPerValidator = nbPerValidator.Add(sdk.NewDecCoinFromDec(coin.Denom, amount))
+
+	if params.NakamotoBonus.Enabled {
+
+		// Split reward into Proportional (PR_i) and Nakamoto Bonus (NB_i)
+		nakamotoBonus := sdk.DecCoins{}
+		if params.NakamotoBonus.Enabled {
+			nakamotoBonus = validatorTotalReward.MulDecTruncate(nakamotoCoefficient)
+		}
+		validatorTotalReward = validatorTotalReward.Sub(nakamotoBonus)
+
+		// Compute per-validator fixed Nakamoto bonus
+		numValidators := int64(len(bondedVotes))
+		if numValidators > 0 && !nakamotoBonus.IsZero() {
+			// Distribute Nakamoto bonus across all denominations
+			for _, coin := range nakamotoBonus {
+				amount := coin.Amount.Quo(math.LegacyNewDec(numValidators))
+				nbPerValidator = nbPerValidator.Add(sdk.NewDecCoinFromDec(coin.Denom, amount))
+			}
 		}
 	}
 
@@ -88,7 +91,7 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 
 		// Compute proportional share based on voting power
 		powerFraction := math.LegacyNewDec(vote.Validator.Power).QuoTruncate(math.LegacyNewDec(totalPreviousPower))
-		proportional := proportionalReward.MulDecTruncate(powerFraction)
+		proportional := validatorTotalReward.MulDecTruncate(powerFraction)
 
 		// Add fixed Nakamoto bonus to proportional share
 		reward := proportional.Add(nbPerValidator...)
