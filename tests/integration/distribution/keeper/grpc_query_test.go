@@ -51,11 +51,11 @@ func TestGRPCParams(t *testing.T) {
 					BonusProposerReward: math.LegacyZeroDec(),
 					WithdrawAddrEnabled: true,
 					NakamotoBonus: types.NakamotoBonus{
-						Enabled: true,
-						Step:    types.DefaultNakamotoBonusStep,
-						Period:  types.DefaultNakamotoBonusPeriod,
-						Minimum: types.DefaultNakamotoBonusMinimumCoefficient,
-						Maximum: types.DefaultNakamotoBonusMaximumCoefficient,
+						Enabled:            true,
+						Step:               types.DefaultNakamotoBonusStep,
+						Period:             types.DefaultNakamotoBonusPeriod,
+						MinimumCoefficient: types.DefaultNakamotoBonusMinimumCoefficient,
+						MaximumCoefficient: types.DefaultNakamotoBonusMaximumCoefficient,
 					},
 				}
 

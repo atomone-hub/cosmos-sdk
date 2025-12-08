@@ -671,8 +671,8 @@ nakamoto_bonus:
   enabled: true
   period: 120000 
   step: "0.010000000000000000"
-  minimum: "0.030000000000000000"
-  maximum: "1.000000000000000000"
+  minimum_coefficient: "0.030000000000000000"
+  maximum_coefficient: "1.000000000000000000"
 ```
 
 ##### rewards
@@ -863,8 +863,8 @@ Example Output:
       "enabled": true,
       "step": "10000000000000000",
       "period": 120000,
-      "minimum": "30000000000000000",
-      "maximum": "1000000000000000000"
+      "minimum_coefficient": "30000000000000000",
+      "maximum_coefficient": "1000000000000000000"
     }
   }
 }

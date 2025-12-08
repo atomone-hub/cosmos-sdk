@@ -55,8 +55,8 @@ func TestMigrateJSON(t *testing.T) {
 		"community_tax": "0.020000000000000000",
 		"nakamoto_bonus": {
 			"enabled": true,
-			"maximum": "1.000000000000000000",
-			"minimum": "0.030000000000000000",
+			"maximum_coefficient": "1.000000000000000000",
+			"minimum_coefficient": "0.030000000000000000",
 			"period": "100800",
 			"step": "0.010000000000000000"
 		},
