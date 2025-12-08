@@ -55,7 +55,6 @@ func setupTestKeeper(t *testing.T, nakamotoBonusCoefficient math.LegacyDec, heig
 	accountKeeper.EXPECT().GetModuleAddress("distribution").Return(distrAcc.GetAddress()).AnyTimes()
 	valCodec := address.NewBech32Codec("cosmosvaloper")
 	stakingKeeper.EXPECT().ValidatorAddressCodec().Return(valCodec).AnyTimes()
-	stakingKeeper.EXPECT().BondDenom(ctx).Return(sdk.DefaultBondDenom, nil).AnyTimes()
 	feeCollectorAcc := authtypes.NewEmptyModuleAccount("fee_collector")
 	accountKeeper.EXPECT().GetModuleAccount(gomock.Any(), "fee_collector").Return(feeCollectorAcc).AnyTimes()
 
