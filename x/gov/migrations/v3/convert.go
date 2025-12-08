@@ -10,6 +10,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 // ConvertToLegacyProposal takes a new proposal and attempts to convert it to the
@@ -49,8 +50,18 @@ func ConvertToLegacyProposal(proposal v1.Proposal) (v1beta1.Proposal, error) {
 	if err != nil {
 		return v1beta1.Proposal{}, err
 	}
-	if len(msgs) != 1 {
-		return v1beta1.Proposal{}, sdkerrors.ErrInvalidType.Wrap("can't convert a gov/v1 Proposal to gov/v1beta1 Proposal when amount of proposal messages not exactly one")
+	if len(msgs) == 0 {
+		// If there is no messages, consider proposal as a text proposal
+		content := v1beta1.NewTextProposal(proposal.Title, proposal.Summary)
+		msg, ok := content.(proto.Message)
+		if !ok {
+			return v1beta1.Proposal{}, sdkerrors.ErrInvalidType.Wrap("can't convert a gov/v1 Proposal to gov/v1beta1 Proposal: content is not a proto message")
+		}
+		legacyProposal.Content, err = codectypes.NewAnyWithValue(msg)
+		return legacyProposal, err
+	}
+	if len(msgs) > 1 {
+		return v1beta1.Proposal{}, sdkerrors.ErrInvalidType.Wrap("can't convert a gov/v1 Proposal to gov/v1beta1 Proposal when amount of proposal messages exceeds one")
 	}
 	if legacyMsg, ok := msgs[0].(*v1.MsgExecLegacyContent); ok {
 		// check that the content struct can be unmarshalled
