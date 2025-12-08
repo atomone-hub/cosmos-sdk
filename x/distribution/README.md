@@ -39,6 +39,13 @@ following rewards between validators and associated delegators:
 Fees are pooled within a global pool. The mechanisms used allow for validators
 and delegators to independently and lazily withdraw their rewards.
 
+**Nakamoto Bonus Feature**: As of this version, the distribution module implements
+the Nakamoto Bonus mechanism to incentivize network decentralization. Rewards are
+split into two components: proportional rewards (distributed by stake) and a fixed
+Nakamoto bonus (distributed equally across validators). The bonus amount is dynamically
+adjusted based on the concentration of stake across validators. See the
+[Nakamoto Bonus](#nakamoto-bonus) section for details.
+
 ## Shortcomings
 
 As a part of the lazy computations, each delegator holds an accumulation term
@@ -89,6 +96,7 @@ to set up a script to periodically withdraw and rebond rewards.
 * [Messages](#messages)
 * [Hooks](#hooks)
 * [Events](#events)
+* [Nakamoto Bonus](#nakamoto-bonus)
 * [Parameters](#parameters)
 * [Client](#client)
     * [CLI](#cli)
@@ -107,6 +115,24 @@ The commission is calculated and incremented at every `BeginBlock` operation to 
 
 The rewards to a delegator are distributed when the delegation is changed or removed, or a withdrawal is requested.
 Before rewards are distributed, all slashes to the validator that occurred during the current delegation are applied.
+
+### Reward Distribution with Nakamoto Bonus
+
+Starting with the Nakamoto Bonus feature, the total reward for a validator is split into two components:
+
+$$r_{ji} = \frac{x_{ji}}{S_i} \times PR_i + \frac{NB_i}{N_i}$$
+
+Where:
+- $r_{ji}$ is the reward of validator $j$ for block $i$
+- $x_{ji}$ is the stake of validator $j$ at block $i$
+- $S_i$ is the total stake across all validators at block $i$
+- $PR_i$ is the proportional reward pool for block $i$
+- $NB_i$ is the Nakamoto Bonus pool for block $i$ (calculated as $NB_i = R_i \times \eta$)
+- $N_i$ is the total number of validators for block $i$
+- $\eta$ is the Nakamoto bonus coefficient (dynamically adjusted)
+
+The proportional component rewards validators based on their stake, while the fixed component (Nakamoto Bonus) is distributed equally across all validators. This incentivizes delegators to distribute their stake more evenly across validators, improving network decentralization.
+
 
 ### Reference Counting in F1 Fee Distribution
 
@@ -481,6 +507,10 @@ The distribution module emits the following events:
 | commission      | validator     | {validatorAddress} |
 | rewards         | amount        | {rewardAmount}     |
 | rewards         | validator     | {validatorAddress} |
+| update_nakamoto_coefficient | nakamoto_coefficient | {newCoefficientValue} |
+| update_nakamoto_coefficient | block_height | {blockHeight} |
+| nakamoto_bonus_disabled | nakamoto_coefficient | {currentValue} |
+| nakamoto_bonus_disabled | block_height | {blockHeight} |
 
 ### Handlers
 
@@ -520,6 +550,11 @@ The distribution module contains the following parameters:
 | ------------------- | ------------ | -------------------------- |
 | communitytax        | string (dec) | "0.020000000000000000" [0] |
 | withdrawaddrenabled | bool         | true                       |
+| nakamoto_bonus.enabled | bool | true |
+| nakamoto_bonus.period | uint64 | 120000 |
+| nakamoto_bonus.step | string (dec) | "0.010000000000000000" |
+| nakamoto_bonus.minimum | string (dec) | "0.030000000000000000" |
+| nakamoto_bonus.maximum | string (dec) | "1.000000000000000000" |
 
 * [0] `communitytax` must be positive and cannot exceed 1.00.
 * `baseproposerreward` and `bonusproposerreward` were parameters that are deprecated in v0.47 and are not used.
@@ -527,6 +562,12 @@ The distribution module contains the following parameters:
 :::note
 The reserve pool is the pool of collected funds for use by governance taken via the `CommunityTax`.
 Currently with the Cosmos SDK, tokens collected by the CommunityTax are accounted for but unspendable.
+:::
+
+:::note
+When `nakamoto_bonus.enabled` is set to `false`, the Nakamoto Bonus feature is disabled and all rewards
+are distributed proportionally by stake (the coefficient η is effectively 0). The feature can be re-enabled
+through governance.
 :::
 
 ## Client
