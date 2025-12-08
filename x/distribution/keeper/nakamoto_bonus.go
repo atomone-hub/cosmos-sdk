@@ -28,6 +28,10 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 		return err
 	}
 
+	if !params.NakamotoBonus.Enabled {
+		return nil
+	}
+
 	period := int64(params.NakamotoBonus.Period)
 	if period <= 0 {
 		// misconfigured, do nothing
@@ -40,17 +44,6 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	nbCoefficient, err := k.GetNakamotoBonusCoefficient(ctx)
 	if err != nil {
 		return err
-	}
-
-	if !params.NakamotoBonus.Enabled {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeNakamotoBonusDisabled,
-				sdk.NewAttribute(types.AttributeNakamotoCoefficient, nbCoefficient.String()),
-				sdk.NewAttribute(types.AttributeKeyBlockHeight, fmt.Sprintf("%d", ctx.BlockHeight())),
-			),
-		)
-		return nil
 	}
 
 	validators, err := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
