@@ -628,6 +628,26 @@ pool:
   denom: stake
 ```
 
+##### nakamoto-bonus-coefficient
+
+The `nakamoto-bonus-coefficient` command allows users to query the current Nakamoto Bonus coefficient (η).
+
+```shell
+shell simd query distribution nakamoto-bonus-coefficient [flags]
+```
+
+Example:
+
+```shell
+shell simd query distribution nakamoto-bonus-coefficient
+```
+
+Example Output:
+
+```yml
+coefficient: "0.050000000000000000"
+```
+
 ##### params
 
 The `params` command allows users to query the parameters of the `distribution` module.
@@ -649,6 +669,12 @@ base_proposer_reward: "0.000000000000000000"
 bonus_proposer_reward: "0.000000000000000000"
 community_tax: "0.020000000000000000"
 withdraw_addr_enabled: true
+nakamoto_bonus: 
+  enabled: true
+  period: 120000 
+  step: "0.010000000000000000"
+  minimum: "0.030000000000000000"
+  maximum: "1.000000000000000000"
 ```
 
 ##### rewards
@@ -835,7 +861,34 @@ Example Output:
     "baseProposerReward": "00000000000000000",
     "bonusProposerReward": "00000000000000000",
     "withdrawAddrEnabled": true
+    "nakamotoBonus": {
+      "enabled": true,
+      "step": "10000000000000000",
+      "period": 120000,
+      "minimum": "30000000000000000",
+      "maximum": "1000000000000000000"
+    }
   }
+}
+```
+
+#### NakamotoBonusCoefficient
+
+The `NakamotoBonusCoefficient` endpoint allows users to query the current Nakamoto Bonus coefficient.
+
+Example:
+
+```shell
+grpcurl -plaintext \
+    localhost:9090 \
+    cosmos.distribution.v1beta1.Query/NakamotoBonusCoefficient
+```
+
+Example Output:
+
+```json
+{
+  "coefficient": "50000000000000000"
 }
 ```
 
