@@ -76,11 +76,11 @@ func RandomizedGenState(simState *module.SimulationState) {
 			CommunityTax:        communityTax,
 			WithdrawAddrEnabled: withdrawEnabled,
 			NakamotoBonus: types.NakamotoBonus{
-				Enabled: nakamotoBonusEnabled,
-				Step:    nakamotoBonusStep,
-				Period:  nakamotoBonusPeriod,
-				Minimum: nakamotoBonusMin,
-				Maximum: nakamotoBonusMax,
+				Enabled:            nakamotoBonusEnabled,
+				Step:               nakamotoBonusStep,
+				Period:             nakamotoBonusPeriod,
+				MinimumCoefficient: nakamotoBonusMin,
+				MaximumCoefficient: nakamotoBonusMax,
 			},
 		},
 	}

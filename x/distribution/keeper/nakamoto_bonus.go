@@ -98,11 +98,11 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	}
 
 	// clamp to [min, max]
-	if newCoefficient.LT(params.NakamotoBonus.Minimum) {
-		newCoefficient = params.NakamotoBonus.Minimum
+	if newCoefficient.LT(params.NakamotoBonus.MinimumCoefficient) {
+		newCoefficient = params.NakamotoBonus.MinimumCoefficient
 	}
-	if newCoefficient.GT(params.NakamotoBonus.Maximum) {
-		newCoefficient = params.NakamotoBonus.Maximum
+	if newCoefficient.GT(params.NakamotoBonus.MaximumCoefficient) {
+		newCoefficient = params.NakamotoBonus.MaximumCoefficient
 	}
 
 	// emit event if changed

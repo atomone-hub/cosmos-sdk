@@ -25,11 +25,11 @@ func DefaultParams() Params {
 		CommunityTax:        math.LegacyNewDecWithPrec(2, 2), // 2%
 		WithdrawAddrEnabled: true,
 		NakamotoBonus: NakamotoBonus{
-			Enabled: true,
-			Step:    DefaultNakamotoBonusStep,
-			Period:  DefaultNakamotoBonusPeriod,
-			Minimum: DefaultNakamotoBonusMinimumCoefficient,
-			Maximum: DefaultNakamotoBonusMaximumCoefficient,
+			Enabled:            true,
+			Step:               DefaultNakamotoBonusStep,
+			Period:             DefaultNakamotoBonusPeriod,
+			MinimumCoefficient: DefaultNakamotoBonusMinimumCoefficient,
+			MaximumCoefficient: DefaultNakamotoBonusMaximumCoefficient,
 		},
 	}
 }
@@ -83,25 +83,25 @@ func validateNakamotoBonus(v NakamotoBonus) error {
 	}
 
 	switch {
-	case v.Minimum.IsNil():
+	case v.MinimumCoefficient.IsNil():
 		return fmt.Errorf("nakamoto bonus minimum must be not nil")
-	case v.Minimum.IsNegative() || v.Minimum.IsZero():
-		return fmt.Errorf("nakamoto bonus minimum must be positive: %v", v.Minimum)
-	case v.Minimum.GT(math.LegacyOneDec()):
-		return fmt.Errorf("nakamoto bonus minimum too large: %v", v.Minimum)
+	case v.MinimumCoefficient.IsNegative() || v.MinimumCoefficient.IsZero():
+		return fmt.Errorf("nakamoto bonus minimum must be positive: %v", v.MinimumCoefficient)
+	case v.MinimumCoefficient.GT(math.LegacyOneDec()):
+		return fmt.Errorf("nakamoto bonus minimum too large: %v", v.MinimumCoefficient)
 	}
 
 	switch {
-	case v.Maximum.IsNil():
+	case v.MaximumCoefficient.IsNil():
 		return fmt.Errorf("nakamoto bonus maximum must be not nil")
-	case v.Maximum.IsNegative() || v.Maximum.IsZero():
+	case v.MaximumCoefficient.IsNegative() || v.MaximumCoefficient.IsZero():
 		return fmt.Errorf("nakamoto bonus maximum must be positive: %v", v.Step)
-	case v.Maximum.GT(math.LegacyOneDec()):
-		return fmt.Errorf("nakamoto bonus maximum too large: %v", v.Maximum)
+	case v.MaximumCoefficient.GT(math.LegacyOneDec()):
+		return fmt.Errorf("nakamoto bonus maximum too large: %v", v.MaximumCoefficient)
 	}
 
-	if v.Minimum.GT(v.Maximum) {
-		return fmt.Errorf("nakamoto bonus minimum (%v) can't be greater than maximum (%v)", v.Minimum, v.Maximum)
+	if v.MinimumCoefficient.GT(v.MaximumCoefficient) {
+		return fmt.Errorf("nakamoto bonus minimum (%v) can't be greater than maximum (%v)", v.MinimumCoefficient, v.MaximumCoefficient)
 	}
 
 	return nil

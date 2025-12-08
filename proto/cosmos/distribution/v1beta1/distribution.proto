@@ -24,14 +24,14 @@ message NakamotoBonus {
 
   uint64 period = 3;
 
-  string minimum = 4 [
+  string minimum_coefficient = 4 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (amino.dont_omitempty) = true,
     (gogoproto.nullable)   = false
   ];
 
-  string maximum = 5 [
+  string maximum_coefficient = 5 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (amino.dont_omitempty) = true,
