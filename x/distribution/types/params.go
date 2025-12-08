@@ -12,9 +12,9 @@ const (
 )
 
 var (
-	DefaultNakamotoBonusStep    = math.LegacyNewDecWithPrec(1, 2)
-	DefaultNakamotoBonusMinimum = math.LegacyNewDecWithPrec(3, 2)
-	DefaultNakamotoBonusMaximum = math.LegacyOneDec()
+	DefaultNakamotoBonusStep               = math.LegacyNewDecWithPrec(1, 2)
+	DefaultNakamotoBonusMinimumCoefficient = math.LegacyNewDecWithPrec(3, 2)
+	DefaultNakamotoBonusMaximumCoefficient = math.LegacyOneDec()
 )
 
 // DefaultParams returns default distribution parameters
@@ -28,8 +28,8 @@ func DefaultParams() Params {
 			Enabled: true,
 			Step:    DefaultNakamotoBonusStep,
 			Period:  DefaultNakamotoBonusPeriod,
-			Minimum: DefaultNakamotoBonusMinimum,
-			Maximum: DefaultNakamotoBonusMaximum,
+			Minimum: DefaultNakamotoBonusMinimumCoefficient,
+			Maximum: DefaultNakamotoBonusMaximumCoefficient,
 		},
 	}
 }

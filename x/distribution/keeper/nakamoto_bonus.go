@@ -115,5 +115,5 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 			),
 		)
 	}
-	return k.NakamotoBonusCoefficient.Set(ctx, newCoefficient)
+	return k.SetNakamotoBonusCoefficient(ctx, newCoefficient)
 }

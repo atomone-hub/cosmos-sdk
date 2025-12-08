@@ -121,7 +121,7 @@ func TestAdjustEta_Decrease(t *testing.T) {
 }
 
 func TestAdjustEta_ClampZero(t *testing.T) {
-	initEta := types.DefaultNakamotoBonusMinimum // Start at minimum (0.03)
+	initEta := types.DefaultNakamotoBonusMinimumCoefficient // Start at minimum (0.03)
 	s := setupTestKeeper(t, initEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 20, lowAvg = 10, ratio = 2 < 3, would decrease but already at min
@@ -131,13 +131,13 @@ func TestAdjustEta_ClampZero(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
-	require.True(t, nakamotoBonusCoefficient.GTE(types.DefaultNakamotoBonusMinimum),
-		"η should never go below minimum (%s), got: %s", types.DefaultNakamotoBonusMinimum, nakamotoBonusCoefficient)
-	require.Equal(t, types.DefaultNakamotoBonusMinimum, nakamotoBonusCoefficient)
+	require.True(t, nakamotoBonusCoefficient.GTE(types.DefaultNakamotoBonusMinimumCoefficient),
+		"η should never go below minimum (%s), got: %s", types.DefaultNakamotoBonusMinimumCoefficient, nakamotoBonusCoefficient)
+	require.Equal(t, types.DefaultNakamotoBonusMinimumCoefficient, nakamotoBonusCoefficient)
 }
 
 func TestAdjustEta_ClampOne(t *testing.T) {
-	initEta := types.DefaultNakamotoBonusMaximum // Start at maximum (1.0)
+	initEta := types.DefaultNakamotoBonusMaximumCoefficient // Start at maximum (1.0)
 	s := setupTestKeeper(t, initEta, types.DefaultNakamotoBonusPeriod)
 
 	// highAvg = 100, lowAvg = 10, ratio = 10 >= 3, would increase but already at max
@@ -147,9 +147,9 @@ func TestAdjustEta_ClampOne(t *testing.T) {
 
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
-	require.True(t, nakamotoBonusCoefficient.LTE(types.DefaultNakamotoBonusMaximum),
-		"η should never exceed maximum (%s), got: %s", types.DefaultNakamotoBonusMaximum, nakamotoBonusCoefficient)
-	require.Equal(t, types.DefaultNakamotoBonusMaximum, nakamotoBonusCoefficient)
+	require.True(t, nakamotoBonusCoefficient.LTE(types.DefaultNakamotoBonusMaximumCoefficient),
+		"η should never exceed maximum (%s), got: %s", types.DefaultNakamotoBonusMaximumCoefficient, nakamotoBonusCoefficient)
+	require.Equal(t, types.DefaultNakamotoBonusMaximumCoefficient, nakamotoBonusCoefficient)
 }
 
 func TestAllocateTokensWithNakamotoBonusImbalancedValidators(t *testing.T) {
