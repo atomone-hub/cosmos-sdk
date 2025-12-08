@@ -107,6 +107,10 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 				sdk.NewAttribute(types.AttributeKeyBlockHeight, fmt.Sprintf("%d", ctx.BlockHeight())),
 			),
 		)
+		if err := k.SetNakamotoBonusCoefficient(ctx, newCoefficient); err != nil {
+			return err
+		}
 	}
-	return k.SetNakamotoBonusCoefficient(ctx, newCoefficient)
+
+	return nil
 }
