@@ -5,7 +5,6 @@ import (
 	"maps"
 	"slices"
 
-	modulev1 "cosmossdk.io/api/cosmos/epochs/module/v1"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
@@ -14,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/epochs/keeper"
 	"github.com/cosmos/cosmos-sdk/x/epochs/types"
+	modulev1 "github.com/cosmos/cosmos-sdk/x/epochs/types/module"
 )
 
 var _ depinject.OnePerModuleType = AppModule{}

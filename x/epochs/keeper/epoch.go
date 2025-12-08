@@ -45,7 +45,7 @@ func (k *Keeper) AllEpochInfos(ctx sdk.Context) ([]types.EpochInfo, error) {
 	err := k.EpochInfo.Walk(
 		ctx,
 		nil,
-		func(key string, value types.EpochInfo) (stop bool, err error) {
+		func(_ string, value types.EpochInfo) (stop bool, err error) {
 			epochs = append(epochs, value)
 			return false, nil
 		},

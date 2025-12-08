@@ -7,8 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
-	modulev1 "cosmossdk.io/api/cosmos/epochs/module/v1"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
@@ -19,9 +17,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	bankmodulev1 "github.com/cosmos/cosmos-sdk/x/bank/types/module"
 	"github.com/cosmos/cosmos-sdk/x/epochs"
 	"github.com/cosmos/cosmos-sdk/x/epochs/keeper"
 	"github.com/cosmos/cosmos-sdk/x/epochs/types"
+	modulev1 "github.com/cosmos/cosmos-sdk/x/epochs/types/module"
 )
 
 var _ types.EpochHooks = testEpochHooks{}

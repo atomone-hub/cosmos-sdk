@@ -19,7 +19,7 @@ func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 	err := k.EpochInfo.Walk(
 		ctx,
 		nil,
-		func(key string, epochInfo types.EpochInfo) (stop bool, err error) {
+		func(_ string, epochInfo types.EpochInfo) (stop bool, err error) {
 			// If blocktime < initial epoch start time, return
 			if blockTime.Before(epochInfo.StartTime) {
 				return false, nil
@@ -56,7 +56,7 @@ func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 					writeFn()
 				}
 
-				epochInfo.CurrentEpoch += 1
+				epochInfo.CurrentEpoch++
 				epochInfo.CurrentEpochStartTime = epochInfo.CurrentEpochStartTime.Add(epochInfo.Duration)
 				ctx.Logger().Debug(fmt.Sprintf("Starting epoch with identifier %s epoch number %d", epochInfo.Identifier, epochInfo.CurrentEpoch))
 			}

@@ -209,7 +209,7 @@ Import the following:
 
 ```go
 import (
-    epochsmodulev1 "cosmossdk.io/api/cosmos/epochs/module/v1"
+    epochsmodulev1 "github.com/cosmos/cosmos-sdk/x/epochs/types/module"
     
     _ "github.com/cosmos/cosmos-sdk/x/epochs" // import for side-effects
     epochstypes "github.com/cosmos/cosmos-sdk/x/epochs/types"
