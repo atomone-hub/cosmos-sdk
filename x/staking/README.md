@@ -1154,6 +1154,8 @@ historical_entries: 10000
 max_entries: 7
 max_validators: 50
 unbonding_time: 1814400s
+min_commission_rate: 0.000000000000000000
+max_commission_rate: 1.000000000000000000
 ```
 
 ##### pool
@@ -2301,7 +2303,9 @@ Example Output:
     "maxValidators": 100,
     "maxEntries": 7,
     "historicalEntries": 10000,
-    "bondDenom": "stake"
+    "bondDenom": "stake",
+    "minCommissionRate": "0.000000000000000000",
+    "maxCommissionRate": "1.000000000000000000"
   }
 }
 ```
