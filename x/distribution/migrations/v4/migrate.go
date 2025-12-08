@@ -25,7 +25,7 @@ var (
 	DefaultNakamotoBonus = math.LegacyNewDecWithPrec(3, 2) // 0.03
 )
 
-// MigrateStore migrates the x/distribution module state to version 6.
+// MigrateStore migrates the x/distribution module state to version 4.
 func MigrateStore(
 	ctx sdk.Context,
 	storeService corestoretypes.KVStoreService,
