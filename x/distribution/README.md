@@ -499,18 +499,16 @@ The distribution module emits the following events:
 
 ### BeginBlocker
 
-| Type            | Attribute Key | Attribute Value    |
-|-----------------|---------------|--------------------|
-| proposer_reward | validator     | {validatorAddress} |
-| proposer_reward | reward        | {proposerReward}   |
-| commission      | amount        | {commissionAmount} |
-| commission      | validator     | {validatorAddress} |
-| rewards         | amount        | {rewardAmount}     |
-| rewards         | validator     | {validatorAddress} |
-| update_nakamoto_coefficient | nakamoto_coefficient | {newCoefficientValue} |
-| update_nakamoto_coefficient | block_height | {blockHeight} |
-| nakamoto_bonus_disabled | nakamoto_coefficient | {currentValue} |
-| nakamoto_bonus_disabled | block_height | {blockHeight} |
+| Type                              | Attribute Key              | Attribute Value    |
+|-----------------------------------|----------------------------|--------------------|
+| proposer_reward                   | validator                  | {validatorAddress} |
+| proposer_reward                   | reward                     | {proposerReward}   |
+| commission                        | amount                     | {commissionAmount} |
+| commission                        | validator                  | {validatorAddress} |
+| rewards                           | amount                     | {rewardAmount}     |
+| rewards                           | validator                  | {validatorAddress} |
+| update_nakamoto_bonus_coefficient | nakamoto_bonus_coefficient | {newCoefficientValue} |
+| update_nakamoto_bonus_coefficient | block_height               | {blockHeight} |
 
 ### Handlers
 
@@ -546,15 +544,15 @@ The distribution module emits the following events:
 
 The distribution module contains the following parameters:
 
-| Key                 | Type         | Example                    |
-| ------------------- | ------------ | -------------------------- |
-| communitytax        | string (dec) | "0.020000000000000000" [0] |
-| withdrawaddrenabled | bool         | true                       |
-| nakamoto_bonus.enabled | bool | true |
-| nakamoto_bonus.period | uint64 | 120000 |
-| nakamoto_bonus.step | string (dec) | "0.010000000000000000" |
-| nakamoto_bonus.minimum | string (dec) | "0.030000000000000000" |
-| nakamoto_bonus.maximum | string (dec) | "1.000000000000000000" |
+| Key                                | Type         | Example                    |
+|------------------------------------| ------------ | -------------------------- |
+| communitytax                       | string (dec) | "0.020000000000000000" [0] |
+| withdrawaddrenabled                | bool         | true                       |
+| nakamoto_bonus.enabled             | bool | true |
+| nakamoto_bonus.period              | uint64 | 120000 |
+| nakamoto_bonus.step                | string (dec) | "0.010000000000000000" |
+| nakamoto_bonus.minimum_coefficient | string (dec) | "0.030000000000000000" |
+| nakamoto_bonus.maximum_coefficient | string (dec) | "1.000000000000000000" |
 
 * [0] `communitytax` must be positive and cannot exceed 1.00.
 * `baseproposerreward` and `bonusproposerreward` were parameters that are deprecated in v0.47 and are not used.
@@ -628,18 +626,18 @@ pool:
   denom: stake
 ```
 
-##### nakamoto-bonus-coefficient
+##### nakamoto-bonus
 
-The `nakamoto-bonus-coefficient` command allows users to query the current Nakamoto Bonus coefficient (η).
+The `nakamoto-bonus` command allows users to query the current Nakamoto Bonus coefficient (η).
 
 ```shell
-shell simd query distribution nakamoto-bonus-coefficient [flags]
+shell simd query distribution nakamoto-bonus [flags]
 ```
 
 Example:
 
 ```shell
-shell simd query distribution nakamoto-bonus-coefficient
+shell simd query distribution nakamoto-bonus
 ```
 
 Example Output:
