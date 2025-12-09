@@ -368,13 +368,14 @@ func TestTally(t *testing.T) {
 				s.validatorVote(s.valAddrs[1], v1.VoteOption_VOTE_OPTION_ABSTAIN)
 				s.validatorVote(s.valAddrs[2], v1.VoteOption_VOTE_OPTION_ABSTAIN)
 				s.validatorVote(s.valAddrs[3], v1.VoteOption_VOTE_OPTION_ABSTAIN)
+				s.validatorVote(s.valAddrs[4], v1.VoteOption_VOTE_OPTION_ABSTAIN)
 			},
 			proposalMsgs: TestProposal,
 			expectedPass: false,
 			expectedBurn: false,
 			expectedTally: v1.TallyResult{
 				YesCount:     "0",
-				AbstainCount: "4",
+				AbstainCount: "5",
 				NoCount:      "0",
 			},
 		},
@@ -761,6 +762,7 @@ func TestHasReachedQuorum(t *testing.T) {
 			setup: func(s *fixture) {
 				s.validatorVote(s.valAddrs[0], v1.VoteOption_VOTE_OPTION_YES)
 				s.validatorVote(s.valAddrs[1], v1.VoteOption_VOTE_OPTION_YES)
+				s.validatorVote(s.valAddrs[2], v1.VoteOption_VOTE_OPTION_YES)
 				s.validatorVote(s.valAddrs[3], v1.VoteOption_VOTE_OPTION_YES)
 				s.validatorVote(s.valAddrs[5], v1.VoteOption_VOTE_OPTION_ABSTAIN)
 			},
