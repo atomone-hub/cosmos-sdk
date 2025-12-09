@@ -57,25 +57,25 @@ var (
 	DefaultBurnVoteQuorom      = false                           // set to false to  replicate behavior of when this change was made (0.47)
 	DefaultMinDepositRatio     = math.LegacyNewDecWithPrec(1, 2) // NOTE: backport from v50
 
-	DefaultQuorumTimeout                                      time.Duration = DefaultVotingPeriod - (time.Hour * 24 * 1) // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
-	DefaultMaxVotingPeriodExtension                           time.Duration = DefaultVotingPeriod - DefaultQuorumTimeout // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
-	DefaultQuorumCheckCount                                   uint64        = 0                                          // disabled by default (0 means no check)
-	DefaultMinDepositUpdatePeriod                             time.Duration = time.Hour * 24 * 7
-	DefaultMinDepositDecreaseSensitivityTargetDistance        uint64        = 2
-	DefaultMinDepositIncreaseRatio                                          = math.LegacyNewDecWithPrec(5, 2)
-	DefaultMinDepositDecreaseRatio                                          = math.LegacyNewDecWithPrec(25, 3)
-	DefaultTargetActiveProposals                              uint64        = 2
-	DefaultMinInitialDepositFloorAmount                       math.Int      = math.LegacyNewDecWithPrec(1, 2).MulInt(DefaultMinDepositTokens).TruncateInt()
-	DefaultMinInitialDepositUpdatePeriod                      time.Duration = time.Hour * 24
-	DefaultMinInitialDepositDecreaseSensitivityTargetDistance uint64        = 2
-	DefaultMinInitialDepositIncreaseRatio                                   = math.LegacyNewDecWithPrec(1, 2)
-	DefaultMinInitialDepositDecreaseRatio                                   = math.LegacyNewDecWithPrec(5, 3)
-	DefaultTargetProposalsInDepositPeriod                     uint64        = 5
-	DefaultBurnDepositNoThreshold                                           = math.LegacyNewDecWithPrec(80, 2)
-	DefaultProposalCancelRatio                                              = math.LegacyMustNewDecFromStr("0.5")
-	DefaultProposalCancelDestAddress                                        = ""
-	DefaultMaxGovernors                                       uint64        = 100
-	DefaultMinGovernorSelfDelegation                                        = math.NewInt(1000_000000)
+	DefaultQuorumTimeout                                             = DefaultVotingPeriod - (time.Hour * 24 * 1) // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
+	DefaultMaxVotingPeriodExtension                                  = DefaultVotingPeriod - DefaultQuorumTimeout // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
+	DefaultQuorumCheckCount                                   uint64 = 0                                          //nolint:revive // disabled by default (0 means no check)
+	DefaultMinDepositUpdatePeriod                                    = time.Hour * 24 * 7
+	DefaultMinDepositDecreaseSensitivityTargetDistance        uint64 = 2
+	DefaultMinDepositIncreaseRatio                                   = math.LegacyNewDecWithPrec(5, 2)
+	DefaultMinDepositDecreaseRatio                                   = math.LegacyNewDecWithPrec(25, 3)
+	DefaultTargetActiveProposals                              uint64 = 2
+	DefaultMinInitialDepositFloorAmount                              = math.LegacyNewDecWithPrec(1, 2).MulInt(DefaultMinDepositTokens).TruncateInt()
+	DefaultMinInitialDepositUpdatePeriod                             = time.Hour * 24
+	DefaultMinInitialDepositDecreaseSensitivityTargetDistance uint64 = 2
+	DefaultMinInitialDepositIncreaseRatio                            = math.LegacyNewDecWithPrec(1, 2)
+	DefaultMinInitialDepositDecreaseRatio                            = math.LegacyNewDecWithPrec(5, 3)
+	DefaultTargetProposalsInDepositPeriod                     uint64 = 5
+	DefaultBurnDepositNoThreshold                                    = math.LegacyNewDecWithPrec(80, 2)
+	DefaultProposalCancelRatio                                       = math.LegacyMustNewDecFromStr("0.5")
+	DefaultProposalCancelDestAddress                                 = ""
+	DefaultMaxGovernors                                       uint64 = 100
+	DefaultMinGovernorSelfDelegation                                 = math.NewInt(1000_000000)
 )
 
 // Deprecated: NewDepositParams creates a new DepositParams object
@@ -121,9 +121,9 @@ func NewParams(
 	minInitialDepositFloor sdk.Coins, minInitialDepositUpdatePeriod time.Duration, minInitialDepositDecreaseSensitivityTargetDistance uint64,
 	minInitialDepositIncreaseRatio, minInitialDepositDecreaseRatio string, targetProposalsInDepositPeriod uint64,
 	burnDepositNoThreshold string,
-	maxQuorum string, minQuorum string,
-	maxConstitutionAmendmentQuorum string, minConstitutionAmendmentQuorum string,
-	maxLawQuorum string, minLawQuorum string,
+	maxQuorum, minQuorum string,
+	maxConstitutionAmendmentQuorum, minConstitutionAmendmentQuorum string,
+	maxLawQuorum, minLawQuorum string,
 	proposalCancelRatio, proposalCancelDest string,
 	governorStatusChangePeriod time.Duration, minGovernorSelfDelegation string,
 ) Params {
