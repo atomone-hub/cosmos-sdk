@@ -944,6 +944,27 @@ The staking module contains the following parameters:
 | HistoricalEntries | uint16           | 3                      |
 | BondDenom         | string           | "stake"                |
 | MinCommissionRate | string           | "0.000000000000000000" |
+| MaxCommissionRate | string           | "1.000000000000000000" |
+
+### Commission Rate
+
+Commission rates for validators are now managed through chain-level parameters that can be set via governance. This implementation enables networks to enforce uniform commission policies across all validators.
+
+#### Parameters
+
+* **MinCommissionRate**: The minimum commission rate that validators can charge. Must be between 0 and 1 (0% to 100%).
+* **MaxCommissionRate**: The maximum commission rate that validators can charge. Must be between 0 and 1 (0% to 100%).
+
+#### Fixed Commission Rate
+
+To implement a fixed commission rate across the network (as required by constitutional provisions), set `MinCommissionRate` and `MaxCommissionRate` to the same value. For example, to enforce a 5% commission rate for all validators:
+
+```
+MinCommissionRate = "0.050000000000000000"
+MaxCommissionRate = "0.050000000000000000"
+```
+
+When these parameters are equal, validators cannot set commission rates outside this fixed value, ensuring a uniform commission structure network-wide.
 
 ## Client
 
