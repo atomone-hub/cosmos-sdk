@@ -11,7 +11,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -590,7 +589,7 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 	}
 	if !governor.IsActive() {
 		var delegations []*v1.GovernanceDelegation
-		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
+		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[govtypes.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
 			delegations = append(delegations, &value)
 			return false, nil
 		})

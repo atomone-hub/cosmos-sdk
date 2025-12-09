@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"strings"
 
-	"cosmossdk.io/collections"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert/yaml"
+
+	"cosmossdk.io/collections"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var _ sdk.Address = GovernorAddress{}

@@ -77,14 +77,14 @@ func (w *WeightedVoteOption) IsValid() bool {
 
 var oneDecStr = math.LegacyOneDec().String()
 
-func (v WeightedVoteOption) Power(totalPower math.LegacyDec) math.LegacyDec {
+func (w WeightedVoteOption) Power(totalPower math.LegacyDec) math.LegacyDec {
 	// v.Weight is very often equal to 1, because most voters do not
 	// use weighted votes. By using this stat, we can save on calls to
 	// the costly `math.LegacyNewDecFromStr` function.
-	if v.Weight == oneDecStr {
+	if w.Weight == oneDecStr {
 		return totalPower
 	}
-	weight, _ := math.LegacyNewDecFromStr(v.Weight)
+	weight, _ := math.LegacyNewDecFromStr(w.Weight)
 	return totalPower.Mul(weight)
 }
 

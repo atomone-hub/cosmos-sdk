@@ -71,8 +71,8 @@ type Keeper struct {
 }
 
 // GetAuthority returns the x/gov module's authority.
-func (k Keeper) GetAuthority() string {
-	return k.authority
+func (keeper Keeper) GetAuthority() string {
+	return keeper.authority
 }
 
 // NewKeeper returns a governance keeper. It handles:
@@ -141,65 +141,65 @@ func NewKeeper(
 }
 
 // Hooks gets the hooks for governance *Keeper {
-func (k *Keeper) Hooks() types.GovHooks {
-	if k.hooks == nil {
+func (keeper *Keeper) Hooks() types.GovHooks {
+	if keeper.hooks == nil {
 		// return a no-op implementation if no hooks are set
 		return types.MultiGovHooks{}
 	}
 
-	return k.hooks
+	return keeper.hooks
 }
 
 // SetHooks sets the hooks for governance
-func (k *Keeper) SetHooks(gh types.GovHooks) *Keeper {
-	if k.hooks != nil {
+func (keeper *Keeper) SetHooks(gh types.GovHooks) *Keeper {
+	if keeper.hooks != nil {
 		panic("cannot set governance hooks twice")
 	}
 
-	k.hooks = gh
+	keeper.hooks = gh
 
-	return k
+	return keeper
 }
 
 // SetLegacyRouter sets the legacy router for governance
-func (k *Keeper) SetLegacyRouter(router v1beta1.Router) {
+func (keeper *Keeper) SetLegacyRouter(router v1beta1.Router) {
 	// It is vital to seal the governance proposal router here as to not allow
 	// further handlers to be registered after the keeper is created since this
 	// could create invalid or non-deterministic behavior.
 	router.Seal()
-	k.legacyRouter = router
+	keeper.legacyRouter = router
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx context.Context) log.Logger {
+func (keeper Keeper) Logger(ctx context.Context) log.Logger {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // Router returns the gov keeper's router
-func (k Keeper) Router() baseapp.MessageRouter {
-	return k.router
+func (keeper Keeper) Router() baseapp.MessageRouter {
+	return keeper.router
 }
 
 // LegacyRouter returns the gov keeper's legacy router
-func (k Keeper) LegacyRouter() v1beta1.Router {
-	return k.legacyRouter
+func (keeper Keeper) LegacyRouter() v1beta1.Router {
+	return keeper.legacyRouter
 }
 
 // GetGovernanceAccount returns the governance ModuleAccount
-func (k Keeper) GetGovernanceAccount(ctx context.Context) sdk.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+func (keeper Keeper) GetGovernanceAccount(ctx context.Context) sdk.ModuleAccountI {
+	return keeper.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // ModuleAccountAddress returns gov module account address
-func (k Keeper) ModuleAccountAddress() sdk.AccAddress {
-	return k.authKeeper.GetModuleAddress(types.ModuleName)
+func (keeper Keeper) ModuleAccountAddress() sdk.AccAddress {
+	return keeper.authKeeper.GetModuleAddress(types.ModuleName)
 }
 
 // assertMetadataLength returns an error if given metadata length
 // is greater than a pre-defined MaxMetadataLen.
-func (k Keeper) assertMetadataLength(metadata string) error {
-	if metadata != "" && uint64(len(metadata)) > k.config.MaxMetadataLen {
+func (keeper Keeper) assertMetadataLength(metadata string) error {
+	if metadata != "" && uint64(len(metadata)) > keeper.config.MaxMetadataLen {
 		return types.ErrMetadataTooLong.Wrapf("got metadata with length %d", len(metadata))
 	}
 	return nil
@@ -207,8 +207,8 @@ func (k Keeper) assertMetadataLength(metadata string) error {
 
 // assertSummaryLength returns an error if given summary length
 // is greater than a pre-defined 40*MaxMetadataLen.
-func (k Keeper) assertSummaryLength(summary string) error {
-	if summary != "" && uint64(len(summary)) > 40*k.config.MaxMetadataLen {
+func (keeper Keeper) assertSummaryLength(summary string) error {
+	if summary != "" && uint64(len(summary)) > 40*keeper.config.MaxMetadataLen {
 		return types.ErrSummaryTooLong.Wrapf("got summary with length %d", len(summary))
 	}
 	return nil

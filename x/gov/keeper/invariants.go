@@ -56,7 +56,7 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 			invariantStr string
 		)
 
-		//keeper.IterateGovernors(ctx, func(index int64, governor v1.GovernorI) bool {
+		// keeper.IterateGovernors(ctx, func(index int64, governor v1.GovernorI) bool {
 		keeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, governor v1.Governor) (stop bool, err error) {
 			// check that if governor is active, it has a valid governance self-delegation
 			if governor.IsActive() {
@@ -72,7 +72,7 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 			valSharesKeys := make([]string, 0)
 			err = keeper.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
 				delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
-				err = keeper.sk.IterateDelegations(ctx, delAddr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
+				err = sk.IterateDelegations(ctx, delAddr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
 					validatorAddr := delegation.GetValidatorAddr()
 					shares := delegation.GetShares()
 					if _, ok := valShares[validatorAddr]; !ok {

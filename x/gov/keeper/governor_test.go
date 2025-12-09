@@ -4,16 +4,16 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/collections"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/collections"
+
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func TestGovernor(t *testing.T) {
@@ -74,13 +74,14 @@ func TestGovernor(t *testing.T) {
 		}
 		return false, nil
 	})
+	require.NoError(err)
 	if assert.Len(govs, 1, "expected 1 active governor") {
 		assert.Equal(gov1, *govs[0])
 	}
 
 	// Remove gov2
 	govKeeper.Governors.Remove(ctx, govAddrs[1])
-	gov, err = govKeeper.Governors.Get(ctx, govAddrs[1])
+	_, err = govKeeper.Governors.Get(ctx, govAddrs[1])
 	assert.ErrorIs(err, collections.ErrNotFound, "expected gov2 to be removed")
 
 	// Get all govs after removal

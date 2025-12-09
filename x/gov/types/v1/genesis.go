@@ -8,7 +8,6 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -110,16 +109,16 @@ func ValidateGenesis(data *GenesisState) error {
 
 	// weed out duplicate governors
 	errGroup.Go(func() error {
-		governorIds := make(map[string]struct{})
+		governorIDs := make(map[string]struct{})
 		for _, g := range data.Governors {
 			if _, err := types.GovernorAddressFromBech32(g.GovernorAddress); err != nil {
 				return fmt.Errorf("invalid governor address: %v", g)
 			}
-			if _, ok := governorIds[g.GovernorAddress]; ok {
+			if _, ok := governorIDs[g.GovernorAddress]; ok {
 				return fmt.Errorf("duplicate governor: %v", g)
 			}
 
-			governorIds[g.GovernorAddress] = struct{}{}
+			governorIDs[g.GovernorAddress] = struct{}{}
 		}
 
 		return nil
@@ -127,7 +126,7 @@ func ValidateGenesis(data *GenesisState) error {
 
 	// weed out duplicate governance delegations
 	errGroup.Go(func() error {
-		delegatorIds := make(map[string]struct{})
+		delegatorIDs := make(map[string]struct{})
 		for _, d := range data.GovernanceDelegations {
 			if _, err := sdk.AccAddressFromBech32(d.DelegatorAddress); err != nil {
 				return fmt.Errorf("invalid delegator address: %v", d)
@@ -135,11 +134,11 @@ func ValidateGenesis(data *GenesisState) error {
 			if _, err := types.GovernorAddressFromBech32(d.GovernorAddress); err != nil {
 				return fmt.Errorf("invalid governor address: %v", d)
 			}
-			if _, ok := delegatorIds[d.DelegatorAddress]; ok {
+			if _, ok := delegatorIDs[d.DelegatorAddress]; ok {
 				return fmt.Errorf("duplicate governance delegation: %v", d)
 			}
 
-			delegatorIds[d.DelegatorAddress] = struct{}{}
+			delegatorIDs[d.DelegatorAddress] = struct{}{}
 		}
 
 		return nil

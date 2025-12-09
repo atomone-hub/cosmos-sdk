@@ -9,10 +9,9 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // Tally iterates over the votes and updates the tally of a proposal based on the voting power of the
@@ -291,12 +290,12 @@ func (keeper Keeper) getQuorumAndThreshold(ctx context.Context, proposal v1.Prop
 }
 
 // getCurrGovernors returns the governors that voted, are active and meet the minimum self-delegation requirement
-func (k Keeper) getCurrGovernors(ctx sdk.Context, allGovernors map[string]v1.GovernorGovInfo) (governors []v1.GovernorGovInfo) {
+func (keeper Keeper) getCurrGovernors(ctx sdk.Context, allGovernors map[string]v1.GovernorGovInfo) (governors []v1.GovernorGovInfo) {
 	governorsInfos := make([]v1.GovernorGovInfo, 0)
 	for _, govInfo := range allGovernors {
-		governor, _ := k.Governors.Get(ctx, govInfo.Address)
+		governor, _ := keeper.Governors.Get(ctx, govInfo.Address)
 
-		if k.ValidateGovernorMinSelfDelegation(ctx, governor) && len(govInfo.Vote) > 0 {
+		if keeper.ValidateGovernorMinSelfDelegation(ctx, governor) && len(govInfo.Vote) > 0 {
 			governorsInfos = append(governorsInfos, govInfo)
 		}
 	}
