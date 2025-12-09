@@ -23,16 +23,16 @@ import (
 //   - EventTypeNakamotoBonusDisabled: When feature is disabled
 //     Attributes: nakamoto_coefficient (current value), block_height
 func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
-	params, err := k.Params.Get(ctx)
+	nb, err := k.GetNakamotoBonus(ctx)
 	if err != nil {
 		return err
 	}
 
-	if !params.NakamotoBonus.Enabled {
+	if !nb.Enabled {
 		return nil
 	}
 
-	period := int64(params.NakamotoBonus.Period)
+	period := int64(nb.Period)
 	if period <= 0 {
 		// misconfigured, do nothing
 		return nil
@@ -85,17 +85,17 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 
 	// If lowAvg is zero, treat as increase case to spur NB
 	if lowAvg.IsZero() || highAvg.Quo(lowAvg).GTE(math.LegacyNewDec(3)) {
-		newCoefficient = newCoefficient.Add(params.NakamotoBonus.Step)
+		newCoefficient = newCoefficient.Add(nb.Step)
 	} else {
-		newCoefficient = newCoefficient.Sub(params.NakamotoBonus.Step)
+		newCoefficient = newCoefficient.Sub(nb.Step)
 	}
 
 	// clamp to [min, max]
-	if newCoefficient.LT(params.NakamotoBonus.MinimumCoefficient) {
-		newCoefficient = params.NakamotoBonus.MinimumCoefficient
+	if newCoefficient.LT(nb.MinimumCoefficient) {
+		newCoefficient = nb.MinimumCoefficient
 	}
-	if newCoefficient.GT(params.NakamotoBonus.MaximumCoefficient) {
-		newCoefficient = params.NakamotoBonus.MaximumCoefficient
+	if newCoefficient.GT(nb.MaximumCoefficient) {
+		newCoefficient = nb.MaximumCoefficient
 	}
 
 	// emit event if changed
