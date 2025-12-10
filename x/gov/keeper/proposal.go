@@ -282,10 +282,15 @@ func (keeper Keeper) ProposalKinds(p v1.Proposal) v1.ProposalKinds {
 	for _, msg := range p.Messages {
 		var sdkMsg sdk.Msg
 		if err := keeper.cdc.UnpackAny(msg, &sdkMsg); err == nil {
+
 			switch sdkMsg.(type) {
-			case *v1.MsgProposeConstitutionAmendment:
+			case interface {
+				IsProposalKindConstitutionAmendment()
+			}:
 				kinds |= v1.ProposalKindConstitutionAmendment
-			case *v1.MsgProposeLaw:
+			case interface {
+				IsProposalKindLaw()
+			}:
 				kinds |= v1.ProposalKindLaw
 			default:
 				kinds |= v1.ProposalKindAny
