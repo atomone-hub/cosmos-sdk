@@ -29,22 +29,20 @@ func TestGovernor(t *testing.T) {
 	require.NoError(err)
 	gov2Desc := v1.NewGovernorDescription("moniker2", "id2", "website2", "sec2", "detail2")
 	gov2, err := v1.NewGovernor(govAddrs[1].String(), gov2Desc, time.Now().UTC())
-	gov2.Status = v1.Inactive
 	require.NoError(err)
+	gov2.Status = v1.Inactive
 	govKeeper.Governors.Set(ctx, gov1.GetAddress(), gov1)
 	govKeeper.Governors.Set(ctx, gov2.GetAddress(), gov2)
 
 	// Get gov1
 	gov, err := govKeeper.Governors.Get(ctx, govAddrs[0])
-	if assert.NoError(err, "cant find gov1") {
-		assert.Equal(gov1, gov)
-	}
+	assert.NoError(err, "cant find gov1")
+	assert.Equal(gov1, gov)
 
 	// Get gov2
 	gov, err = govKeeper.Governors.Get(ctx, govAddrs[1])
-	if assert.NoError(err, "cant find gov2") {
-		assert.Equal(gov2, gov)
-	}
+	assert.NoError(err, "cant find gov2")
+	assert.Equal(gov2, gov)
 
 	// Get all govs
 	var govs []*v1.Governor
@@ -80,7 +78,8 @@ func TestGovernor(t *testing.T) {
 	}
 
 	// Remove gov2
-	govKeeper.Governors.Remove(ctx, govAddrs[1])
+	err = govKeeper.Governors.Remove(ctx, govAddrs[1])
+	require.NoError(err)
 	_, err = govKeeper.Governors.Get(ctx, govAddrs[1])
 	assert.ErrorIs(err, collections.ErrNotFound, "expected gov2 to be removed")
 

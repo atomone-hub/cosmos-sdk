@@ -305,7 +305,7 @@ message QueryParticipationEMAsResponse {
 
 // QueryGovernorRequest is the request type for the Query/Governor RPC method.
 message QueryGovernorRequest {
-  // gvernor_address defines the address of the governor.
+  // governor_address defines the address of the governor.
   string governor_address = 1 [(cosmos_proto.scalar) = "atomone.GovernorAddressString"];
 }
 

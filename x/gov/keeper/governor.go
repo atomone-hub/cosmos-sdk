@@ -42,9 +42,12 @@ func (keeper Keeper) ValidateGovernorMinSelfDelegation(ctx sdk.Context, governor
 	}
 	params, err := keeper.Params.Get(ctx)
 	if err != nil {
-		panic(fmt.Sprintf("failed to get gov params: %v", err))
+		panic(fmt.Sprintf("failed to get gov params: %v", err)) // This should never happen
 	}
-	minGovernorSelfDelegation, _ := math.NewIntFromString(params.MinGovernorSelfDelegation)
+	minGovernorSelfDelegation, ok := math.NewIntFromString(params.MinGovernorSelfDelegation)
+	if !ok {
+		panic(fmt.Sprintf("invalid min governor self delegation: %s", params.MinGovernorSelfDelegation)) // This should never happen
+	}
 	bondedTokens, err := keeper.getGovernorBondedTokens(ctx, governor.GetAddress())
 	if err != nil {
 		return false

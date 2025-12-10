@@ -1349,7 +1349,7 @@ func (m *QueryParticipationEMAsResponse) GetLawParticipationEma() string {
 
 // QueryGovernorRequest is the request type for the Query/Governor RPC method.
 type QueryGovernorRequest struct {
-	// gvernor_address defines the address of the governor.
+	// governor_address defines the address of the governor.
 	GovernorAddress string `protobuf:"bytes,1,opt,name=governor_address,json=governorAddress,proto3" json:"governor_address,omitempty"`
 }
 
