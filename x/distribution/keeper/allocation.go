@@ -87,7 +87,7 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 		}
 
 		// Compute proportional share based on voting power
-		powerFraction := math.LegacyNewDec(vote.Validator.Power).QuoTruncate(math.LegacyNewDec(totalPreviousPower))
+		powerFraction := math.LegacyNewDec(vote.Validator.Power).Quo(math.LegacyNewDec(totalPreviousPower))
 		proportional := validatorTotalReward.MulDecTruncate(powerFraction)
 
 		// Add fixed Nakamoto bonus to proportional share
