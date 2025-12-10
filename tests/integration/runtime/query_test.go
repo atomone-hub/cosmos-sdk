@@ -72,7 +72,7 @@ func TestQueryAppConfig(t *testing.T) {
 	t.Parallel()
 	f := initFixture(t)
 
-	res, err := f.appQueryClient.Config(f.ctx, &appv1alpha1.QueryConfigRequest{}) //nolint:staticcheck // used for backward compatibility
+	res, err := f.appQueryClient.Config(f.ctx, &appv1alpha1.QueryConfigRequest{})
 	assert.NilError(t, err)
 	// app config is not nil
 	assert.Assert(t, res != nil && res.Config != nil)
