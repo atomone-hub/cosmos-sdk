@@ -127,6 +127,10 @@ func (msg MsgProposeConstitutionAmendment) ValidateBasic() error {
 	return nil
 }
 
+func (msg MsgProposeConstitutionAmendment) IsProposalKindConstitutionAmendment() {}
+
+func (msg MsgProposeLaw) IsProposalKindLaw() {}
+
 // NewMsgCreateGovernor creates a new MsgCreateGovernor instance
 func NewMsgCreateGovernor(address sdk.AccAddress, description GovernorDescription) *MsgCreateGovernor {
 	return &MsgCreateGovernor{Address: address.String(), Description: description}
