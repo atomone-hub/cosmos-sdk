@@ -32,9 +32,10 @@ func (h Hooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.A
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
 	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-	if errors.IsOf(err, collections.ErrEncoding) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
 		return err
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		return nil
 	}
 	govAddr := types.MustGovernorAddressFromBech32(govDelegation.GovernorAddress)
@@ -55,9 +56,10 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
 	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-	if errors.IsOf(err, collections.ErrEncoding) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
 		return err
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		return nil
 	}
 
@@ -86,7 +88,9 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 			governor.Status = v1.Inactive
 			now := sdkCtx.BlockTime()
 			governor.LastStatusChangeTime = &now
-			h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor)
+			if err := h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -104,9 +108,10 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
 	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
 		govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-		if errors.IsOf(err, collections.ErrEncoding) {
+		if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
 			return err
-		} else if errors.IsOf(err, collections.ErrNotFound) {
+		}
+		if errors.IsOf(err, collections.ErrNotFound) {
 			panic("active governor without governance self-delegation")
 		}
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {
@@ -117,7 +122,9 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 			governor.Status = v1.Inactive
 			now := sdkCtx.BlockTime()
 			governor.LastStatusChangeTime = &now
-			h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor)
+			if err := h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor); err != nil {
+				return err
+			}
 		}
 	}
 

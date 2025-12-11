@@ -629,9 +629,12 @@ func TestTally(t *testing.T) {
 			require.NoError(t, err)
 			// Set starting participation EMAs to 0.375 so initial quorum is 0.25 using default params
 			// minQuorum = 0.1, maxQuorum = 0.5, participationEMA = 0.375; 0.1 + (0.5 - 0.1) * 0.375 = 0.25
-			govKeeper.ParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
-			govKeeper.LawParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
-			govKeeper.ConstitutionAmendmentParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			err = govKeeper.ParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			require.NoError(t, err)
+			err = govKeeper.LawParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			require.NoError(t, err)
+			err = govKeeper.ConstitutionAmendmentParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			require.NoError(t, err)
 			// Create the test fixture
 			s := newFixture(t, ctx, 10, 6, 3, govKeeper, mocks)
 			// Setup governor self delegation
@@ -784,9 +787,12 @@ func TestHasReachedQuorum(t *testing.T) {
 			require.NoError(t, err)
 			// Set starting participation EMAs to 0.375 so initial quorum is 0.25 using default params
 			// minQuorum = 0.1, maxQuorum = 0.5, participationEMA = 0.375; 0.1 + (0.5 - 0.1) * 0.375 = 0.25
-			govKeeper.ParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
-			govKeeper.LawParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
-			govKeeper.ConstitutionAmendmentParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			err = govKeeper.ParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			require.NoError(t, err)
+			err = govKeeper.LawParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			require.NoError(t, err)
+			err = govKeeper.ConstitutionAmendmentParticipationEMA.Set(ctx, math.LegacyMustNewDecFromStr("0.375"))
+			require.NoError(t, err)
 			// Submit and activate a proposal
 			s := newFixture(t, ctx, 10, 5, 3, govKeeper, mocks)
 			// Setup governor self delegation

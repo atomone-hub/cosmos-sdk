@@ -425,9 +425,10 @@ func (q queryServer) GovernanceDelegation(c context.Context, req *v1.QueryGovern
 	ctx := sdk.UnwrapSDKContext(c)
 
 	delegation, err := q.k.GovernanceDelegations.Get(ctx, delegatorAddr)
-	if errors.IsOf(err, collections.ErrEncoding) {
-		return nil, err
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, "governance delegation for %s does not exist", req.DelegatorAddress)
 	}
 

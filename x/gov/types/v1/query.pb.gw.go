@@ -1756,15 +1756,15 @@ var (
 
 	pattern_Query_ParticipationEMAs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "gov", "v1", "participationemas"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Governor_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"atomone", "gov", "v1", "governors", "governor_address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Governor_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "gov", "v1", "governors", "governor_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Governors_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"atomone", "gov", "v1", "governors"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Governors_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "gov", "v1", "governors"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GovernanceDelegations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"atomone", "gov", "v1", "governors", "governor_address", "delegations"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GovernanceDelegations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"cosmos", "gov", "v1", "governors", "governor_address", "delegations"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GovernanceDelegation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"atomone", "gov", "v1", "delegations", "delegator_address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GovernanceDelegation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "gov", "v1", "delegations", "delegator_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GovernorValShares_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"atomone", "gov", "v1", "vshares", "governor_address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GovernorValShares_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "gov", "v1", "vshares", "governor_address"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

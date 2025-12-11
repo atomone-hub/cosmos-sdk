@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/collections"
-	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -101,11 +100,9 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 				shares := valShares[valAddrStr]
 				validatorAddr, _ := sdk.ValAddressFromBech32(valAddrStr)
 				vs, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governor.GetAddress(), validatorAddr))
-				if errors.IsOf(err, collections.ErrEncoding) {
-					panic("error decoding governor validator shares")
-				} else if errors.IsOf(err, collections.ErrNotFound) {
+				if err != nil {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
-						fmt.Sprintf("validator %s shares not found", valAddrStr))
+						fmt.Sprintf("validator %s shares not found or unable to retrieve them", valAddrStr))
 					broken = true
 					return true, nil
 				}

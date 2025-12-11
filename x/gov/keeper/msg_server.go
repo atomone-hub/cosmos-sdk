@@ -282,20 +282,26 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 	newMinDeposit := v1.GetNewMinDeposit(msg.Params.MinDepositThrottler.FloorValue, minDeposit, math.LegacyOneDec())
 
 	if !minDeposit.Equal(newMinDeposit) {
-		k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
+		err := k.LastMinDeposit.Set(ctx, v1.LastMinDeposit{
 			Value: newMinDeposit,
 			Time:  &blockTime,
 		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	minInitialDeposit := k.GetMinInitialDeposit(ctx)
 	newMinInitialDeposit := v1.GetNewMinDeposit(msg.Params.MinInitialDepositThrottler.FloorValue, minInitialDeposit, math.LegacyOneDec())
 
 	if !minInitialDeposit.Equal(newMinInitialDeposit) {
-		k.LastMinInitialDeposit.Set(ctx, v1.LastMinDeposit{
+		err := k.LastMinInitialDeposit.Set(ctx, v1.LastMinDeposit{
 			Value: newMinInitialDeposit,
 			Time:  &blockTime,
 		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err := msg.Params.ValidateBasic(); err != nil {
@@ -375,7 +381,10 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		return nil, govtypes.ErrInsufficientGovernorDelegation.Wrapf("minimum self-delegation required: %s, total bonded tokens: %s", minSelfDelegation, bondedTokens)
 	}
 
-	k.Governors.Set(ctx, governor.GetAddress(), governor)
+	err = k.Governors.Set(ctx, governor.GetAddress(), governor)
+	if err != nil {
+		return nil, err
+	}
 
 	// a base account automatically creates a governance delegation to itself
 	err = k.DelegateToGovernor(ctx, addr, govAddr)
@@ -411,7 +420,10 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 
 	// Update the governor
 	governor.Description = msg.Description
-	k.Governors.Set(ctx, governor.GetAddress(), governor)
+	err = k.Governors.Set(ctx, governor.GetAddress(), governor)
+	if err != nil {
+		return nil, err
+	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -464,15 +476,19 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 		}
 	}
 
-	k.Governors.Set(ctx, governor.GetAddress(), governor)
+	err = k.Governors.Set(ctx, governor.GetAddress(), governor)
+	if err != nil {
+		return nil, err
+	}
 	status := govtypes.AttributeValueStatusInactive
 	// if status changes to active, create governance self-delegation
 	// in case it didn't exist
 	if governor.IsActive() {
 		delegation, err := k.GovernanceDelegations.Get(ctx, addr)
-		if errors.IsOf(err, collections.ErrEncoding) {
-			return nil, err
-		} else if errors.IsOf(err, collections.ErrNotFound) {
+		if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+			panic(err)
+		}
+		if errors.IsOf(err, collections.ErrNotFound) {
 			err := k.DelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err
@@ -511,8 +527,8 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 
 	// Ensure the delegation is not already present
 	gd, err := k.GovernanceDelegations.Get(ctx, delAddr)
-	if errors.IsOf(err, collections.ErrEncoding) {
-		return nil, err
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
 	}
 	if err == nil && govAddr.Equals(govtypes.MustGovernorAddressFromBech32(gd.GovernorAddress)) {
 		return nil, govtypes.ErrGovernanceDelegationExists
@@ -558,9 +574,10 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 
 	// Ensure the delegation exists
 	delegation, err := k.GovernanceDelegations.Get(ctx, delAddr)
-	if errors.IsOf(err, collections.ErrEncoding) {
-		return nil, err
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernanceDelegationNotFound
 	}
 

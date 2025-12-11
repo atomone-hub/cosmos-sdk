@@ -15,12 +15,16 @@ import (
 // SetGovernanceDelegation sets a governance delegation in the store
 func (keeper Keeper) SetGovernanceDelegation(ctx sdk.Context, delegation v1.GovernanceDelegation) {
 	delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
-	keeper.GovernanceDelegations.Set(ctx, delAddr, delegation)
+	if err := keeper.GovernanceDelegations.Set(ctx, delAddr, delegation); err != nil {
+		panic(err)
+	}
 
 	// Set the reverse mapping from governor to delegation
 	// mainly for querying all delegations for a governor
 	govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
-	keeper.GovernanceDelegationsByGovernor.Set(ctx, collections.Join(govAddr, delAddr), delegation)
+	if err := keeper.GovernanceDelegationsByGovernor.Set(ctx, collections.Join(govAddr, delAddr), delegation); err != nil {
+		panic(err)
+	}
 }
 
 // RemoveGovernanceDelegation removes a governance delegation from the store
@@ -38,22 +42,26 @@ func (keeper Keeper) RemoveGovernanceDelegation(ctx sdk.Context, delegatorAddr s
 // IncreaseGovernorShares increases the governor validator shares in the store
 func (keeper Keeper) IncreaseGovernorShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress, shares math.LegacyDec) {
 	valShares, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governorAddr, validatorAddr))
-	if errors.IsOf(err, collections.ErrEncoding) {
-		panic("error decoding governor validator shares")
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		valShares = v1.NewGovernorValShares(governorAddr, validatorAddr, shares)
 	} else {
 		valShares.Shares = valShares.Shares.Add(shares)
 	}
-	keeper.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), valShares)
+	if err := keeper.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), valShares); err != nil {
+		panic(err)
+	}
 }
 
 // DecreaseGovernorShares decreases the governor validator shares in the store
 func (keeper Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress, shares math.LegacyDec) {
 	share, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governorAddr, validatorAddr))
-	if errors.IsOf(err, collections.ErrEncoding) {
-		panic("error decoding governor validator shares")
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		panic("cannot decrease shares for a non-existent governor delegation")
 	}
 	share.Shares = share.Shares.Sub(shares)
@@ -63,7 +71,9 @@ func (keeper Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.
 	if share.Shares.IsZero() {
 		keeper.ValidatorSharesByGovernor.Remove(ctx, collections.Join(governorAddr, validatorAddr))
 	} else {
-		keeper.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), share)
+		if err := keeper.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), share); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -71,9 +81,10 @@ func (keeper Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.
 // and then removes the governor delegation for the given delegator
 func (keeper Keeper) UndelegateFromGovernor(ctx sdk.Context, delegatorAddr sdk.AccAddress) error {
 	delegation, err := keeper.GovernanceDelegations.Get(ctx, delegatorAddr)
-	if errors.IsOf(err, collections.ErrEncoding) {
-		return sdkerrors.ErrInvalidRequest.Wrapf("error decoding governance delegation for delegator %s", delegatorAddr.String())
-	} else if errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.IsOf(err, collections.ErrNotFound) {
 		return types.ErrGovernanceDelegationNotFound.Wrapf("governance delegation for delegator %s does not exist", delegatorAddr.String())
 	}
 	govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)

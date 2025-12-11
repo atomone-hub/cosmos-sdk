@@ -132,12 +132,6 @@ func NewMsgCreateGovernor(address sdk.AccAddress, description GovernorDescriptio
 	return &MsgCreateGovernor{Address: address.String(), Description: description}
 }
 
-// Route implements the sdk.Msg interface.
-func (msg MsgCreateGovernor) Route() string { return types.RouterKey }
-
-// Type implements the sdk.Msg interface.
-func (msg MsgCreateGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
-
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
@@ -155,12 +149,6 @@ func NewMsgEditGovernor(addr sdk.AccAddress, description GovernorDescription) *M
 	return &MsgEditGovernor{Address: addr.String(), Description: description}
 }
 
-// Route implements the sdk.Msg interface.
-func (msg MsgEditGovernor) Route() string { return types.RouterKey }
-
-// Type implements the sdk.Msg interface.
-func (msg MsgEditGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
-
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgEditGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
@@ -173,12 +161,6 @@ func (msg MsgEditGovernor) ValidateBasic() error {
 func NewMsgDelegateGovernor(delegator sdk.AccAddress, governor types.GovernorAddress) *MsgDelegateGovernor {
 	return &MsgDelegateGovernor{DelegatorAddress: delegator.String(), GovernorAddress: governor.String()}
 }
-
-// Route implements the sdk.Msg interface.
-func (msg MsgDelegateGovernor) Route() string { return types.RouterKey }
-
-// Type implements the sdk.Msg interface.
-func (msg MsgDelegateGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgDelegateGovernor) ValidateBasic() error {
@@ -196,12 +178,6 @@ func NewMsgUndelegateGovernor(delegator sdk.AccAddress) *MsgUndelegateGovernor {
 	return &MsgUndelegateGovernor{DelegatorAddress: delegator.String()}
 }
 
-// Route implements the sdk.Msg interface.
-func (msg MsgUndelegateGovernor) Route() string { return types.RouterKey }
-
-// Type implements the sdk.Msg interface.
-func (msg MsgUndelegateGovernor) Type() string { return sdk.MsgTypeURL(&msg) }
-
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUndelegateGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
@@ -214,12 +190,6 @@ func (msg MsgUndelegateGovernor) ValidateBasic() error {
 func NewMsgUpdateGovernorStatus(address sdk.AccAddress, status GovernorStatus) *MsgUpdateGovernorStatus {
 	return &MsgUpdateGovernorStatus{Address: address.String(), Status: status}
 }
-
-// Route implements the sdk.Msg interface.
-func (msg MsgUpdateGovernorStatus) Route() string { return types.RouterKey }
-
-// Type implements the sdk.Msg interface.
-func (msg MsgUpdateGovernorStatus) Type() string { return sdk.MsgTypeURL(&msg) }
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUpdateGovernorStatus) ValidateBasic() error {

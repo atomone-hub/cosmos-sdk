@@ -268,7 +268,7 @@ message MsgProposeConstitutionAmendmentResponse {}
 // MsgCreateGovernor defines a SDK message for creating a new governor.
 message MsgCreateGovernor {
   option (cosmos.msg.v1.signer) = "address";
-  option (amino.name)           = "atomone/MsgCreateGovernor";
+  option (amino.name)           = "cosmos-sdk/MsgCreateGovernor";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -317,13 +317,13 @@ message MsgUpdateGovernorStatusResponse {}
 // from a delegator to a governor.
 message MsgDelegateGovernor {
   option (cosmos.msg.v1.signer) = "delegator_address";
-  option (amino.name)           = "atomone/MsgDelegateGovernor";
+  option (amino.name)           = "cosmos-sdk/MsgDelegateGovernor";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   string delegator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string governor_address  = 2;
+  string governor_address  = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgDelegateGovernorResponse defines the Msg/Delegate response type.
