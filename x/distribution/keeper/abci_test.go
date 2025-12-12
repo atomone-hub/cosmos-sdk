@@ -36,7 +36,7 @@ func TestBeginBlocker_NakamotoBonusEtaChange(t *testing.T) {
 }
 
 func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
-	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(3, 2), types.DefaultNakamotoBonusPeriod)
+	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(4, 2), types.DefaultNakamotoBonusPeriod)
 
 	// Create validators with lower ratio for decrease
 	createValidators(s.ctx, s.stakingKeeper, 20, 20, 10)
@@ -49,13 +49,13 @@ func TestBeginBlocker_NakamotoBonusEtaDecrease(t *testing.T) {
 	err := s.distrKeeper.BeginBlocker(s.ctx)
 	require.NoError(t, err)
 
-	// Verify η clamped at minimum: 0.03 - 0.01 = 0.02, but min is 0.03, so stays at 0.03
+	// Verify η decreased: 0.04 - 0.01 = 0.03
 	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
 	require.NoError(t, err)
 
-	expectedEta := math.LegacyNewDecWithPrec(3, 2) // clamped at minimum 0.03
+	expectedEta := math.LegacyNewDecWithPrec(3, 2) // decreased to 0.03
 	require.Equal(t, expectedEta, nakamotoBonusCoefficient,
-		"η should clamp at minimum (0.03) when decreasing below min. Got: %s", nakamotoBonusCoefficient)
+		"η should decrease from 0.04 to 0.03 when ratio < 3. Got: %s", nakamotoBonusCoefficient)
 }
 
 func TestAllocateTokens_NakamotoBonusClampEta(t *testing.T) {
