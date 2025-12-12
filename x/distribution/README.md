@@ -474,8 +474,6 @@ The distribution module emits the following events:
 
 | Type            | Attribute Key | Attribute Value    |
 |-----------------|---------------|--------------------|
-| proposer_reward | validator     | {validatorAddress} |
-| proposer_reward | reward        | {proposerReward}   |
 | commission      | amount        | {commissionAmount} |
 | commission      | validator     | {validatorAddress} |
 | rewards         | amount        | {rewardAmount}     |
