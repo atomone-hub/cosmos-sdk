@@ -61,6 +61,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## [v0.50.15](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.50.15) - 2025-12-12
+
 ### Improvements
 
 * (x/gov) [#24386](https://github.com/cosmos/cosmos-sdk/pull/24386) Improve helpers to easily create governance proposals from CLI.
