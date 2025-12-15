@@ -7,7 +7,6 @@ const (
 	EventTypeCommission                = "commission"
 	EventTypeWithdrawRewards           = "withdraw_rewards"
 	EventTypeWithdrawCommission        = "withdraw_commission"
-	EventTypeProposerReward            = "proposer_reward"
 	EventTypeUpdateNakamotoCoefficient = "update_nakamoto_coefficient"
 
 	AttributeKeyWithdrawAddress  = "withdraw_address"
