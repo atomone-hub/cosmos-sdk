@@ -48,19 +48,21 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (crypto/keyring) [#1](https://github.com/atomone-hub/cosmos-sdk/pull/1) Fix error wrapping in pkg crypto/keyring. Removed `cockroachdb/errors` in favour of `errorsmod.Wrap`.
 * (x/authz) [#1](https://github.com/atomone-hub/cosmos-sdk/pull/1) Added a limit of 200 grants pruned per `BeginBlock` and the `PruneExpiredGrants` message that prunes 75 expired grants on every run.
 * (x/consensus) [#1](https://github.com/atomone-hub/cosmos-sdk/pull/1) Address bug where sending `MsgUpdateParams` to `x/consensus` would overwrite `AppVersion` with zero value. Always use existing `AppVersion` param.
+* (x/epochs) [#33](https://github.com/atomone-hub/cosmos-sdk/pull/33) Add `x/epochs` module.
 * (x/distribution) [#10](https://github.com/atomone-hub/cosmos-sdk/pull/10) ADR-004 (Nakamoto Bonus).
 
 ### Improvements
 
-* (proto) [#15](https://github.com/atomone-hub/cosmos-sdk/pull/15) bump grpc to `v1.72.0` and go to `v1.24.5`.
-* [#22](https://github.com/atomone-hub/cosmos-sdk/pull/22) Remove non forked go modules from repository.
-* [#25](https://github.com/atomone-hub/cosmos-sdk/pull/25) feat: remove `client/v2` workspace.
+* [#38](https://github.com/atomone-hub/cosmos-sdk/pull/38) Remove proposer reward params from `x/distribution` (base_proposer_reward and bonus_proposer_reward)
+* [#22](https://github.com/atomone-hub/cosmos-sdk/pull/22), [#25](https://github.com/atomone-hub/cosmos-sdk/pull/25) Remove non forked go modules from repository.
 
 ### Bug Fixes
 
 * (x/gov) [#35](https://github.com/atomone-hub/cosmos-sdk/pull/35) Cherry-pick [proposal v1 to v1beta1 converter fix from AtomOne](https://github.com/atomone-hub/atomone/pull/102)
 
 ## [Unreleased]
+
+## [v0.50.15](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.50.15) - 2025-12-12
 
 ### Improvements
 
@@ -69,6 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+* (baseapp) [#25642](https://github.com/cosmos/cosmos-sdk/pull/25642) Mark pre-block events for indexing based on local configuration.
 * (baseapp) [#23879](https://github.com/cosmos/cosmos-sdk/pull/23879) Ensure finalize block response is not empty in the defer check of FinalizeBlock to avoid panic by nil pointer.
 * (query) [#23884](https://github.com/cosmos/cosmos-sdk/pull/23884) Fix NPE in query pagination.
 

@@ -20,8 +20,6 @@ var (
 // DefaultParams returns default distribution parameters
 func DefaultParams() Params {
 	return Params{
-		BaseProposerReward:  math.LegacyZeroDec(),
-		BonusProposerReward: math.LegacyZeroDec(),
 		CommunityTax:        math.LegacyNewDecWithPrec(2, 2), // 2%
 		WithdrawAddrEnabled: true,
 		NakamotoBonus: NakamotoBonus{

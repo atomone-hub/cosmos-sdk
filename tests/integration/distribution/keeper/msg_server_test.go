@@ -689,8 +689,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Params: distrtypes.Params{
 					CommunityTax:        math.LegacyNewDecWithPrec(2, 0),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
 						Step:               distrtypes.DefaultNakamotoBonusStep,
@@ -710,8 +708,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Params: distrtypes.Params{
 					CommunityTax:        math.LegacyDec{},
 					WithdrawAddrEnabled: withdrawAddrEnabled,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
 						Step:               distrtypes.DefaultNakamotoBonusStep,
@@ -731,8 +727,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Params: distrtypes.Params{
 					CommunityTax:        math.LegacyNewDecWithPrec(2, 0),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
 						Step:               distrtypes.DefaultNakamotoBonusStep,
@@ -752,8 +746,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Params: distrtypes.Params{
 					CommunityTax:        math.LegacyNewDecWithPrec(-2, 1),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
 						Step:               distrtypes.DefaultNakamotoBonusStep,
@@ -772,8 +764,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Authority: f.distrKeeper.GetAuthority(),
 				Params: distrtypes.Params{
 					CommunityTax:        communityTax,
-					BaseProposerReward:  math.LegacyNewDecWithPrec(1, 2),
-					BonusProposerReward: math.LegacyZeroDec(),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
@@ -793,8 +783,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Authority: f.distrKeeper.GetAuthority(),
 				Params: distrtypes.Params{
 					CommunityTax:        communityTax,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyNewDecWithPrec(1, 2),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
@@ -814,8 +802,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Authority: f.distrKeeper.GetAuthority(),
 				Params: distrtypes.Params{
 					CommunityTax:        communityTax,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
@@ -834,8 +820,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Authority: f.distrKeeper.GetAuthority(),
 				Params: distrtypes.Params{
 					CommunityTax:        communityTax,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
@@ -854,8 +838,6 @@ func TestMsgUpdateParams(t *testing.T) {
 				Authority: f.distrKeeper.GetAuthority(),
 				Params: distrtypes.Params{
 					CommunityTax:        communityTax,
-					BaseProposerReward:  math.LegacyZeroDec(),
-					BonusProposerReward: math.LegacyZeroDec(),
 					WithdrawAddrEnabled: withdrawAddrEnabled,
 					NakamotoBonus: distrtypes.NakamotoBonus{
 						Enabled:            true,
