@@ -20,7 +20,11 @@ message Params {
     (gogoproto.nullable)   = false
   ];
 
-  bool withdraw_addr_enabled = 2;
+  // Removed: the following fields were used respectively for the
+  // base_proposer_reward and bonus_proposer_reward
+  reserved 2, 3;
+
+  bool withdraw_addr_enabled = 4;
 }
 
 // ValidatorHistoricalRewards represents historical rewards for a validator.
