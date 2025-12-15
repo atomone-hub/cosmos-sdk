@@ -114,3 +114,69 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 
 	return nil
 }
+
+// IsValidatorEligibleForNakamotoBonus checks if a validator is eligible for the Nakamoto Bonus
+// based on how long they have been in the active set
+func (k Keeper) IsValidatorEligibleForNakamotoBonus(ctx sdk.Context, validator stakingtypes.ValidatorI) (bool, error) {
+	// Get the current parameters
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	currentTime := sdkCtx.BlockTime()
+
+	// Get validator's creation time
+	// Note: You'll need to fetch the full validator to access CreationTime
+	// This assumes the validator interface will be extended or you work with the concrete type
+	valAddr, err := k.stakingKeeper.ValidatorAddressCodec().StringToBytes(validator.GetOperator())
+	if err != nil {
+		return false, err
+	}
+
+	fullValidator, err := k.stakingKeeper.Validator(ctx, valAddr)
+	if err != nil {
+		return false, err
+	}
+
+	// Calculate the time elapsed since the validator was created
+	timeSinceCreation := currentTime.Sub(fullValidator.CreationTime)
+
+	// Check if the validator has been active long enough
+	isEligible := timeSinceCreation >= params.NakamotoBonus.EligiblePeriod
+
+	return isEligible, nil
+}
+
+// GetValidatorEligibilityInfo returns detailed eligibility information for a validator
+func (k Keeper) GetValidatorEligibilityInfo(ctx sdk.Context, valAddr sdk.ValAddress) (map[string]interface{}, error) {
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	validator, err := k.stakingKeeper.Validator(ctx, valAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	currentTime := sdkCtx.BlockTime()
+	timeSinceCreation := currentTime.Sub(validator.CreationTime)
+	timeRemaining := params.NakamotoBonus.EligiblePeriod - timeSinceCreation
+
+	isEligible := timeRemaining <= 0
+
+	info := map[string]interface{}{
+		"validator_address":              validator.GetOperator(),
+		"created_at":                     validator.CreationTime,
+		"current_time":                   currentTime,
+		"time_since_creation":            timeSinceCreation.String(),
+		"nakamoto_bonus_eligible_period": params.NakamotoBonus.EligiblePeriod.String(),
+		"is_eligible":                    isEligible,
+		"time_remaining_for_eligibility": timeRemaining.String(),
+	}
+
+	return info, nil
+}

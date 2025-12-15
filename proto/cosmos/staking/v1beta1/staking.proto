@@ -134,6 +134,10 @@ message Validator {
 
   // list of unbonding ids, each uniquely identifing an unbonding of this validator
   repeated uint64 unbonding_ids = 13;
+
+  // creation_time is when the validator was created and joined the active set
+  google.protobuf.Timestamp creation_time = 14
+      [(gogoproto.nullable) = false, (amino.dont_omitempty) = true, (gogoproto.stdtime) = true];
 }
 
 // BondStatus is the status of a validator.

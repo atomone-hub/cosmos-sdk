@@ -5,6 +5,7 @@ import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
 
 option go_package            = "github.com/cosmos/cosmos-sdk/x/distribution/types";
 option (gogoproto.equal_all) = true;
@@ -13,8 +14,10 @@ option (gogoproto.equal_all) = true;
 message NakamotoBonus {
   option (gogoproto.equal) = true;
 
+  // enabled indicates whether the Nakamoto Bonus feature is active
   bool enabled = 1;
 
+  // step defines the increment value applied to the bonus coefficient calculation
   string step = 2 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -22,8 +25,10 @@ message NakamotoBonus {
     (gogoproto.nullable)   = false
   ];
 
+  // period specifies the number of blocks over which the bonus coefficient is calculated
   uint64 period = 3;
 
+  // minimum_coefficient sets the lower bound for the bonus coefficient
   string minimum_coefficient = 4 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -31,12 +36,17 @@ message NakamotoBonus {
     (gogoproto.nullable)   = false
   ];
 
+  // maximum_coefficient sets the upper bound for the bonus coefficient
   string maximum_coefficient = 5 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (amino.dont_omitempty) = true,
     (gogoproto.nullable)   = false
   ];
+
+  // nakamoto_bonus_eligible_period is the duration validators must be active before becoming eligible for the Nakamoto
+  // Bonus
+  google.protobuf.Duration eligible_period = 6 [(gogoproto.nullable) = false, (gogoproto.stdduration) = true];
 }
 
 // Params defines the set of params for the distribution module.

@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	"cosmossdk.io/math"
 )
@@ -9,6 +10,9 @@ import (
 const (
 	// DefaultNakamotoBonusPeriod represents default nakamoto bonus period (in blocks)
 	DefaultNakamotoBonusPeriod = uint64(100_800) // ~7 days at 6s blocks (604,800s / 6s)
+
+	// DefaultNakamotoBonusEligiblePeriod is the default duration for nakamoto bonus eligibility (7 days)
+	DefaultNakamotoBonusEligiblePeriod = 7 * 24 * time.Hour
 )
 
 var (
@@ -30,6 +34,7 @@ func DefaultParams() Params {
 			Period:             DefaultNakamotoBonusPeriod,
 			MinimumCoefficient: DefaultNakamotoBonusMinimumCoefficient,
 			MaximumCoefficient: DefaultNakamotoBonusMaximumCoefficient,
+			EligiblePeriod:     DefaultNakamotoBonusEligiblePeriod,
 		},
 	}
 }
@@ -71,6 +76,10 @@ func validateWithdrawAddrEnabled(i interface{}) error {
 func validateNakamotoBonus(v NakamotoBonus) error {
 	if v.Period == 0 {
 		return fmt.Errorf("nakamoto bonus period must be greater than zero: %d", v.Period)
+	}
+
+	if v.EligiblePeriod < 0 {
+		return fmt.Errorf("nakamoto bonus eligible period must be non-negative, got %v", v.EligiblePeriod)
 	}
 
 	switch {
