@@ -23,11 +23,11 @@ func DefaultParams() Params {
 		CommunityTax:        math.LegacyNewDecWithPrec(2, 2), // 2%
 		WithdrawAddrEnabled: true,
 		NakamotoBonus: NakamotoBonus{
-			Enabled:                 true,
-			Step:                    DefaultNakamotoBonusStep,
-			PeriodEpochIdentifier:   DefaultNakamotoBonusPeriodEpochIdentifier,
-			MinimumCoefficient:      DefaultNakamotoBonusMinimumCoefficient,
-			MaximumCoefficient:      DefaultNakamotoBonusMaximumCoefficient,
+			Enabled:               true,
+			Step:                  DefaultNakamotoBonusStep,
+			PeriodEpochIdentifier: DefaultNakamotoBonusPeriodEpochIdentifier,
+			MinimumCoefficient:    DefaultNakamotoBonusMinimumCoefficient,
+			MaximumCoefficient:    DefaultNakamotoBonusMaximumCoefficient,
 		},
 	}
 }

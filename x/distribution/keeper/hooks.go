@@ -16,8 +16,10 @@ type Hooks struct {
 	k Keeper
 }
 
-var _ stakingtypes.StakingHooks = Hooks{}
-var _ epochstypes.EpochHooks = Hooks{}
+var (
+	_ stakingtypes.StakingHooks = Hooks{}
+	_ epochstypes.EpochHooks    = Hooks{}
+)
 
 // Create new distribution hooks
 func (k Keeper) Hooks() Hooks {
