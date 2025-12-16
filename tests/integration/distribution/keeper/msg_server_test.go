@@ -759,44 +759,6 @@ func TestMsgUpdateParams(t *testing.T) {
 			expErrMsg: "community tax must be positive: -0.200000000000000000",
 		},
 		{
-			name: "base proposer reward set",
-			msg: &distrtypes.MsgUpdateParams{
-				Authority: f.distrKeeper.GetAuthority(),
-				Params: distrtypes.Params{
-					CommunityTax:        communityTax,
-					WithdrawAddrEnabled: withdrawAddrEnabled,
-					NakamotoBonus: distrtypes.NakamotoBonus{
-						Enabled:            true,
-						Step:               distrtypes.DefaultNakamotoBonusStep,
-						Period:             distrtypes.DefaultNakamotoBonusPeriod,
-						MinimumCoefficient: distrtypes.DefaultNakamotoBonusMinimumCoefficient,
-						MaximumCoefficient: distrtypes.DefaultNakamotoBonusMaximumCoefficient,
-					},
-				},
-			},
-			expErr:    true,
-			expErrMsg: "cannot update base or bonus proposer reward because these are deprecated fields",
-		},
-		{
-			name: "bonus proposer reward set",
-			msg: &distrtypes.MsgUpdateParams{
-				Authority: f.distrKeeper.GetAuthority(),
-				Params: distrtypes.Params{
-					CommunityTax:        communityTax,
-					WithdrawAddrEnabled: withdrawAddrEnabled,
-					NakamotoBonus: distrtypes.NakamotoBonus{
-						Enabled:            true,
-						Step:               distrtypes.DefaultNakamotoBonusStep,
-						Period:             distrtypes.DefaultNakamotoBonusPeriod,
-						MinimumCoefficient: distrtypes.DefaultNakamotoBonusMinimumCoefficient,
-						MaximumCoefficient: distrtypes.DefaultNakamotoBonusMaximumCoefficient,
-					},
-				},
-			},
-			expErr:    true,
-			expErrMsg: "cannot update base or bonus proposer reward because these are deprecated fields",
-		},
-		{
 			name: "all good",
 			msg: &distrtypes.MsgUpdateParams{
 				Authority: f.distrKeeper.GetAuthority(),
