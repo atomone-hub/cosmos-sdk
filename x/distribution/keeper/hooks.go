@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	epochstypes "github.com/cosmos/cosmos-sdk/x/epochs/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -16,6 +17,7 @@ type Hooks struct {
 }
 
 var _ stakingtypes.StakingHooks = Hooks{}
+var _ epochstypes.EpochHooks = Hooks{}
 
 // Create new distribution hooks
 func (k Keeper) Hooks() Hooks {
@@ -178,5 +180,29 @@ func (h Hooks) BeforeDelegationRemoved(_ context.Context, _ sdk.AccAddress, _ sd
 }
 
 func (h Hooks) AfterUnbondingInitiated(_ context.Context, _ uint64) error {
+	return nil
+}
+
+// ======================== Epoch Hooks ========================
+
+// AfterEpochEnd is called after an epoch ends.
+// We use this to adjust the Nakamoto bonus coefficient when the configured epoch ends.
+func (h Hooks) AfterEpochEnd(ctx context.Context, epochIdentifier string, _ int64) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	nb, err := h.k.GetNakamotoBonus(c)
+	if err != nil {
+		return err
+	}
+
+	// Only adjust if this is the epoch we're configured to track
+	if nb.PeriodEpochIdentifier == epochIdentifier {
+		return h.k.AdjustNakamotoBonusCoefficient(c)
+	}
+
+	return nil
+}
+
+// BeforeEpochStart is called before an epoch starts (not used for Nakamoto bonus).
+func (h Hooks) BeforeEpochStart(_ context.Context, _ string, _ int64) error {
 	return nil
 }
