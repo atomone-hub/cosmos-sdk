@@ -44,7 +44,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 
 	// check that either metadata or Msgs length is non nil.
 	if len(msg.Messages) == 0 && len(msg.Metadata) == 0 {
-		return nil, sdkerrors.ErrInvalidRequest.Wrap("either metadata or Msgs length must be non-nil")
+		return nil, govtypes.ErrNoProposalMsgs.Wrap("either metadata or Msgs length must be non-nil")
 	}
 
 	// verify that if present, the metadata title and summary equals the proposal title and summary
@@ -52,11 +52,11 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		proposalMetadata := govtypes.ProposalMetadata{}
 		if err := json.Unmarshal([]byte(msg.Metadata), &proposalMetadata); err == nil {
 			if proposalMetadata.Title != msg.Title {
-				return nil, sdkerrors.ErrInvalidRequest.Wrapf("metadata title '%s' must equal proposal title '%s'", proposalMetadata.Title, msg.Title)
+				return nil, govtypes.ErrInvalidProposalContent.Wrapf("metadata title '%s' must equal proposal title '%s'", proposalMetadata.Title, msg.Title)
 			}
 
 			if proposalMetadata.Summary != msg.Summary {
-				return nil, sdkerrors.ErrInvalidRequest.Wrapf("metadata summary '%s' must equal proposal summary '%s'", proposalMetadata.Summary, msg.Summary)
+				return nil, govtypes.ErrInvalidProposalContent.Wrapf("metadata summary '%s' must equal proposal summary '%s'", proposalMetadata.Summary, msg.Summary)
 			}
 		}
 
