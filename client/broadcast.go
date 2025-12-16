@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"crypto/sha1"
 	"fmt"
 	"strings"
 
@@ -16,11 +17,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx"
 )
 
+func getICSHeader(chainId string) []byte {
+	tx := []byte{0x23, 0x6d, 0x75, 0x78} // #mux prepending
+	// 4-bytes truncated sha1 checksum...
+	checksum := sha1.Sum([]byte(chainId))
+	icsID := checksum[:4]
+	return append(tx, icsID...)
+}
+
 // BroadcastTx broadcasts a transactions either synchronously or asynchronously
 // based on the context parameters. The result of the broadcast is parsed into
 // an intermediate structure which is logged if the context has a logger
 // defined.
 func (ctx Context) BroadcastTx(txBytes []byte) (res *sdk.TxResponse, err error) {
+	header := getICSHeader(ctx.ChainID)
+	txBytes = append(header, txBytes...)
+
 	switch ctx.BroadcastMode {
 	case flags.BroadcastSync:
 		res, err = ctx.BroadcastTxSync(txBytes)

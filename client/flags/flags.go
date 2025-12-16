@@ -108,6 +108,7 @@ func AddQueryFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Bool(FlagGRPCInsecure, false, "allow gRPC over insecure channels, if not the server must use TLS")
 	cmd.Flags().Int64(FlagHeight, 0, "Use a specific height to query state at (this can error if the node is pruning state)")
 	cmd.Flags().StringP(FlagOutput, "o", "text", "Output format (text|json)")
+	cmd.Flags().String(FlagChainID, "", "Chain ID of the Cosmos SDK chain (useful for AtomOne ICS)")
 
 	// some base commands does not require chainID e.g `simd testnet` while subcommands do
 	// hence the flag should not be required for those commands

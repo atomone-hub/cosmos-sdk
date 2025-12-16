@@ -2,6 +2,11 @@ go 1.24.4
 
 module github.com/cosmos/cosmos-sdk
 
+replace (
+	cosmossdk.io/store => ./store
+	github.com/cometbft/cometbft => github.com/atomone-hub/cometbft v0.0.0-20251216151559-a24cfa28b916
+)
+
 require (
 	cosmossdk.io/api v0.9.2
 	cosmossdk.io/collections v0.4.0

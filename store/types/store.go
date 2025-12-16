@@ -44,10 +44,11 @@ type Queryable interface {
 }
 
 type RequestQuery struct {
-	Data   []byte
-	Path   string
-	Height int64
-	Prove  bool
+	Data    []byte
+	Path    string
+	Height  int64
+	Prove   bool
+	ChainId string
 }
 
 type ResponseQuery struct {
