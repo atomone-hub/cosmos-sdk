@@ -1,8 +1,9 @@
 package keeper
 
 import (
+	"errors"
+
 	"cosmossdk.io/collections"
-	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,7 +32,10 @@ func (keeper Keeper) SetGovernanceDelegation(ctx sdk.Context, delegation v1.Gove
 func (keeper Keeper) RemoveGovernanceDelegation(ctx sdk.Context, delegatorAddr sdk.AccAddress) {
 	// need to remove from both the delegator and governor mapping
 	delegation, err := keeper.GovernanceDelegations.Get(ctx, delegatorAddr)
-	if err != nil {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
 		return
 	}
 	govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
@@ -42,10 +46,10 @@ func (keeper Keeper) RemoveGovernanceDelegation(ctx sdk.Context, delegatorAddr s
 // IncreaseGovernorShares increases the governor validator shares in the store
 func (keeper Keeper) IncreaseGovernorShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress, shares math.LegacyDec) {
 	valShares, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governorAddr, validatorAddr))
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		valShares = v1.NewGovernorValShares(governorAddr, validatorAddr, shares)
 	} else {
 		valShares.Shares = valShares.Shares.Add(shares)
@@ -58,10 +62,10 @@ func (keeper Keeper) IncreaseGovernorShares(ctx sdk.Context, governorAddr types.
 // DecreaseGovernorShares decreases the governor validator shares in the store
 func (keeper Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.GovernorAddress, validatorAddr sdk.ValAddress, shares math.LegacyDec) {
 	share, err := keeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governorAddr, validatorAddr))
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		panic("cannot decrease shares for a non-existent governor delegation")
 	}
 	share.Shares = share.Shares.Sub(shares)
@@ -81,10 +85,10 @@ func (keeper Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.
 // and then removes the governor delegation for the given delegator
 func (keeper Keeper) UndelegateFromGovernor(ctx sdk.Context, delegatorAddr sdk.AccAddress) error {
 	delegation, err := keeper.GovernanceDelegations.Get(ctx, delegatorAddr)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		return types.ErrGovernanceDelegationNotFound.Wrapf("governance delegation for delegator %s does not exist", delegatorAddr.String())
 	}
 	govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
