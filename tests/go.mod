@@ -239,3 +239,9 @@ replace (
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 )
+
+// temporary replaces
+replace (
+	cosmossdk.io/store => ../store
+	github.com/cometbft/cometbft => github.com/atomone-hub/cometbft v0.0.0-20251216151559-a24cfa28b916
+)

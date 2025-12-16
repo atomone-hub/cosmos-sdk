@@ -231,7 +231,11 @@ require (
 // replace (
 // 	<temporary replace>
 // )
-replace cosmossdk.io/x/upgrade => ../x/upgrade
+replace (
+	cosmossdk.io/store => ../store
+	cosmossdk.io/x/upgrade => ../x/upgrade
+	github.com/cometbft/cometbft => github.com/atomone-hub/cometbft v0.0.0-20251216151559-a24cfa28b916
+)
 
 // Below are the long-lived replace of the SimApp
 replace (
