@@ -2,12 +2,12 @@ package keeper
 
 import (
 	"context"
+	"errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"cosmossdk.io/collections"
-	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,7 +28,7 @@ func NewQueryServer(k *Keeper) v1.QueryServer {
 
 func (q queryServer) Constitution(ctx context.Context, _ *v1.QueryConstitutionRequest) (*v1.QueryConstitutionResponse, error) {
 	constitution, err := q.k.Constitution.Get(ctx)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		return nil, err
 	}
 	return &v1.QueryConstitutionResponse{Constitution: constitution}, nil
@@ -46,7 +46,7 @@ func (q queryServer) Proposal(ctx context.Context, req *v1.QueryProposalRequest)
 
 	proposal, err := q.k.Proposals.Get(ctx, req.ProposalId)
 	if err != nil {
-		if errors.IsOf(err, collections.ErrNotFound) {
+		if errors.Is(err, collections.ErrNotFound) {
 			return nil, status.Errorf(codes.NotFound, "proposal %d doesn't exist", req.ProposalId)
 		}
 		return nil, status.Error(codes.Internal, err.Error())
@@ -98,7 +98,7 @@ func (q queryServer) Proposals(ctx context.Context, req *v1.QueryProposalsReques
 		return &value, nil
 	})
 
-	if err != nil && !errors.IsOf(err, collections.ErrInvalidIterator) {
+	if err != nil && !errors.Is(err, collections.ErrInvalidIterator) {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -125,7 +125,7 @@ func (q queryServer) Vote(ctx context.Context, req *v1.QueryVoteRequest) (*v1.Qu
 	}
 	vote, err := q.k.Votes.Get(ctx, collections.Join(req.ProposalId, sdk.AccAddress(voter)))
 	if err != nil {
-		if errors.IsOf(err, collections.ErrNotFound) {
+		if errors.Is(err, collections.ErrNotFound) {
 			return nil, status.Errorf(codes.InvalidArgument,
 				"voter: %v not found for proposal: %v", req.Voter, req.ProposalId)
 		}
@@ -260,7 +260,7 @@ func (q queryServer) TallyResult(ctx context.Context, req *v1.QueryTallyResultRe
 
 	proposal, err := q.k.Proposals.Get(ctx, req.ProposalId)
 	if err != nil {
-		if errors.IsOf(err, collections.ErrNotFound) {
+		if errors.Is(err, collections.ErrNotFound) {
 			return nil, status.Errorf(codes.NotFound, "proposal %d doesn't exist", req.ProposalId)
 		}
 		return nil, status.Error(codes.Internal, err.Error())
@@ -318,17 +318,17 @@ func (q queryServer) ParticipationEMAs(c context.Context, _ *v1.QueryParticipati
 	ctx := sdk.UnwrapSDKContext(c)
 
 	participation, err := q.k.ParticipationEMA.Get(ctx)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
 
 	constitutionParticipation, err := q.k.ConstitutionAmendmentParticipationEMA.Get(ctx)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
 
 	lawParticipation, err := q.k.LawParticipationEMA.Get(ctx)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
 
@@ -425,10 +425,10 @@ func (q queryServer) GovernanceDelegation(c context.Context, req *v1.QueryGovern
 	ctx := sdk.UnwrapSDKContext(c)
 
 	delegation, err := q.k.GovernanceDelegations.Get(ctx, delegatorAddr)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, "governance delegation for %s does not exist", req.DelegatorAddress)
 	}
 

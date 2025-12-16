@@ -3,10 +3,10 @@ package keeper
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/collections"
-	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,10 +31,10 @@ var _ v1.MsgServer = msgServer{}
 // SubmitProposal implements the MsgServer.SubmitProposal method.
 func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitProposal) (*v1.MsgSubmitProposalResponse, error) {
 	if msg.Title == "" {
-		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, "proposal title cannot be empty")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("proposal title cannot be empty")
 	}
 	if msg.Summary == "" {
-		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, "proposal summary cannot be empty")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("proposal summary cannot be empty")
 	}
 
 	proposer, err := k.authKeeper.AddressCodec().StringToBytes(msg.GetProposer())
@@ -44,7 +44,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 
 	// check that either metadata or Msgs length is non nil.
 	if len(msg.Messages) == 0 && len(msg.Metadata) == 0 {
-		return nil, errors.Wrap(govtypes.ErrNoProposalMsgs, "either metadata or Msgs length must be non-nil")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("either metadata or Msgs length must be non-nil")
 	}
 
 	// verify that if present, the metadata title and summary equals the proposal title and summary
@@ -52,11 +52,11 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		proposalMetadata := govtypes.ProposalMetadata{}
 		if err := json.Unmarshal([]byte(msg.Metadata), &proposalMetadata); err == nil {
 			if proposalMetadata.Title != msg.Title {
-				return nil, errors.Wrapf(govtypes.ErrInvalidProposalContent, "metadata title '%s' must equal proposal title '%s'", proposalMetadata.Title, msg.Title)
+				return nil, sdkerrors.ErrInvalidRequest.Wrapf("metadata title '%s' must equal proposal title '%s'", proposalMetadata.Title, msg.Title)
 			}
 
 			if proposalMetadata.Summary != msg.Summary {
-				return nil, errors.Wrapf(govtypes.ErrInvalidProposalContent, "metadata summary '%s' must equal proposal summary '%s'", proposalMetadata.Summary, msg.Summary)
+				return nil, sdkerrors.ErrInvalidRequest.Wrapf("metadata summary '%s' must equal proposal summary '%s'", proposalMetadata.Summary, msg.Summary)
 			}
 		}
 
@@ -72,7 +72,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	initialDeposit := msg.GetInitialDeposit()
 
-	params, err := k.Params.Get(ctx)
+	params, err := k.Params.Get(goCtx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get governance parameters: %w", err)
 	}
@@ -154,22 +154,22 @@ func (k msgServer) ExecLegacyContent(goCtx context.Context, msg *v1.MsgExecLegac
 
 	govAcct := k.GetGovernanceAccount(ctx).GetAddress().String()
 	if govAcct != msg.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", govAcct, msg.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", govAcct, msg.Authority)
 	}
 
 	content, err := v1.LegacyContentFromMessage(msg)
 	if err != nil {
-		return nil, errors.Wrapf(govtypes.ErrInvalidProposalContent, "%+v", err)
+		return nil, govtypes.ErrInvalidProposalContent.Wrapf("%+v", err)
 	}
 
 	// Ensure that the content has a respective handler
 	if !k.Keeper.legacyRouter.HasRoute(content.ProposalRoute()) {
-		return nil, errors.Wrap(govtypes.ErrNoProposalHandlerExists, content.ProposalRoute())
+		return nil, govtypes.ErrNoProposalHandlerExists.Wrap(content.ProposalRoute())
 	}
 
 	handler := k.Keeper.legacyRouter.GetRoute(content.ProposalRoute())
 	if err := handler(ctx, content); err != nil {
-		return nil, errors.Wrapf(govtypes.ErrInvalidProposalContent, "failed to run legacy handler %s, %+v", content.ProposalRoute(), err)
+		return nil, govtypes.ErrInvalidProposalContent.Wrapf("failed to run legacy handler %s, %+v", content.ProposalRoute(), err)
 	}
 
 	return &v1.MsgExecLegacyContentResponse{}, nil
@@ -183,7 +183,7 @@ func (k msgServer) Vote(goCtx context.Context, msg *v1.MsgVote) (*v1.MsgVoteResp
 	}
 
 	if !v1.ValidVoteOption(msg.Option) {
-		return nil, errors.Wrap(govtypes.ErrInvalidVote, msg.Option.String())
+		return nil, govtypes.ErrInvalidVote.Wrap(msg.Option.String())
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -203,32 +203,32 @@ func (k msgServer) VoteWeighted(goCtx context.Context, msg *v1.MsgVoteWeighted) 
 	}
 
 	if len(msg.Options) == 0 {
-		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, v1.WeightedVoteOptions(msg.Options).String())
+		return nil, sdkerrors.ErrInvalidRequest.Wrap(v1.WeightedVoteOptions(msg.Options).String())
 	}
 
 	totalWeight := math.LegacyNewDec(0)
 	usedOptions := make(map[v1.VoteOption]bool)
 	for _, option := range msg.Options {
 		if !option.IsValid() {
-			return nil, errors.Wrap(govtypes.ErrInvalidVote, option.String())
+			return nil, govtypes.ErrInvalidVote.Wrap(option.String())
 		}
 		weight, err := math.LegacyNewDecFromStr(option.Weight)
 		if err != nil {
-			return nil, errors.Wrapf(govtypes.ErrInvalidVote, "invalid weight: %s", err)
+			return nil, govtypes.ErrInvalidVote.Wrapf("invalid weight: %s", err)
 		}
 		totalWeight = totalWeight.Add(weight)
 		if usedOptions[option.Option] {
-			return nil, errors.Wrap(govtypes.ErrInvalidVote, "duplicated vote option")
+			return nil, govtypes.ErrInvalidVote.Wrap("duplicated vote option")
 		}
 		usedOptions[option.Option] = true
 	}
 
 	if totalWeight.GT(math.LegacyNewDec(1)) {
-		return nil, errors.Wrap(govtypes.ErrInvalidVote, "total weight overflow 1.00")
+		return nil, govtypes.ErrInvalidVote.Wrap("total weight overflow 1.00")
 	}
 
 	if totalWeight.LT(math.LegacyNewDec(1)) {
-		return nil, errors.Wrap(govtypes.ErrInvalidVote, "total weight lower than 1.00")
+		return nil, govtypes.ErrInvalidVote.Wrap("total weight lower than 1.00")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -272,7 +272,7 @@ func (k msgServer) Deposit(goCtx context.Context, msg *v1.MsgDeposit) (*v1.MsgDe
 // UpdateParams implements the MsgServer.UpdateParams method.
 func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) (*v1.MsgUpdateParamsResponse, error) {
 	if k.authority != msg.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
+		return nil, govtypes.ErrInvalidSigner.Wrapf("invalid authority; expected %s, got %s", k.authority, msg.Authority)
 	}
 
 	// before params change, trigger an update of the last min deposit
@@ -295,7 +295,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 	newMinInitialDeposit := v1.GetNewMinDeposit(msg.Params.MinInitialDepositThrottler.FloorValue, minInitialDeposit, math.LegacyOneDec())
 
 	if !minInitialDeposit.Equal(newMinInitialDeposit) {
-		err := k.LastMinInitialDeposit.Set(ctx, v1.LastMinDeposit{
+		err := k.LastMinInitialDeposit.Set(goCtx, v1.LastMinDeposit{
 			Value: newMinInitialDeposit,
 			Time:  &blockTime,
 		})
@@ -308,7 +308,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 		return nil, err
 	}
 
-	if err := k.Params.Set(ctx, msg.Params); err != nil {
+	if err := k.Params.Set(goCtx, msg.Params); err != nil {
 		return nil, err
 	}
 
@@ -339,7 +339,7 @@ func (k msgServer) ProposeConstitutionAmendment(goCtx context.Context, msg *v1.M
 		return nil, govtypes.ErrInvalidProposalMsg.Wrap(err.Error())
 	}
 
-	if err := k.Constitution.Set(ctx, constitution); err != nil {
+	if err := k.Constitution.Set(goCtx, constitution); err != nil {
 		return nil, err
 	}
 
@@ -347,12 +347,10 @@ func (k msgServer) ProposeConstitutionAmendment(goCtx context.Context, msg *v1.M
 }
 
 func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovernor) (*v1.MsgCreateGovernorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	// Ensure the governor does not already exist
 	addr := sdk.MustAccAddressFromBech32(msg.Address)
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
-	if _, err := k.Governors.Get(ctx, govAddr); err == nil {
+	if _, err := k.Governors.Get(goCtx, govAddr); err == nil {
 		return nil, govtypes.ErrGovernorExists
 	}
 
@@ -361,6 +359,8 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		return nil, err
 	}
 
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// Create the governor
 	governor, err := v1.NewGovernor(govAddr.String(), msg.Description, ctx.BlockTime())
 	if err != nil {
@@ -368,7 +368,7 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 	}
 
 	// validate min self-delegation
-	params, err := k.Params.Get(ctx)
+	params, err := k.Params.Get(goCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -381,7 +381,7 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		return nil, govtypes.ErrInsufficientGovernorDelegation.Wrapf("minimum self-delegation required: %s, total bonded tokens: %s", minSelfDelegation, bondedTokens)
 	}
 
-	err = k.Governors.Set(ctx, governor.GetAddress(), governor)
+	err = k.Governors.Set(goCtx, governor.GetAddress(), governor)
 	if err != nil {
 		return nil, err
 	}
@@ -403,12 +403,10 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 }
 
 func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) (*v1.MsgEditGovernorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	// Ensure the governor exists
 	addr := sdk.MustAccAddressFromBech32(msg.Address)
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
-	governor, err := k.Governors.Get(ctx, govAddr)
+	governor, err := k.Governors.Get(goCtx, govAddr)
 	if err != nil {
 		return nil, govtypes.ErrGovernorNotFound
 	}
@@ -420,11 +418,12 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 
 	// Update the governor
 	governor.Description = msg.Description
-	err = k.Governors.Set(ctx, governor.GetAddress(), governor)
+	err = k.Governors.Set(goCtx, governor.GetAddress(), governor)
 	if err != nil {
 		return nil, err
 	}
 
+	ctx := sdk.UnwrapSDKContext(goCtx)
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			govtypes.EventTypeEditGovernor,
@@ -436,12 +435,10 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 }
 
 func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdateGovernorStatus) (*v1.MsgUpdateGovernorStatusResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	// Ensure the governor exists
 	addr := sdk.MustAccAddressFromBech32(msg.Address)
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
-	governor, err := k.Governors.Get(ctx, govAddr)
+	governor, err := k.Governors.Get(goCtx, govAddr)
 	if err != nil {
 		return nil, govtypes.ErrGovernorNotFound
 	}
@@ -456,10 +453,13 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	}
 
 	// Ensure the governor has been in the current status for the required period
-	params, err := k.Params.Get(ctx)
+	params, err := k.Params.Get(goCtx)
 	if err != nil {
 		return nil, err
 	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	governorStatusChangePeriod := *params.GovernorStatusChangePeriod
 	changeTime := ctx.BlockTime()
 	if governor.LastStatusChangeTime.Add(governorStatusChangePeriod).After(changeTime) {
@@ -476,7 +476,7 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 		}
 	}
 
-	err = k.Governors.Set(ctx, governor.GetAddress(), governor)
+	err = k.Governors.Set(goCtx, governor.GetAddress(), governor)
 	if err != nil {
 		return nil, err
 	}
@@ -484,11 +484,11 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	// if status changes to active, create governance self-delegation
 	// in case it didn't exist
 	if governor.IsActive() {
-		delegation, err := k.GovernanceDelegations.Get(ctx, addr)
-		if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+		delegation, err := k.GovernanceDelegations.Get(goCtx, addr)
+		if err != nil && !errors.Is(err, collections.ErrNotFound) {
 			panic(err)
 		}
-		if errors.IsOf(err, collections.ErrNotFound) {
+		if errors.Is(err, collections.ErrNotFound) {
 			err := k.DelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err
@@ -515,24 +515,25 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 }
 
 func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGovernor) (*v1.MsgDelegateGovernorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	delAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 	govAddr := govtypes.MustGovernorAddressFromBech32(msg.GovernorAddress)
 
 	// Ensure the delegator is not already an active governor, as they cannot delegate
-	if g, err := k.Governors.Get(ctx, govtypes.GovernorAddress(delAddr.Bytes())); err == nil && g.IsActive() {
+	if g, err := k.Governors.Get(goCtx, govtypes.GovernorAddress(delAddr.Bytes())); err == nil && g.IsActive() {
 		return nil, govtypes.ErrDelegatorIsGovernor
 	}
 
 	// Ensure the delegation is not already present
-	gd, err := k.GovernanceDelegations.Get(ctx, delAddr)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	gd, err := k.GovernanceDelegations.Get(goCtx, delAddr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
 	if err == nil && govAddr.Equals(govtypes.MustGovernorAddressFromBech32(gd.GovernorAddress)) {
 		return nil, govtypes.ErrGovernanceDelegationExists
 	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// redelegate if a delegation to another governor already exists
 	if err == nil {
 		err := k.RedelegateToGovernor(ctx, delAddr, govAddr)
@@ -568,23 +569,21 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 }
 
 func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelegateGovernor) (*v1.MsgUndelegateGovernorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	delAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
 	// Ensure the delegation exists
-	delegation, err := k.GovernanceDelegations.Get(ctx, delAddr)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	delegation, err := k.GovernanceDelegations.Get(goCtx, delAddr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernanceDelegationNotFound
 	}
 
 	// if the delegator is also a governor, check if governor is active
 	// if so, undelegation is not allowed. A status change to inactive is required first.
 	delGovAddr := govtypes.GovernorAddress(delAddr.Bytes())
-	delGovernor, err := k.Governors.Get(ctx, delGovAddr)
+	delGovernor, err := k.Governors.Get(goCtx, delGovAddr)
 	if err == nil && delGovernor.IsActive() {
 		// if the delegation is not to self the state is inconsistent
 		if delegation.GovernorAddress != delGovAddr.String() {
@@ -593,6 +592,8 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 		return nil, govtypes.ErrDelegatorIsGovernor
 	}
 
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	// Remove the delegation
 	err = k.UndelegateFromGovernor(ctx, delAddr)
 	if err != nil {
@@ -600,18 +601,18 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 	}
 
 	// if governor is inactive and does not have any delegations left, remove governor
-	governor, err := k.Governors.Get(ctx, govtypes.MustGovernorAddressFromBech32(delegation.GovernorAddress))
+	governor, err := k.Governors.Get(goCtx, govtypes.MustGovernorAddressFromBech32(delegation.GovernorAddress))
 	if err != nil {
 		panic("inconsistent state: governance delegation to non-existing governor")
 	}
 	if !governor.IsActive() {
 		var delegations []*v1.GovernanceDelegation
-		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[govtypes.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
+		k.GovernanceDelegationsByGovernor.Walk(goCtx, collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[govtypes.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
 			delegations = append(delegations, &value)
 			return false, nil
 		})
 		if len(delegations) == 0 {
-			k.Governors.Remove(ctx, governor.GetAddress())
+			k.Governors.Remove(goCtx, governor.GetAddress())
 		}
 	}
 
@@ -641,10 +642,10 @@ var _ v1beta1.MsgServer = legacyMsgServer{}
 func (k legacyMsgServer) SubmitProposal(goCtx context.Context, msg *v1beta1.MsgSubmitProposal) (*v1beta1.MsgSubmitProposalResponse, error) {
 	content := msg.GetContent()
 	if content == nil {
-		return nil, errors.Wrap(govtypes.ErrInvalidProposalContent, "missing content")
+		return nil, govtypes.ErrInvalidProposalContent.Wrap("missing content")
 	}
 	if !v1beta1.IsValidProposalType(content.ProposalType()) {
-		return nil, errors.Wrap(govtypes.ErrInvalidProposalType, content.ProposalType())
+		return nil, govtypes.ErrInvalidProposalType.Wrap(content.ProposalType())
 	}
 	if err := content.ValidateBasic(); err != nil {
 		return nil, err

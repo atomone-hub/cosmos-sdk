@@ -2,9 +2,9 @@ package keeper
 
 import (
 	context "context"
+	"errors"
 
 	"cosmossdk.io/collections"
-	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,21 +29,21 @@ func (keeper Keeper) StakingHooks() Hooks {
 // We trigger a governor shares decrease here subtracting all delegation shares.
 // The right amount of shares will be possibly added back in AfterDelegationModified
 func (h Hooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
-	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	govDelegation, err := h.k.GovernanceDelegations.Get(ctx, delAddr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		return err
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil
 	}
 	govAddr := types.MustGovernorAddressFromBech32(govDelegation.GovernorAddress)
 
 	// Fetch the delegation
-	delegation, _ := h.k.sk.GetDelegation(sdkCtx, delAddr, valAddr)
+	delegation, _ := h.k.sk.GetDelegation(ctx, delAddr, valAddr)
 
 	// update the Governor's Validator shares
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	h.k.DecreaseGovernorShares(sdkCtx, govAddr, valAddr, delegation.Shares)
 
 	return nil
@@ -53,33 +53,32 @@ func (h Hooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.A
 // We trigger a governor shares increase here adding all delegation shares.
 // It is balanced by the full-amount decrease in BeforeDelegationSharesModified
 func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// does the delegator have a governance delegation?
-	govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-	if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	govDelegation, err := h.k.GovernanceDelegations.Get(ctx, delAddr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		return err
 	}
-	if errors.IsOf(err, collections.ErrNotFound) {
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil
 	}
 
 	// Fetch the delegation
-	delegation, err := h.k.sk.GetDelegation(sdkCtx, delAddr, valAddr)
+	delegation, err := h.k.sk.GetDelegation(ctx, delAddr, valAddr)
 	if err != nil {
 		return err
 	}
 
 	govAddr := types.MustGovernorAddressFromBech32(govDelegation.GovernorAddress)
 
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Calculate the new shares and update the Governor's shares
 	shares := delegation.Shares
-
 	h.k.IncreaseGovernorShares(sdkCtx, govAddr, valAddr, shares)
 
 	// if the delegator is also an active governor, ensure min self-delegation requirement is met,
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
-	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
+	if governor, err := h.k.Governors.Get(ctx, delGovAddr); err != nil && governor.IsActive() {
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {
 			panic("active governor delegating to another governor")
 		}
@@ -88,7 +87,7 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 			governor.Status = v1.Inactive
 			now := sdkCtx.BlockTime()
 			governor.LastStatusChangeTime = &now
-			if err := h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor); err != nil {
+			if err := h.k.Governors.Set(ctx, governor.GetAddress(), governor); err != nil {
 				return err
 			}
 		}
@@ -102,27 +101,27 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 // that the min self-delegation requirement is still met, otherwise set governor
 // status to inactive
 func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// if the delegator is also an active governor, ensure min self-delegation requirement is met,
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
-	if governor, err := h.k.Governors.Get(sdkCtx, delGovAddr); err != nil && governor.IsActive() {
-		govDelegation, err := h.k.GovernanceDelegations.Get(sdkCtx, delAddr)
-		if err != nil && !errors.IsOf(err, collections.ErrNotFound) {
+	if governor, err := h.k.Governors.Get(ctx, delGovAddr); err != nil && governor.IsActive() {
+		govDelegation, err := h.k.GovernanceDelegations.Get(ctx, delAddr)
+		if err != nil && !errors.Is(err, collections.ErrNotFound) {
 			return err
 		}
-		if errors.IsOf(err, collections.ErrNotFound) {
+		if errors.Is(err, collections.ErrNotFound) {
 			panic("active governor without governance self-delegation")
 		}
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {
 			panic("active governor delegating to another governor")
 		}
 		// if the governor no longer meets the min self-delegation, set to inactive
+		sdkCtx := sdk.UnwrapSDKContext(ctx)
 		if !h.k.ValidateGovernorMinSelfDelegation(sdkCtx, governor) {
 			governor.Status = v1.Inactive
 			now := sdkCtx.BlockTime()
 			governor.LastStatusChangeTime = &now
-			if err := h.k.Governors.Set(sdkCtx, governor.GetAddress(), governor); err != nil {
+			if err := h.k.Governors.Set(ctx, governor.GetAddress(), governor); err != nil {
 				return err
 			}
 		}
