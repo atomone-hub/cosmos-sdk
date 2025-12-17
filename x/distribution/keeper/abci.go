@@ -13,8 +13,7 @@ import (
 func (k Keeper) BeginBlocker(ctx context.Context) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
 	c := sdk.UnwrapSDKContext(ctx)
-
-
+	
 	// determine the total power signing the block
 	var previousTotalPower int64
 	for _, voteInfo := range c.VoteInfos() {
