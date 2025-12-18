@@ -114,7 +114,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Short:     "Query governance delegation for a delegator",
 					Example:   fmt.Sprintf(`$ %s query gov delegation cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk`, version.AppName),
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "governor_address"},
+						{ProtoField: "delegator_address"},
 					},
 				},
 				{
