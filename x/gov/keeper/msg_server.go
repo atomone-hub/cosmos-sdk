@@ -348,21 +348,21 @@ func (k msgServer) ProposeConstitutionAmendment(goCtx context.Context, msg *v1.M
 
 func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovernor) (*v1.MsgCreateGovernorResponse, error) {
 	// Ensure the governor does not already exist
-	addr := sdk.MustAccAddressFromBech32(msg.Address)
+	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	if _, err := k.Governors.Get(goCtx, govAddr); err == nil {
 		return nil, govtypes.ErrGovernorExists
 	}
 
 	// Ensure the governor has a valid description
-	if _, err := msg.Description.EnsureLength(); err != nil {
+	if _, err := msg.GetDescription().EnsureLength(); err != nil {
 		return nil, err
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Create the governor
-	governor, err := v1.NewGovernor(govAddr.String(), msg.Description, ctx.BlockTime())
+	governor, err := v1.NewGovernor(govAddr.String(), msg.GetDescription(), ctx.BlockTime())
 	if err != nil {
 		return nil, err
 	}
@@ -416,7 +416,7 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 
 func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) (*v1.MsgEditGovernorResponse, error) {
 	// Ensure the governor exists
-	addr := sdk.MustAccAddressFromBech32(msg.Address)
+	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	governor, err := k.Governors.Get(goCtx, govAddr)
 	if err != nil {
@@ -424,12 +424,12 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 	}
 
 	// Ensure the governor has a valid description
-	if _, err := msg.Description.EnsureLength(); err != nil {
+	if _, err := msg.GetDescription().EnsureLength(); err != nil {
 		return nil, err
 	}
 
 	// Update the governor
-	governor.Description = msg.Description
+	governor.Description = msg.GetDescription()
 	err = k.Governors.Set(goCtx, governor.GetAddress(), governor)
 	if err != nil {
 		return nil, err
@@ -448,19 +448,19 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 
 func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdateGovernorStatus) (*v1.MsgUpdateGovernorStatusResponse, error) {
 	// Ensure the governor exists
-	addr := sdk.MustAccAddressFromBech32(msg.Address)
+	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	governor, err := k.Governors.Get(goCtx, govAddr)
 	if err != nil {
 		return nil, govtypes.ErrGovernorNotFound
 	}
 
-	if !msg.Status.IsValid() {
+	if !msg.GetStatus().IsValid() {
 		return nil, govtypes.ErrInvalidGovernorStatus
 	}
 
 	// Ensure the governor is not already in the desired status
-	if governor.Status == msg.Status {
+	if governor.Status == msg.GetStatus() {
 		return nil, govtypes.ErrGovernorStatusEqual
 	}
 
@@ -479,7 +479,7 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	}
 
 	// Update the governor status
-	governor.Status = msg.Status
+	governor.Status = msg.GetStatus()
 	governor.LastStatusChangeTime = &changeTime
 	// prevent a change to active if min self-delegation is not met
 	if governor.IsActive() {
@@ -527,8 +527,8 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 }
 
 func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGovernor) (*v1.MsgDelegateGovernorResponse, error) {
-	delAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
-	govAddr := govtypes.MustGovernorAddressFromBech32(msg.GovernorAddress)
+	delAddr := sdk.MustAccAddressFromBech32(msg.GetDelegatorAddress())
+	govAddr := govtypes.MustGovernorAddressFromBech32(msg.GetGovernorAddress())
 
 	// Ensure the delegator is not already an active governor, as they cannot delegate
 	if g, err := k.Governors.Get(goCtx, govtypes.GovernorAddress(delAddr.Bytes())); err == nil && g.IsActive() {
@@ -557,8 +557,8 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 			sdk.NewEvent(
 				govtypes.EventTypeRedelegate,
 				sdk.NewAttribute(govtypes.AttributeKeySrcGovernor, gd.GovernorAddress),
-				sdk.NewAttribute(govtypes.AttributeKeyDstGovernor, msg.GovernorAddress),
-				sdk.NewAttribute(govtypes.AttributeKeyDelegator, msg.DelegatorAddress),
+				sdk.NewAttribute(govtypes.AttributeKeyDstGovernor, msg.GetGovernorAddress()),
+				sdk.NewAttribute(govtypes.AttributeKeyDelegator, msg.GetDelegatorAddress()),
 			),
 		})
 	} else {
@@ -571,8 +571,8 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent(
 				govtypes.EventTypeDelegate,
-				sdk.NewAttribute(govtypes.AttributeKeyDstGovernor, msg.GovernorAddress),
-				sdk.NewAttribute(govtypes.AttributeKeyDelegator, msg.DelegatorAddress),
+				sdk.NewAttribute(govtypes.AttributeKeyDstGovernor, msg.GetGovernorAddress()),
+				sdk.NewAttribute(govtypes.AttributeKeyDelegator, msg.GetDelegatorAddress()),
 			),
 		})
 	}
@@ -581,7 +581,7 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 }
 
 func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelegateGovernor) (*v1.MsgUndelegateGovernorResponse, error) {
-	delAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+	delAddr := sdk.MustAccAddressFromBech32(msg.GetDelegatorAddress())
 
 	// Ensure the delegation exists
 	delegation, err := k.GovernanceDelegations.Get(goCtx, delAddr)
@@ -632,7 +632,7 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 		sdk.NewEvent(
 			govtypes.EventTypeUndelegate,
 			sdk.NewAttribute(govtypes.AttributeKeySrcGovernor, delegation.GovernorAddress),
-			sdk.NewAttribute(govtypes.AttributeKeyDelegator, msg.DelegatorAddress),
+			sdk.NewAttribute(govtypes.AttributeKeyDelegator, msg.GetDelegatorAddress()),
 		),
 	})
 	return &v1.MsgUndelegateGovernorResponse{}, nil

@@ -138,11 +138,11 @@ func NewMsgCreateGovernor(address sdk.AccAddress, description GovernorDescriptio
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateGovernor) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.GetAddress()); err != nil {
 		return err
 	}
 
-	if _, err := msg.Description.EnsureLength(); err != nil {
+	if _, err := msg.GetDescription().EnsureLength(); err != nil {
 		return types.ErrInvalidGovernanceDescription.Wrap(err.Error())
 	}
 	return nil
@@ -155,7 +155,7 @@ func NewMsgEditGovernor(addr sdk.AccAddress, description GovernorDescription) *M
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgEditGovernor) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.GetAddress()); err != nil {
 		return err
 	}
 	return nil
@@ -168,10 +168,10 @@ func NewMsgDelegateGovernor(delegator sdk.AccAddress, governor types.GovernorAdd
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgDelegateGovernor) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.GetDelegatorAddress()); err != nil {
 		return err
 	}
-	if _, err := types.GovernorAddressFromBech32(msg.GovernorAddress); err != nil {
+	if _, err := types.GovernorAddressFromBech32(msg.GetGovernorAddress()); err != nil {
 		return err
 	}
 	return nil
@@ -184,7 +184,7 @@ func NewMsgUndelegateGovernor(delegator sdk.AccAddress) *MsgUndelegateGovernor {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUndelegateGovernor) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.GetDelegatorAddress()); err != nil {
 		return err
 	}
 	return nil
@@ -197,11 +197,11 @@ func NewMsgUpdateGovernorStatus(address sdk.AccAddress, status GovernorStatus) *
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUpdateGovernorStatus) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Address); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.GetAddress()); err != nil {
 		return err
 	}
-	if !msg.Status.IsValid() {
-		return types.ErrInvalidGovernorStatus.Wrap(msg.Status.String())
+	if !msg.GetStatus().IsValid() {
+		return types.ErrInvalidGovernorStatus.Wrap(msg.GetStatus().String())
 	}
 	return nil
 }
