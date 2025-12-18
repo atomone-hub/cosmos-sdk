@@ -3,11 +3,11 @@ syntax = "proto3";
 package cosmos.gov.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/gov/v1/gov.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/gov/types/v1";
 
@@ -306,7 +306,7 @@ message QueryParticipationEMAsResponse {
 // QueryGovernorRequest is the request type for the Query/Governor RPC method.
 message QueryGovernorRequest {
   // governor_address defines the address of the governor.
-  string governor_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string governor_address = 1 [(cosmos_proto.scalar) = "cosmos.GovernorAddressString"];
 }
 
 // QueryGovernorResponse is the response type for the Query/Governor RPC method.
@@ -333,7 +333,7 @@ message QueryGovernorsResponse {
 // QueryGovernanceDelegationsRequest is the request type for the Query/GovernanceDelegations RPC method.
 message QueryGovernanceDelegationsRequest {
   // governor_address defines the address of the governor.
-  string governor_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string governor_address = 1 [(cosmos_proto.scalar) = "cosmos.GovernorAddressString"];
 
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
@@ -363,7 +363,7 @@ message QueryGovernanceDelegationResponse {
 // QueryGovernorValSharesRequest is the request type for the Query/GovernorValShares RPC method.
 message QueryGovernorValSharesRequest {
   // governor_address defines the address of the governor.
-  string governor_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string governor_address = 1 [(cosmos_proto.scalar) = "cosmos.GovernorAddressString"];
 
   // pagination defines the pagination in the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
