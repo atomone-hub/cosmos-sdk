@@ -387,9 +387,21 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 	}
 
 	// a base account automatically creates a governance delegation to itself
-	err = k.DelegateToGovernor(ctx, addr, govAddr)
-	if err != nil {
-		return nil, err
+	// if a delegation to another governor already exists, undelegate first
+	_, err = k.GovernanceDelegations.Get(goCtx, addr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
+		err = k.RedelegateToGovernor(ctx, addr, govAddr)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err = k.DelegateToGovernor(ctx, addr, govAddr)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
