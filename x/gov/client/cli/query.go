@@ -361,7 +361,7 @@ $ %s query gov delegations cosmosgov1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
 // GetCmdQueryGovernorValShares implements the query governor validator shares command.
 func GetCmdQueryGovernorValShares() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "vshares [governor_address]",
+		Use:   "governor-val-shares [governor_address]",
 		Args:  cobra.ExactArgs(1),
 		Short: "Query governor virtual validators shares",
 		Long: strings.TrimSpace(
