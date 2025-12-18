@@ -150,7 +150,7 @@ func (a *consensusAddressValue) Set(s string) error {
 
 type governorAddressStringType struct{}
 
-func (a governorAddressStringType) NewValue(ctx *context.Context, b *Builder) Value {
+func (a governorAddressStringType) NewValue(ctx *context.Context, _ *Builder) Value {
 	return &governorAddressValue{ctx: ctx}
 }
 
