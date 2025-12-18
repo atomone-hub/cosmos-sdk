@@ -270,8 +270,7 @@ message MsgCreateGovernor {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "cosmos-sdk/MsgCreateGovernor";
 
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal) = false;
 
   // address is the base account address that is creating the governor.
   string              address     = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -286,8 +285,7 @@ message MsgEditGovernor {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "cosmos-sdk/MsgEditGovernor";
 
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal) = false;
 
   // address is the base account address that is editing the corresponding governor.
   string              address     = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -302,8 +300,7 @@ message MsgUpdateGovernorStatus {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "cosmos-sdk/MsgUpdateGovernorStatus";
 
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal) = false;
 
   // address is the base account address that is editing the corresponding governor.
   string         address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -319,8 +316,7 @@ message MsgDelegateGovernor {
   option (cosmos.msg.v1.signer) = "delegator_address";
   option (amino.name)           = "cosmos-sdk/MsgDelegateGovernor";
 
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal) = false;
 
   string delegator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string governor_address  = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -334,8 +330,7 @@ message MsgUndelegateGovernor {
   option (cosmos.msg.v1.signer) = "delegator_address";
   option (amino.name)           = "cosmos-sdk/MsgUndelegateGovernor";
 
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal) = false;
 
   string delegator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
