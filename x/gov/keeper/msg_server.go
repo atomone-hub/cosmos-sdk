@@ -393,12 +393,12 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		panic(err)
 	}
 	if errors.Is(err, collections.ErrNotFound) {
-		err = k.RedelegateToGovernor(ctx, addr, govAddr)
+		err = k.DelegateToGovernor(ctx, addr, govAddr)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		err = k.DelegateToGovernor(ctx, addr, govAddr)
+		err = k.RedelegateToGovernor(ctx, addr, govAddr)
 		if err != nil {
 			return nil, err
 		}
