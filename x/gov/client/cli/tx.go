@@ -23,9 +23,6 @@ import (
 const (
 	FlagTitle     = "title"
 	FlagDeposit   = "deposit"
-	flagVoter     = "voter"
-	flagDepositor = "depositor"
-	flagStatus    = "status"
 	FlagMetadata  = "metadata"
 	FlagSummary   = "summary"
 	FlagExpedited = "expedited"
