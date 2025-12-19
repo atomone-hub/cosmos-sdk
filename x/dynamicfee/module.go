@@ -18,7 +18,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/keeper"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
@@ -133,7 +132,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingCo
 
 // InitGenesis performs the genesis initialization for the x/dynamicfee module. This method returns
 // no validator set updates. This method panics on any errors.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, bz json.RawMessage) {
+func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONCodec, bz json.RawMessage) {
 	var gs types.GenesisState
 	am.cdc.MustUnmarshalJSON(bz, &gs)
 	am.k.InitGenesis(ctx, gs)
@@ -141,7 +140,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, bz json.Ra
 
 // ExportGenesis returns the dynamicfee module's exported genesis state as raw
 // JSON bytes. This method panics on any error.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMessage {
 	gs := am.k.ExportGenesis(ctx)
 	return am.cdc.MustMarshalJSON(gs)
 }

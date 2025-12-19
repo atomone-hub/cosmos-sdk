@@ -34,6 +34,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	dynamicfeekeeper "github.com/cosmos/cosmos-sdk/x/dynamicfee/keeper"
 	epochskeeper "github.com/cosmos/cosmos-sdk/x/epochs/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
@@ -41,7 +42,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	dynamicfeekeeper "github.com/cosmos/cosmos-sdk/x/dynamicfee/keeper"
 )
 
 // DefaultNodeHome default home directories for the application daemon

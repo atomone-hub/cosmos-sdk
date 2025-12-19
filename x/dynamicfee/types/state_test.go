@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/log"
-
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/testutil"

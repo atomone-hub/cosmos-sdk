@@ -39,6 +39,9 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	distrmodulev1 "github.com/cosmos/cosmos-sdk/x/distribution/types/module"
+	_ "github.com/cosmos/cosmos-sdk/x/dynamicfee" // import for side-effects
+	dynamicfeetypes "github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
+	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 	_ "github.com/cosmos/cosmos-sdk/x/epochs" // import for side-effects
 	epochstypes "github.com/cosmos/cosmos-sdk/x/epochs/types"
 	epochsmodulev1 "github.com/cosmos/cosmos-sdk/x/epochs/types/module"
@@ -62,9 +65,6 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	stakingmodulev1 "github.com/cosmos/cosmos-sdk/x/staking/types/module"
-	_ "github.com/cosmos/cosmos-sdk/x/dynamicfee"
-	dynamicfeetypes "github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
-	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 )
 
 var (
@@ -244,7 +244,7 @@ var (
 				Config: appconfig.WrapAny(&epochsmodulev1.Module{}),
 			},
 			{
-				Name: dynamicfeetypes.ModuleName,
+				Name:   dynamicfeetypes.ModuleName,
 				Config: appconfig.WrapAny(&dynamicfeemodulev1.Module{}),
 			},
 		},

@@ -12,7 +12,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/keeper"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"

@@ -18,13 +18,13 @@ import (
 	bankmodulev1 "github.com/cosmos/cosmos-sdk/x/bank/types/module"
 	consensusmodulev1 "github.com/cosmos/cosmos-sdk/x/consensus/types/module"
 	distrmodulev1 "github.com/cosmos/cosmos-sdk/x/distribution/types/module"
+	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 	genutilmodulev1 "github.com/cosmos/cosmos-sdk/x/genutil/types/module"
 	govmodulev1 "github.com/cosmos/cosmos-sdk/x/gov/types/module"
 	mintmodulev1 "github.com/cosmos/cosmos-sdk/x/mint/types/module"
 	paramsmodulev1 "github.com/cosmos/cosmos-sdk/x/params/types/module"
 	slashingmodulev1 "github.com/cosmos/cosmos-sdk/x/slashing/types/module"
 	stakingmodulev1 "github.com/cosmos/cosmos-sdk/x/staking/types/module"
-	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 )
 
 // Config should never need to be instantiated manually and is solely used for ModuleOption.

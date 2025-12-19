@@ -3,16 +3,15 @@ package post_test
 import (
 	"testing"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/post"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/testutil"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"

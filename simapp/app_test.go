@@ -41,6 +41,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/cosmos/cosmos-sdk/x/dynamicfee"
+	dynamicfeetypes "github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
 	"github.com/cosmos/cosmos-sdk/x/epochs"
 	epochstypes "github.com/cosmos/cosmos-sdk/x/epochs/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -55,8 +57,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/cosmos-sdk/x/dynamicfee"
-	dynamicfeetypes "github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
 )
 
 func TestSimAppExportAndBlockedAddrs(t *testing.T) {
@@ -210,22 +210,22 @@ func TestRunMigrations(t *testing.T) {
 			_, err = app.ModuleManager.RunMigrations(
 				app.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()}), configurator,
 				module.VersionMap{
-					banktypes.ModuleName:     1,
-					authtypes.ModuleName:     auth.AppModule{}.ConsensusVersion(),
-					authz.ModuleName:         authzmodule.AppModule{}.ConsensusVersion(),
-					stakingtypes.ModuleName:  staking.AppModule{}.ConsensusVersion(),
-					minttypes.ModuleName:     mint.AppModule{}.ConsensusVersion(),
-					disttypes.ModuleName:     distribution.AppModule{}.ConsensusVersion(),
-					slashingtypes.ModuleName: slashing.AppModule{}.ConsensusVersion(),
-					govtypes.ModuleName:      gov.AppModule{}.ConsensusVersion(),
-					paramstypes.ModuleName:   params.AppModule{}.ConsensusVersion(),
-					upgradetypes.ModuleName:  upgrade.AppModule{}.ConsensusVersion(),
-					vestingtypes.ModuleName:  vesting.AppModule{}.ConsensusVersion(),
-					feegrant.ModuleName:      feegrantmodule.AppModule{}.ConsensusVersion(),
-					evidencetypes.ModuleName: evidence.AppModule{}.ConsensusVersion(),
-					genutiltypes.ModuleName:  genutil.AppModule{}.ConsensusVersion(),
-					epochstypes.ModuleName:   epochs.AppModule{}.ConsensusVersion(),
-					dynamicfeetypes.ModuleName:   dynamicfee.AppModule{}.ConsensusVersion(),
+					banktypes.ModuleName:       1,
+					authtypes.ModuleName:       auth.AppModule{}.ConsensusVersion(),
+					authz.ModuleName:           authzmodule.AppModule{}.ConsensusVersion(),
+					stakingtypes.ModuleName:    staking.AppModule{}.ConsensusVersion(),
+					minttypes.ModuleName:       mint.AppModule{}.ConsensusVersion(),
+					disttypes.ModuleName:       distribution.AppModule{}.ConsensusVersion(),
+					slashingtypes.ModuleName:   slashing.AppModule{}.ConsensusVersion(),
+					govtypes.ModuleName:        gov.AppModule{}.ConsensusVersion(),
+					paramstypes.ModuleName:     params.AppModule{}.ConsensusVersion(),
+					upgradetypes.ModuleName:    upgrade.AppModule{}.ConsensusVersion(),
+					vestingtypes.ModuleName:    vesting.AppModule{}.ConsensusVersion(),
+					feegrant.ModuleName:        feegrantmodule.AppModule{}.ConsensusVersion(),
+					evidencetypes.ModuleName:   evidence.AppModule{}.ConsensusVersion(),
+					genutiltypes.ModuleName:    genutil.AppModule{}.ConsensusVersion(),
+					epochstypes.ModuleName:     epochs.AppModule{}.ConsensusVersion(),
+					dynamicfeetypes.ModuleName: dynamicfee.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -274,7 +274,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"feegrant":     feegrantmodule.AppModule{}.ConsensusVersion(),
 			"evidence":     evidence.AppModule{}.ConsensusVersion(),
 			"genutil":      genutil.AppModule{}.ConsensusVersion(),
-			"dynamicfee":      dynamicfee.AppModule{}.ConsensusVersion(),
+			"dynamicfee":   dynamicfee.AppModule{}.ConsensusVersion(),
 		},
 	)
 	require.NoError(t, err)

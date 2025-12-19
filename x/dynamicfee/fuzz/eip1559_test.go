@@ -7,7 +7,6 @@ import (
 	"pgregory.net/rapid"
 
 	"cosmossdk.io/log"
-
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"

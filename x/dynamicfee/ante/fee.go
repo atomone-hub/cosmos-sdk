@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
 )
 
@@ -229,7 +228,7 @@ func (dfd dynamicfeeCheckDecorator) DeductFees(ctx sdk.Context, sdkTx sdk.Tx, pr
 // CheckTxFee implements the logic for the dynamic fee pricing to check if a Tx
 // has provided sufficient fees given the current state of the dynamic fee
 // pricer. Returns an error if insufficient fees.
-func CheckTxFee(ctx sdk.Context, gasPrice sdk.DecCoin, feeCoin sdk.Coin, feeGas int64) error {
+func CheckTxFee(_ sdk.Context, gasPrice sdk.DecCoin, feeCoin sdk.Coin, feeGas int64) error {
 	// Ensure that the provided fees meet the minimum
 	if !gasPrice.IsZero() {
 		var requiredFee sdk.Coin

@@ -5,7 +5,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/simulation"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
 )
@@ -28,6 +27,6 @@ func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 }
 
 // WeightedOperations returns the all the module operations with their respective weights.
-func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
+func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
 	return nil
 }

@@ -3,9 +3,10 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/testutil"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInitGenesis(t *testing.T) {
