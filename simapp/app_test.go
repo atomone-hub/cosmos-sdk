@@ -55,6 +55,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/cosmos-sdk/x/dynamicfee"
+	dynamicfeetypes "github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
 )
 
 func TestSimAppExportAndBlockedAddrs(t *testing.T) {
@@ -223,6 +225,7 @@ func TestRunMigrations(t *testing.T) {
 					evidencetypes.ModuleName: evidence.AppModule{}.ConsensusVersion(),
 					genutiltypes.ModuleName:  genutil.AppModule{}.ConsensusVersion(),
 					epochstypes.ModuleName:   epochs.AppModule{}.ConsensusVersion(),
+					dynamicfeetypes.ModuleName:   dynamicfee.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -271,6 +274,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"feegrant":     feegrantmodule.AppModule{}.ConsensusVersion(),
 			"evidence":     evidence.AppModule{}.ConsensusVersion(),
 			"genutil":      genutil.AppModule{}.ConsensusVersion(),
+			"dynamicfee":      dynamicfee.AppModule{}.ConsensusVersion(),
 		},
 	)
 	require.NoError(t, err)

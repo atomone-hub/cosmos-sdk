@@ -62,6 +62,9 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	stakingmodulev1 "github.com/cosmos/cosmos-sdk/x/staking/types/module"
+	_ "github.com/cosmos/cosmos-sdk/x/dynamicfee"
+	dynamicfeetypes "github.com/cosmos/cosmos-sdk/x/dynamicfee/types"
+	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 )
 
 var (
@@ -73,6 +76,7 @@ var (
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
+		{Account: dynamicfeetypes.ModuleName},
 	}
 
 	// blocked account addresses
@@ -103,6 +107,7 @@ var (
 					// NOTE: staking module is required if HistoricalEntries param > 0
 					BeginBlockers: []string{
 						minttypes.ModuleName,
+						dynamicfeetypes.ModuleName,
 						distrtypes.ModuleName,
 						slashingtypes.ModuleName,
 						evidencetypes.ModuleName,
@@ -111,6 +116,7 @@ var (
 						epochstypes.ModuleName,
 					},
 					EndBlockers: []string{
+						dynamicfeetypes.ModuleName,
 						govtypes.ModuleName,
 						stakingtypes.ModuleName,
 						feegrant.ModuleName,
@@ -141,6 +147,7 @@ var (
 						vestingtypes.ModuleName,
 						circuittypes.ModuleName,
 						epochstypes.ModuleName,
+						dynamicfeetypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -235,6 +242,10 @@ var (
 			{
 				Name:   epochstypes.ModuleName,
 				Config: appconfig.WrapAny(&epochsmodulev1.Module{}),
+			},
+			{
+				Name: dynamicfeetypes.ModuleName,
+				Config: appconfig.WrapAny(&dynamicfeemodulev1.Module{}),
 			},
 		},
 	}),

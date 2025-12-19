@@ -41,6 +41,7 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	dynamicfeekeeper "github.com/cosmos/cosmos-sdk/x/dynamicfee/keeper"
 )
 
 // DefaultNodeHome default home directories for the application daemon
@@ -77,6 +78,7 @@ type SimApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	CircuitKeeper         circuitkeeper.Keeper
 	EpochsKeeper          *epochskeeper.Keeper
+	DynamicfeeKeeper      dynamicfeekeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -176,6 +178,7 @@ func NewSimApp(
 		&app.ConsensusParamsKeeper,
 		&app.CircuitKeeper,
 		&app.EpochsKeeper,
+		&app.DynamicfeeKeeper,
 	); err != nil {
 		panic(err)
 	}

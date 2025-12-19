@@ -24,6 +24,7 @@ import (
 	paramsmodulev1 "github.com/cosmos/cosmos-sdk/x/params/types/module"
 	slashingmodulev1 "github.com/cosmos/cosmos-sdk/x/slashing/types/module"
 	stakingmodulev1 "github.com/cosmos/cosmos-sdk/x/staking/types/module"
+	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 )
 
 // Config should never need to be instantiated manually and is solely used for ModuleOption.
@@ -61,6 +62,7 @@ func defaultConfig() *Config {
 			"consensus",
 			"vesting",
 			"circuit",
+			"dynamicfee",
 		},
 		EndBlockersOrder: []string{
 			"crisis",
@@ -82,6 +84,7 @@ func defaultConfig() *Config {
 			"upgrade",
 			"vesting",
 			"circuit",
+			"dynamicfee",
 		},
 		InitGenesisOrder: []string{
 			"auth",
@@ -103,6 +106,7 @@ func defaultConfig() *Config {
 			"upgrade",
 			"vesting",
 			"circuit",
+			"dynamicfee",
 		},
 		setInitGenesis: true,
 	}
@@ -195,6 +199,15 @@ func SlashingModule() ModuleOption {
 		config.ModuleConfigs["slashing"] = &appv1alpha1.ModuleConfig{
 			Name:   "slashing",
 			Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
+		}
+	}
+}
+
+func DynamicfeeModule() ModuleOption {
+	return func(config *Config) {
+		config.ModuleConfigs["dynamicfee"] = &appv1alpha1.ModuleConfig{
+			Name:   "dynamicfee",
+			Config: appconfig.WrapAny(&dynamicfeemodulev1.Module{}),
 		}
 	}
 }
