@@ -21,4 +21,11 @@ func TestMsgUpdateParams(t *testing.T) {
 		err := msg.ValidateBasic()
 		require.NoError(t, err)
 	})
+
+	t.Run("should reject a message with invalid params", func(t *testing.T) {
+		msg := types.NewMsgUpdateParams(sdk.AccAddress("test").String(), types.DefaultParams())
+		msg.Params.Window = 0
+		err := msg.ValidateBasic()
+		require.Error(t, err)
+	})
 }
