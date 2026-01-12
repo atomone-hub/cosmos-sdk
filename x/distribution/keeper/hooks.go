@@ -205,6 +205,6 @@ func (h Hooks) AfterEpochEnd(ctx context.Context, epochIdentifier string, _ int6
 }
 
 // BeforeEpochStart is called before an epoch starts (not used for Nakamoto bonus).
-func (h Hooks) BeforeEpochStart(_ context.Context, _ string, _ int64) error {
+func (h Hooks) BeforeEpochStart(context.Context, string, int64) error {
 	return nil
 }
