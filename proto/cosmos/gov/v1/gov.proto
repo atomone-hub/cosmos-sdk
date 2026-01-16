@@ -243,6 +243,7 @@ message TallyParams {
   string law_threshold = 7 [(cosmos_proto.scalar) = "cosmos.Dec"];
 }
 
+// MinDepositThrottler defines the params for the min deposit throttler.
 message MinDepositThrottler {
   // Floor value for the minimum deposit required for a proposal to enter the voting period.
   repeated cosmos.base.v1beta1.Coin floor_value = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
@@ -269,6 +270,7 @@ message MinDepositThrottler {
   uint64 decrease_sensitivity_target_distance = 6;
 }
 
+// MinInitialDepositThrottler defines the params for the min initial deposit throttler.
 message MinInitialDepositThrottler {
   // Floor value for the minimum initial deposit required for a proposal to enter the deposit period.
   repeated cosmos.base.v1beta1.Coin floor_value = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
