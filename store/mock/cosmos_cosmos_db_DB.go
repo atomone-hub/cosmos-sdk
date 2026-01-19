@@ -12,7 +12,7 @@ package mock
 import (
 	reflect "reflect"
 
-	cosmos_db "github.com/cosmos/cosmos-db"
+	db "github.com/cosmos/cosmos-db"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -113,10 +113,10 @@ func (mr *MockDBMockRecorder) Has(key any) *gomock.Call {
 }
 
 // Iterator mocks base method.
-func (m *MockDB) Iterator(start, end []byte) (cosmos_db.Iterator, error) {
+func (m *MockDB) Iterator(start, end []byte) (db.Iterator, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Iterator", start, end)
-	ret0, _ := ret[0].(cosmos_db.Iterator)
+	ret0, _ := ret[0].(db.Iterator)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -128,10 +128,10 @@ func (mr *MockDBMockRecorder) Iterator(start, end any) *gomock.Call {
 }
 
 // NewBatch mocks base method.
-func (m *MockDB) NewBatch() cosmos_db.Batch {
+func (m *MockDB) NewBatch() db.Batch {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NewBatch")
-	ret0, _ := ret[0].(cosmos_db.Batch)
+	ret0, _ := ret[0].(db.Batch)
 	return ret0
 }
 
@@ -142,10 +142,10 @@ func (mr *MockDBMockRecorder) NewBatch() *gomock.Call {
 }
 
 // NewBatchWithSize mocks base method.
-func (m *MockDB) NewBatchWithSize(arg0 int) cosmos_db.Batch {
+func (m *MockDB) NewBatchWithSize(arg0 int) db.Batch {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NewBatchWithSize", arg0)
-	ret0, _ := ret[0].(cosmos_db.Batch)
+	ret0, _ := ret[0].(db.Batch)
 	return ret0
 }
 
@@ -170,10 +170,10 @@ func (mr *MockDBMockRecorder) Print() *gomock.Call {
 }
 
 // ReverseIterator mocks base method.
-func (m *MockDB) ReverseIterator(start, end []byte) (cosmos_db.Iterator, error) {
+func (m *MockDB) ReverseIterator(start, end []byte) (db.Iterator, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReverseIterator", start, end)
-	ret0, _ := ret[0].(cosmos_db.Iterator)
+	ret0, _ := ret[0].(db.Iterator)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
