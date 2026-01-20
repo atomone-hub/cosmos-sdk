@@ -9,6 +9,9 @@ deps:
 breaking:
   use:
     - FILE
+  ignore_only:
+    FILE_SAME_GO_PACKAGE:
+      - cosmos/app/v1alpha1/query.proto
 lint:
   use:
     - DEFAULT
