@@ -60,6 +60,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * [#22](https://github.com/atomone-hub/cosmos-sdk/pull/22), [#25](https://github.com/atomone-hub/cosmos-sdk/pull/25) Remove non forked go modules from repository.
 * [#51](https://github.com/atomone-hub/cosmos-sdk/pull/51) Use gomock from `go.uber.org/mock/gomock` instead `github.com/golang/mock/gomock`.
 * [#52](https://github.com/atomone-hub/cosmos-sdk/pull/52) Simplify `genutil.StakingKeeper` interface.
+* [55](https://github.com/atomone-hub/cosmos-sdk/pull/55) Add sensible max to `QuorumCheckCount` param in `x/gov` module.
 
 ### Bug Fixes
 
