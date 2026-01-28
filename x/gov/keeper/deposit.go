@@ -98,7 +98,7 @@ func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, deposito
 
 	// If minDepositRatio is set, the deposit must be equal or greater than minDepositAmount*minDepositRatio
 	// for at least one denom. If minDepositRatio is zero we skip this check.
-	if !minDepositRatio.IsZero() || !skipMinDepositRatioCheck {
+	if !minDepositRatio.IsZero() && !skipMinDepositRatioCheck {
 		var (
 			depositThresholdMet bool
 			thresholds          []string

@@ -273,16 +273,16 @@ func (suite *KeeperTestSuite) TestCancelProposalReq() {
 	addrs := suite.addrs
 	proposer := addrs[0]
 
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
-		Amount:      coins,
+		Amount:      minDeposit,
 	}
 
 	msg, err := v1.NewMsgSubmitProposal(
 		[]sdk.Msg{bankMsg},
-		coins,
+		minDeposit,
 		proposer.String(),
 		"", "title", "summary",
 	)
@@ -326,9 +326,10 @@ func (suite *KeeperTestSuite) TestCancelProposalReq() {
 		},
 		"all good": {
 			preRun: func() uint64 {
+				newMinDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					coins,
+					newMinDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -507,13 +508,11 @@ func (suite *KeeperTestSuite) TestVoteWeightedReq() {
 
 	proposer := simtestutil.AddTestAddrsIncremental(suite.bankKeeper, suite.stakingKeeper, suite.ctx, 1, sdkmath.NewInt(50000000))[0]
 
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
-	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
-		Amount:      coins,
+		Amount:      minDeposit,
 	}
 
 	msg, err := v1.NewMsgSubmitProposal(
@@ -636,9 +635,11 @@ func (suite *KeeperTestSuite) TestVoteWeightedReq() {
 		},
 		"vote on inactive proposal": {
 			preRun: func() uint64 {
+				minInitialDeposit := suite.govKeeper.GetMinInitialDeposit(suite.ctx)
+				bankMsg.Amount = minInitialDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					coins,
+					minInitialDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -679,9 +680,11 @@ func (suite *KeeperTestSuite) TestVoteWeightedReq() {
 		},
 		"all good": {
 			preRun: func() uint64 {
+				newMinDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
+				bankMsg.Amount = newMinDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					minDeposit,
+					newMinDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -701,9 +704,11 @@ func (suite *KeeperTestSuite) TestVoteWeightedReq() {
 		},
 		"all good with split votes": {
 			preRun: func() uint64 {
+				newMinDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
+				bankMsg.Amount = newMinDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					minDeposit,
+					newMinDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -746,19 +751,16 @@ func (suite *KeeperTestSuite) TestDepositReq() {
 	addrs := suite.addrs
 	proposer := addrs[0]
 
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
-	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	// Use throttler floor value instead of deprecated params.MinDeposit
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
-		Amount:      coins,
+		Amount:      minDeposit,
 	}
 
 	msg, err := v1.NewMsgSubmitProposal(
 		[]sdk.Msg{bankMsg},
-		coins,
+		minDeposit,
 		proposer.String(),
 		"",
 		"Proposal",
@@ -784,7 +786,7 @@ func (suite *KeeperTestSuite) TestDepositReq() {
 				return 0
 			},
 			depositor: proposer,
-			deposit:   coins,
+			deposit:   minDeposit,
 			expErr:    true,
 			expErrMsg: "not found",
 		},
@@ -843,10 +845,8 @@ func (suite *KeeperTestSuite) TestDepositReq() {
 // legacy msg server tests
 func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 	proposer := simtestutil.AddTestAddrsIncremental(suite.bankKeeper, suite.stakingKeeper, suite.ctx, 1, sdkmath.NewInt(50000000))[0]
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
-	initialDeposit := coins
-	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minInitialDeposit := suite.govKeeper.GetMinInitialDeposit(suite.ctx)
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 
 	cases := map[string]struct {
 		preRun    func() (*v1beta1.MsgSubmitProposal, error)
@@ -858,7 +858,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 				content := v1beta1.NewTextProposal("", "I am test")
 				return v1beta1.NewMsgSubmitProposal(
 					content,
-					initialDeposit,
+					minInitialDeposit,
 					proposer,
 				)
 			},
@@ -870,7 +870,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 				content := v1beta1.NewTextProposal("test", "")
 				return v1beta1.NewMsgSubmitProposal(
 					content,
-					initialDeposit,
+					minInitialDeposit,
 					proposer,
 				)
 			},
@@ -882,7 +882,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 				content := v1beta1.NewTextProposal("test", "I am test")
 				return v1beta1.NewMsgSubmitProposal(
 					content,
-					initialDeposit,
+					minInitialDeposit,
 					sdk.AccAddress{},
 				)
 			},
@@ -894,7 +894,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 				content := v1beta1.NewTextProposal(strings.Repeat("#", v1beta1.MaxTitleLength*2), "I am test")
 				return v1beta1.NewMsgSubmitProposal(
 					content,
-					initialDeposit,
+					minInitialDeposit,
 					proposer,
 				)
 			},
@@ -906,7 +906,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 				content := v1beta1.NewTextProposal("test", strings.Repeat("#", v1beta1.MaxDescriptionLength*2))
 				return v1beta1.NewMsgSubmitProposal(
 					content,
-					initialDeposit,
+					minInitialDeposit,
 					proposer,
 				)
 			},
@@ -917,7 +917,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgSubmitProposal() {
 			preRun: func() (*v1beta1.MsgSubmitProposal, error) {
 				return v1beta1.NewMsgSubmitProposal(
 					v1beta1.NewTextProposal("test", "I am test"),
-					initialDeposit,
+					minInitialDeposit,
 					proposer,
 				)
 			},
@@ -956,13 +956,11 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 	addrs := suite.addrs
 	proposer := addrs[0]
 
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
-	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
-		Amount:      coins,
+		Amount:      minDeposit,
 	}
 
 	msg, err := v1.NewMsgSubmitProposal(
@@ -1010,9 +1008,11 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 		},
 		"vote on inactive proposal": {
 			preRun: func() uint64 {
+				minInitialDeposit := suite.govKeeper.GetMinInitialDeposit(suite.ctx)
+				bankMsg.Amount = minInitialDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					coins,
+					minInitialDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -1043,9 +1043,11 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 		},
 		"all good": {
 			preRun: func() uint64 {
+				newMinDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
+				bankMsg.Amount = newMinDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					minDeposit,
+					newMinDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -1086,13 +1088,11 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 	addrs := suite.addrs
 	proposer := addrs[0]
 
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
-	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
-		Amount:      coins,
+		Amount:      minDeposit,
 	}
 
 	msg, err := v1.NewMsgSubmitProposal(
@@ -1244,9 +1244,11 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 		},
 		"vote on inactive proposal": {
 			preRun: func() uint64 {
+				minInitialDeposit := suite.govKeeper.GetMinInitialDeposit(suite.ctx)
+				bankMsg.Amount = minInitialDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					coins,
+					minInitialDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -1287,9 +1289,11 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 		},
 		"all good": {
 			preRun: func() uint64 {
+				newMinDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
+				bankMsg.Amount = newMinDeposit
 				msg, err := v1.NewMsgSubmitProposal(
 					[]sdk.Msg{bankMsg},
-					minDeposit,
+					newMinDeposit,
 					proposer.String(),
 					"",
 					"Proposal",
@@ -1334,18 +1338,16 @@ func (suite *KeeperTestSuite) TestLegacyMsgDeposit() {
 	addrs := suite.addrs
 	proposer := addrs[0]
 
-	coins := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100000)))
-	params, _ := suite.govKeeper.Params.Get(suite.ctx)
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minDeposit := suite.govKeeper.GetMinDeposit(suite.ctx)
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: govAcct.String(),
 		ToAddress:   proposer.String(),
-		Amount:      coins,
+		Amount:      minDeposit,
 	}
 
 	msg, err := v1.NewMsgSubmitProposal(
 		[]sdk.Msg{bankMsg},
-		coins,
+		minDeposit,
 		proposer.String(),
 		"",
 		"Proposal",
@@ -1371,7 +1373,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgDeposit() {
 				return 0
 			},
 			depositor: proposer,
-			deposit:   coins,
+			deposit:   minDeposit,
 			expErr:    true,
 			expErrMsg: "not found",
 		},
@@ -1380,7 +1382,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgDeposit() {
 				return pID
 			},
 			depositor: sdk.AccAddress{},
-			deposit:   coins,
+			deposit:   minDeposit,
 			expErr:    true,
 			expErrMsg: "invalid depositor address: empty address string is not allowed",
 		},
