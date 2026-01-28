@@ -64,6 +64,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 * (x/gov) [#35](https://github.com/atomone-hub/cosmos-sdk/pull/35) Cherry-pick [proposal v1 to v1beta1 converter fix from AtomOne](https://github.com/atomone-hub/atomone/pull/102)
+* (x/gov) [#54](httsps://github.com/atomone-hub/cosmos-sdk/pull/54) Properly update min deposit and min initial deposit.
 
 ## [Unreleased]
 
