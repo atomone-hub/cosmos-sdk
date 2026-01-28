@@ -243,6 +243,15 @@ func TestValidateGenesis(t *testing.T) {
 			expErrMsg: "max voting period extension -1ns must be greater than or equal to the difference between the voting period 504h0m0s and the quorum timeout 480h0m0s",
 		},
 		{
+			name: "quorum check count is greater than max allowed",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				params.QuorumCheckCount = v1.MaxQuorumCheckCount + 1
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, v1.DefaultParticipationEma, v1.DefaultParticipationEma, v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "quorum check count 1001 is too large, allowed max is 1000",
+		},
+		{
 			name: "invalid max deposit period",
 			genesisState: func() *v1.GenesisState {
 				params := v1.DefaultParams()
