@@ -209,6 +209,11 @@ func applyHunks(srcStr string, hunks []Hunk) ([]string, error) {
 			return nil, fmt.Errorf("hunk starts at line %d but source only has %d lines", hunk.SrcLine+1, len(srcLines))
 		}
 
+		// Reject out-of-order hunks
+		if hunk.SrcLine < srcIndex {
+			return nil, fmt.Errorf("hunk out of order: targets line %d but already processed up to line %d", hunk.SrcLine+1, srcIndex)
+		}
+
 		// Add unchanged lines before the hunk
 		for srcIndex < hunk.SrcLine {
 			if srcIndex >= len(srcLines) {
@@ -247,7 +252,10 @@ func applyHunks(srcStr string, hunks []Hunk) ([]string, error) {
 				}
 				srcIndex++
 			case '+':
-				// Insertion, add to result
+				// Insertion, add to result (if valid)
+				if err := validateLineContent(content); err != nil {
+					return nil, fmt.Errorf("invalid content in insertion line: %v", err)
+				}
 				result = append(result, content)
 			default:
 				return nil, fmt.Errorf("invalid diff line: %s", line)
@@ -280,4 +288,14 @@ func ApplyUnifiedDiff(src, diffStr string) (string, error) {
 	}
 
 	return strings.Join(resultLines, "\n"), nil
+}
+
+func validateLineContent(line string) error {
+	for i, r := range line {
+		// Reject control characters except horizontal tab
+		if (r < 32 && r != '\t') || r == 0x7F {
+			return fmt.Errorf("invalid control character 0x%02x at position %d", r, i)
+		}
+	}
+	return nil
 }
