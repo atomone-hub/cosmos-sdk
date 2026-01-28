@@ -9,13 +9,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankexported "github.com/cosmos/cosmos-sdk/x/bank/exported"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // StakingKeeper defines the expected staking keeper (noalias)
 type StakingKeeper interface {
 	ApplyAndReturnValidatorSetUpdates(context.Context) ([]abci.ValidatorUpdate, error)
-	GetBondedValidatorsByPower(context.Context) ([]stakingtypes.Validator, error)
 }
 
 // AccountKeeper defines the expected account keeper (noalias)
