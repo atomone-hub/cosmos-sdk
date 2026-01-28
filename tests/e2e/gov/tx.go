@@ -28,6 +28,8 @@ type E2ETestSuite struct {
 
 	cfg     network.Config
 	network *network.Network
+
+	proposalsDeposits map[uint64]sdk.Coin
 }
 
 func NewE2ETestSuite(cfg network.Config) *E2ETestSuite {
@@ -46,10 +48,14 @@ func (s *E2ETestSuite) SetupSuite() {
 	clientCtx := val.ClientCtx
 	var resp sdk.TxResponse
 
+	s.proposalsDeposits = make(map[uint64]sdk.Coin)
+
 	// create a proposal with deposit
+	deposit := s.queryGovMinDeposit(val.APIAddress)
+	s.proposalsDeposits[1] = deposit
 	out, err := govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 1", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, s.queryGovMinDeposit(val.APIAddress).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
@@ -61,26 +67,32 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
 
 	// create a proposal with a small deposit
+	deposit = s.queryGovMinInitialDeposit(val.APIAddress)
+	s.proposalsDeposits[2] = deposit
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 2", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, s.queryGovMinInitialDeposit(val.APIAddress).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
 
 	// create a proposal3 with deposit
+	deposit = s.queryGovMinDeposit(val.APIAddress)
+	s.proposalsDeposits[3] = deposit
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 3", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, s.queryGovMinDeposit(val.APIAddress).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
 
 	// create a proposal4 with deposit to check the cancel proposal cli tx
+	deposit = s.queryGovMinDeposit(val.APIAddress)
+	s.proposalsDeposits[4] = deposit
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 4", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, s.queryGovMinDeposit(val.APIAddress).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
@@ -373,7 +385,7 @@ func (s *E2ETestSuite) TestNewCmdCancelProposal() {
 					s.Require().NoError(err)
 					err = val.ClientCtx.Codec.UnmarshalJSON(resp, &newBalance)
 					s.Require().NoError(err)
-					remainingAmount := s.queryGovMinDeposit(val.APIAddress).Amount.Mul(
+					remainingAmount := s.proposalsDeposits[4].Amount.Mul(
 						v1.DefaultProposalCancelRatio.Mul(math.LegacyMustNewDecFromStr("100")).TruncateInt(),
 					).Quo(math.NewIntFromUint64(100))
 
@@ -564,7 +576,7 @@ func (s *E2ETestSuite) TestNewCmdWeightedVote() {
 func (s *E2ETestSuite) queryGovMinInitialDeposit(endpoint string) sdk.Coin {
 	var govMinInitialDepositResp v1.QueryMinInitialDepositResponse
 	val := s.network.Validators[0]
-	path := fmt.Sprintf("%s/cosmos-sdk/gov/v1/mininitialdeposit", endpoint)
+	path := fmt.Sprintf("%s/cosmos/gov/v1/mininitialdeposit", endpoint)
 	resp, err := testutil.GetRequest(path)
 	s.Require().NoError(err)
 	err = val.ClientCtx.Codec.UnmarshalJSON(resp, &govMinInitialDepositResp)
@@ -575,7 +587,7 @@ func (s *E2ETestSuite) queryGovMinInitialDeposit(endpoint string) sdk.Coin {
 func (s *E2ETestSuite) queryGovMinDeposit(endpoint string) sdk.Coin {
 	var govMinDepositResp v1.QueryMinDepositResponse
 	val := s.network.Validators[0]
-	path := fmt.Sprintf("%s/cosmos-sdk/gov/v1/mindeposit", endpoint)
+	path := fmt.Sprintf("%s/cosmos/gov/v1/mindeposit", endpoint)
 	resp, err := testutil.GetRequest(path)
 	s.Require().NoError(err)
 	err = val.ClientCtx.Codec.UnmarshalJSON(resp, &govMinDepositResp)
