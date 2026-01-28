@@ -25,6 +25,10 @@ const (
 	// DefaultGovernorStatusChangePeriod is the default period that has to pass
 	// before a governor can change their status (e.g. from active to inactive).
 	DefaultGovernorStatusChangePeriod time.Duration = time.Hour * 24 * 28 // 28 days
+
+	// Provide a sensible upper limit to quorum check count to avoid excessive
+	// resource consumption.
+	MaxQuorumCheckCount = 1000
 )
 
 // MinVotingPeriod is set in stone by the constitution at 21 days, but it can
@@ -361,6 +365,11 @@ func (p Params) ValidateBasic() error {
 		}
 		if p.MaxVotingPeriodExtension.Nanoseconds() < p.VotingPeriod.Nanoseconds()-p.QuorumTimeout.Nanoseconds() {
 			return fmt.Errorf("max voting period extension %s must be greater than or equal to the difference between the voting period %s and the quorum timeout %s", p.MaxVotingPeriodExtension, p.VotingPeriod, p.QuorumTimeout)
+		}
+
+		// avoid a quorum check count that is too large
+		if p.QuorumCheckCount > MaxQuorumCheckCount {
+			return fmt.Errorf("quorum check count %d is too large, allowed max is %d", p.QuorumCheckCount, MaxQuorumCheckCount)
 		}
 	}
 
