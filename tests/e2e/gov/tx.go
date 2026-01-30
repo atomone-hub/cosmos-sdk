@@ -385,7 +385,7 @@ func (s *E2ETestSuite) TestNewCmdCancelProposal() {
 					s.Require().NoError(err)
 					err = val.ClientCtx.Codec.UnmarshalJSON(resp, &newBalance)
 					s.Require().NoError(err)
-					remainingAmount := s.proposalsDeposits[4].Amount.Mul(
+					remainingAmount := s.proposalsDeposits[3].Amount.Mul( // index is proposal_id - 1
 						v1.DefaultProposalCancelRatio.Mul(math.LegacyMustNewDecFromStr("100")).TruncateInt(),
 					).Quo(math.NewIntFromUint64(100))
 
