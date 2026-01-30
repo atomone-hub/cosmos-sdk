@@ -29,7 +29,7 @@ type E2ETestSuite struct {
 	cfg     network.Config
 	network *network.Network
 
-	proposalsDeposits map[uint64]sdk.Coin
+	proposalsDeposits []sdk.Coin
 }
 
 func NewE2ETestSuite(cfg network.Config) *E2ETestSuite {
@@ -48,11 +48,11 @@ func (s *E2ETestSuite) SetupSuite() {
 	clientCtx := val.ClientCtx
 	var resp sdk.TxResponse
 
-	s.proposalsDeposits = make(map[uint64]sdk.Coin)
+	s.proposalsDeposits = make([]sdk.Coin, 0)
 
 	// create a proposal with deposit
 	deposit := s.queryGovMinDeposit(val.APIAddress)
-	s.proposalsDeposits[1] = deposit
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err := govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 1", "Where is the title!?", v1beta1.ProposalTypeText,
 		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
@@ -68,7 +68,7 @@ func (s *E2ETestSuite) SetupSuite() {
 
 	// create a proposal with a small deposit
 	deposit = s.queryGovMinInitialDeposit(val.APIAddress)
-	s.proposalsDeposits[2] = deposit
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 2", "Where is the title!?", v1beta1.ProposalTypeText,
 		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
@@ -79,7 +79,7 @@ func (s *E2ETestSuite) SetupSuite() {
 
 	// create a proposal3 with deposit
 	deposit = s.queryGovMinDeposit(val.APIAddress)
-	s.proposalsDeposits[3] = deposit
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 3", "Where is the title!?", v1beta1.ProposalTypeText,
 		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
@@ -89,7 +89,7 @@ func (s *E2ETestSuite) SetupSuite() {
 
 	// create a proposal4 with deposit to check the cancel proposal cli tx
 	deposit = s.queryGovMinDeposit(val.APIAddress)
-	s.proposalsDeposits[4] = deposit
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 4", "Where is the title!?", v1beta1.ProposalTypeText,
 		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
