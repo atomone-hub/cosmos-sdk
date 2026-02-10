@@ -78,7 +78,7 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 	// if the delegator is also an active governor, ensure min self-delegation requirement is met,
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
-	if governor, err := h.k.Governors.Get(ctx, delGovAddr); err != nil && governor.IsActive() {
+	if governor, err := h.k.Governors.Get(ctx, delGovAddr); err == nil && governor.IsActive() {
 		if governor.GetAddress().String() != govDelegation.GovernorAddress {
 			panic("active governor delegating to another governor")
 		}
@@ -104,7 +104,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	// if the delegator is also an active governor, ensure min self-delegation requirement is met,
 	// otherwise set governor to inactive
 	delGovAddr := types.GovernorAddress(delAddr.Bytes())
-	if governor, err := h.k.Governors.Get(ctx, delGovAddr); err != nil && governor.IsActive() {
+	if governor, err := h.k.Governors.Get(ctx, delGovAddr); err == nil && governor.IsActive() {
 		govDelegation, err := h.k.GovernanceDelegations.Get(ctx, delAddr)
 		if err != nil && !errors.Is(err, collections.ErrNotFound) {
 			return err
