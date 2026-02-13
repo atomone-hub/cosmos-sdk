@@ -68,6 +68,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (x/gov) [#54](https://github.com/atomone-hub/cosmos-sdk/pull/54) Properly update min deposit and min initial deposit.
 * (x/gov) [#56](https://github.com/atomone-hub/cosmos-sdk/pull/56) Fix unified diff parser to reject out-of-order hunks and invalid control characters in insertion lines.
 * (x/gov) [#57](https://github.com/atomone-hub/cosmos-sdk/pull/57) Fix active governor check in hooks.
+* (x/gov) [#58](https://github.com/atomone-hub/cosmos-sdk/pull/58) Check errors in endblocker when traversing the quorum check queue.
 
 ## [Unreleased]
 

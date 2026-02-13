@@ -105,7 +105,7 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 
 	// fetch proposals that are due to be checked for quorum
 	rng = collections.NewPrefixUntilPairRange[time.Time, uint64](ctx.BlockTime())
-	keeper.QuorumCheckQueue.Walk(ctx, rng, func(key collections.Pair[time.Time, uint64], quorumCheckEntry v1.QuorumCheckQueueEntry) (bool, error) {
+	err = keeper.QuorumCheckQueue.Walk(ctx, rng, func(key collections.Pair[time.Time, uint64], quorumCheckEntry v1.QuorumCheckQueueEntry) (bool, error) {
 		// remove from queue
 		keeper.QuorumCheckQueue.Remove(ctx, key)
 
@@ -196,6 +196,9 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 
 		return false, nil
 	})
+	if err != nil {
+		return err
+	}
 
 	// fetch active proposals whose voting periods have ended (are passed the block time)
 	rng = collections.NewPrefixUntilPairRange[time.Time, uint64](ctx.BlockTime())
