@@ -548,6 +548,15 @@ func (k msgServer) DelegateGovernor(goCtx context.Context, msg *v1.MsgDelegateGo
 		return nil, govtypes.ErrDelegatorIsGovernor
 	}
 
+	// Ensure governor exists and is active
+	governor, err := k.Governors.Get(goCtx, govAddr)
+	if err != nil {
+		return nil, govtypes.ErrGovernorNotFound
+	}
+	if !governor.IsActive() {
+		return nil, govtypes.ErrInactiveGovernor
+	}
+
 	// Ensure the delegation is not already present
 	gd, err := k.GovernanceDelegations.Get(goCtx, delAddr)
 	if err != nil && !errors.Is(err, collections.ErrNotFound) {
