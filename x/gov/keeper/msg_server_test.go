@@ -4,14 +4,19 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/mock/gomock"
+
 	sdkmath "cosmossdk.io/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 const (
@@ -1737,4 +1742,119 @@ func (suite *KeeperTestSuite) TestSubmitProposal_InitialDeposit() {
 			suite.Require().NoError(err)
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestUpdateGovernorStatus_NoDelegation_CallsDelegateToGovernor() {
+	// Create a fresh address for the governor
+	addrs := simtestutil.CreateRandomAccounts(1)
+	addr := addrs[0]
+	govAddr := govtypes.GovernorAddress(addr.Bytes())
+
+	// Create a validator address and mock staking delegations so that
+	// getGovernorBondedTokens returns enough to satisfy MinGovernorSelfDelegation
+	valAddr := sdk.ValAddress(addr)
+	bondedTokens := sdkmath.NewInt(2000_000000)
+	delegatorShares := sdkmath.LegacyNewDecFromInt(bondedTokens)
+
+	// Set up the keeper with only the staking mocks needed by UpdateGovernorStatus:
+	// - IterateDelegations: called by getGovernorBondedTokens and DelegateToGovernor
+	// - GetValidator: called inside IterateDelegations callback in getGovernorBondedTokens
+	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(suite.T(), func(ctx sdk.Context, m mocks) {
+		mockAccountKeeperExpectations(ctx, m)
+
+		m.stakingKeeper.EXPECT().IterateDelegations(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
+			func(ctx sdk.Context, delegator sdk.AccAddress, fn func(int64, stakingtypes.DelegationI) bool) error {
+				if delegator.Equals(addr) {
+					fn(0, stakingtypes.Delegation{
+						DelegatorAddress: delegator.String(),
+						ValidatorAddress: valAddr.String(),
+						Shares:           delegatorShares,
+					})
+				}
+				return nil
+			},
+		).AnyTimes()
+		m.stakingKeeper.EXPECT().GetValidator(gomock.Any(), gomock.Any()).Return(stakingtypes.Validator{
+			Tokens:          bondedTokens,
+			DelegatorShares: delegatorShares,
+			Status:          stakingtypes.Bonded,
+		}, nil).AnyTimes()
+	})
+	msgSrvr := keeper.NewMsgServerImpl(govKeeper)
+
+	// Create an inactive governor with a status change time far enough in the past
+	// to satisfy the GovernorStatusChangePeriod (default 28 days)
+	pastTime := time.Now().Add(-30 * 24 * time.Hour)
+	governor, err := v1.NewGovernor(govAddr.String(), v1.GovernorDescription{}, pastTime)
+	suite.Require().NoError(err)
+	governor.Status = v1.Inactive
+	governor.LastStatusChangeTime = &pastTime
+	err = govKeeper.Governors.Set(ctx, governor.GetAddress(), governor)
+	suite.Require().NoError(err)
+
+	// Verify no governance delegation exists for this address
+	_, err = govKeeper.GovernanceDelegations.Get(ctx, addr)
+	suite.Require().Error(err)
+
+	// Call UpdateGovernorStatus to transition to Active
+	msg := v1.NewMsgUpdateGovernorStatus(addr, v1.Active)
+	_, err = msgSrvr.UpdateGovernorStatus(ctx, msg)
+	suite.Require().NoError(err)
+
+	// Verify governance delegation was created (DelegateToGovernor was called)
+	delegation, err := govKeeper.GovernanceDelegations.Get(ctx, addr)
+	suite.Require().NoError(err)
+	suite.Require().Equal(govAddr.String(), delegation.GovernorAddress)
+}
+
+func (suite *KeeperTestSuite) TestUpdateGovernorStatus_InsufficientDelegation_Fails() {
+	// Create a fresh address for the governor
+	addrs := simtestutil.CreateRandomAccounts(1)
+	addr := addrs[0]
+	govAddr := govtypes.GovernorAddress(addr.Bytes())
+
+	// Create a validator address with bonded tokens below the default
+	// MinGovernorSelfDelegation (1000_000000)
+	valAddr := sdk.ValAddress(addr)
+	bondedTokens := sdkmath.NewInt(500_000000)
+	delegatorShares := sdkmath.LegacyNewDecFromInt(bondedTokens)
+
+	// Set up the keeper with only the staking mocks needed by UpdateGovernorStatus
+	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(suite.T(), func(ctx sdk.Context, m mocks) {
+		mockAccountKeeperExpectations(ctx, m)
+
+		m.stakingKeeper.EXPECT().IterateDelegations(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
+			func(ctx sdk.Context, delegator sdk.AccAddress, fn func(int64, stakingtypes.DelegationI) bool) error {
+				if delegator.Equals(addr) {
+					fn(0, stakingtypes.Delegation{
+						DelegatorAddress: delegator.String(),
+						ValidatorAddress: valAddr.String(),
+						Shares:           delegatorShares,
+					})
+				}
+				return nil
+			},
+		).AnyTimes()
+		m.stakingKeeper.EXPECT().GetValidator(gomock.Any(), gomock.Any()).Return(stakingtypes.Validator{
+			Tokens:          bondedTokens,
+			DelegatorShares: delegatorShares,
+			Status:          stakingtypes.Bonded,
+		}, nil).AnyTimes()
+	})
+	msgSrvr := keeper.NewMsgServerImpl(govKeeper)
+
+	// Create an inactive governor with a status change time far enough in the past
+	pastTime := time.Now().Add(-30 * 24 * time.Hour)
+	governor, err := v1.NewGovernor(govAddr.String(), v1.GovernorDescription{}, pastTime)
+	suite.Require().NoError(err)
+	governor.Status = v1.Inactive
+	governor.LastStatusChangeTime = &pastTime
+	err = govKeeper.Governors.Set(ctx, governor.GetAddress(), governor)
+	suite.Require().NoError(err)
+
+	// Call UpdateGovernorStatus to transition to Active — should fail
+	msg := v1.NewMsgUpdateGovernorStatus(addr, v1.Active)
+	_, err = msgSrvr.UpdateGovernorStatus(ctx, msg)
+	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, govtypes.ErrInsufficientGovernorDelegation)
 }
