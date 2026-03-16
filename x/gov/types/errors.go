@@ -37,5 +37,4 @@ var (
 	ErrGovernorStatusChangePeriod     = errors.Register(ModuleName, 380, "governor status change period not elapsed")
 	ErrInsufficientGovernorDelegation = errors.Register(ModuleName, 390, "insufficient governor self-delegation")
 	ErrInactiveGovernor               = errors.Register(ModuleName, 400, "governor is not active")
-	ErrMaxGovernorsReached            = errors.Register(ModuleName, 410, "maximum number of governors reached")
 )

@@ -359,19 +359,6 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		return nil, err
 	}
 
-	// Check if maximum number of governors has been reached
-	governorCount := uint64(0)
-	err := k.Governors.Walk(goCtx, nil, func(_ govtypes.GovernorAddress, _ v1.Governor) (bool, error) {
-		governorCount++
-		return false, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if governorCount >= v1.DefaultMaxGovernors {
-		return nil, govtypes.ErrMaxGovernorsReached.Wrapf("maximum governors: %d, current count: %d", v1.DefaultMaxGovernors, governorCount)
-	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Create the governor
