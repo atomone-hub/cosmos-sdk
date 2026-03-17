@@ -5,19 +5,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
 	"cosmossdk.io/collections"
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/stretchr/testify/require"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -1818,8 +1816,8 @@ func TestUpdateGovernorStatus(t *testing.T) {
 			// Assert governor shares
 			var shares []v1.GovernorValShares
 			err = govKeeper.ValidatorSharesByGovernor.Walk(ctx,
-				collections.NewPrefixedPairRange[types.GovernorAddress, sdk.ValAddress](govAddr),
-				func(_ collections.Pair[types.GovernorAddress, sdk.ValAddress], s v1.GovernorValShares) (stop bool, err error) {
+				collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.ValAddress](govAddr),
+				func(_ collections.Pair[govtypes.GovernorAddress, sdk.ValAddress], s v1.GovernorValShares) (stop bool, err error) {
 					shares = append(shares, s)
 					return false, nil
 				})
