@@ -206,7 +206,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 
 		// if account is active governor and delegation is not to self, error
 		delGovAddr := types.GovernorAddress(delAddr)
-		if _, err = k.Governors.Get(ctx, delGovAddr); err != nil && !delGovAddr.Equals(govAddr) {
+		if _, err = k.Governors.Get(ctx, delGovAddr); err == nil && !delGovAddr.Equals(govAddr) {
 			panic(fmt.Sprintf("account %s is an active governor and cannot delegate", delAddr.String()))
 		}
 

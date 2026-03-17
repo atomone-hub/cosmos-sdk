@@ -2,6 +2,7 @@ package gov_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -9,6 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
@@ -53,4 +55,46 @@ func TestImportExportQueues_ErrorUnconsistentState(t *testing.T) {
 	require.NotNil(t, genState.LastMinInitialDeposit)
 	require.NotEmpty(t, genState.LastMinDeposit.Value)
 	require.NotEmpty(t, genState.LastMinInitialDeposit.Value)
+}
+
+// TestInitGenesis_NonGovernorDelegation verifies that a non-governor account
+// can delegate to a governor. 
+func TestInitGenesis_NonGovernorDelegation(t *testing.T) {
+	suite := createTestSuite(t)
+	app := suite.App
+	ctx := app.BaseApp.NewContext(false)
+
+	// Create two accounts: one will be a governor, the other a plain delegator
+	governorPubKey := pubkeys[0]
+	delegatorPubKey := pubkeys[1]
+
+	governorAccAddr := sdk.AccAddress(governorPubKey.Address())
+	delegatorAccAddr := sdk.AccAddress(delegatorPubKey.Address())
+
+	// Register both accounts in the auth module
+	govAcc := suite.AccountKeeper.NewAccountWithAddress(ctx, governorAccAddr)
+	suite.AccountKeeper.SetAccount(ctx, govAcc)
+
+	delAcc := suite.AccountKeeper.NewAccountWithAddress(ctx, delegatorAccAddr)
+	suite.AccountKeeper.SetAccount(ctx, delAcc)
+
+	govAddr := types.GovernorAddress(governorAccAddr)
+	now := time.Now().UTC()
+
+	governor, err := v1.NewGovernor(govAddr.String(), v1.NewGovernorDescription("test-gov", "", "", "", ""), now)
+	require.NoError(t, err)
+
+	defaultState := v1.DefaultGenesisState()
+	defaultState.Governors = []*v1.Governor{&governor}
+	defaultState.GovernanceDelegations = []*v1.GovernanceDelegation{
+		{
+			DelegatorAddress: delegatorAccAddr.String(),
+			GovernorAddress:  govAddr.String(),
+		},
+	}
+
+
+	require.NotPanics(t, func() {
+		gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, defaultState)
+	})
 }
