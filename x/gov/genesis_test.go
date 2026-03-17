@@ -58,7 +58,7 @@ func TestImportExportQueues_ErrorUnconsistentState(t *testing.T) {
 }
 
 // TestInitGenesis_NonGovernorDelegation verifies that a non-governor account
-// can delegate to a governor. 
+// can delegate to a governor.
 func TestInitGenesis_NonGovernorDelegation(t *testing.T) {
 	suite := createTestSuite(t)
 	app := suite.App
@@ -92,7 +92,6 @@ func TestInitGenesis_NonGovernorDelegation(t *testing.T) {
 			GovernorAddress:  govAddr.String(),
 		},
 	}
-
 
 	require.NotPanics(t, func() {
 		gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, defaultState)
