@@ -173,6 +173,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 	}
 
 	// set governors
+	minSelfDelegation, _ := math.NewIntFromString(data.Params.MinGovernorSelfDelegation)
 	for _, governor := range data.Governors {
 		// check that base account exists
 		accAddr := sdk.AccAddress(governor.GetAddress())
@@ -183,7 +184,16 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 
 		k.Governors.Set(ctx, governor.GetAddress(), *governor)
 		if governor.IsActive() {
-			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
+			// validate min self-delegation
+			bondedTokens, err := k.GetGovernorBondedTokens(ctx, governor.GetAddress())
+			if err != nil {
+				panic(err)
+			}
+			if bondedTokens.LT(minSelfDelegation) {
+				panic(types.ErrInsufficientGovernorDelegation.Wrapf("minimum self-delegation required: %s, total bonded tokens: %s", minSelfDelegation, bondedTokens))
+			}
+
+			err = k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 			if err != nil {
 				panic(fmt.Sprintf("failed to delegate to governor %s: %v", governor.GetAddress().String(), err))
 			}

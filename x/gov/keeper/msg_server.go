@@ -373,7 +373,7 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		return nil, err
 	}
 	minSelfDelegation, _ := math.NewIntFromString(params.MinGovernorSelfDelegation)
-	bondedTokens, err := k.getGovernorBondedTokens(ctx, govAddr)
+	bondedTokens, err := k.GetGovernorBondedTokens(ctx, govAddr)
 	if err != nil {
 		return nil, err
 	}
