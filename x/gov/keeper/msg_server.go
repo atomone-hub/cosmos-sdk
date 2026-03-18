@@ -354,7 +354,7 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		panic(err)
 	}
-	if errors.Is(err, collections.ErrNotFound) {
+	if err == nil {
 		return nil, govtypes.ErrGovernorExists
 	}
 
