@@ -120,7 +120,7 @@ func (k *Keeper) GetMinGasPrice(ctx context.Context, denom string) (sdk.DecCoin,
 	return gasPrice, nil
 }
 
-// GetMinGasPrices returns the mininum gas prices as sdk.DecCoins from the
+// GetMinGasPrices returns the minimum gas prices as sdk.DecCoins from the
 // dynamic fee pricing state.
 func (k *Keeper) GetMinGasPrices(ctx context.Context) (sdk.DecCoins, error) {
 	baseGasPrice, err := k.GetBaseGasPrice(ctx)
