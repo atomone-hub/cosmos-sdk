@@ -93,7 +93,7 @@ func (k *Keeper) GetLearningRate(ctx context.Context) (math.LegacyDec, error) {
 	return state.LearningRate, nil
 }
 
-// GetMinGasPrice returns the mininum gas prices for given denom as
+// GetMinGasPrice returns the minimum gas prices for given denom as
 // sdk.DecCoins from the dynamic fee pricing state.
 func (k *Keeper) GetMinGasPrice(ctx context.Context, denom string) (sdk.DecCoin, error) {
 	baseGasPrice, err := k.GetBaseGasPrice(ctx)
