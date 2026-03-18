@@ -350,7 +350,11 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 	// Ensure the governor does not already exist
 	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
-	if _, err := k.Governors.Get(goCtx, govAddr); err == nil {
+	_, err := k.Governors.Get(goCtx, govAddr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernorExists
 	}
 
@@ -419,7 +423,10 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	governor, err := k.Governors.Get(goCtx, govAddr)
-	if err != nil {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernorNotFound
 	}
 
@@ -451,7 +458,10 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	governor, err := k.Governors.Get(goCtx, govAddr)
-	if err != nil {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernorNotFound
 	}
 
