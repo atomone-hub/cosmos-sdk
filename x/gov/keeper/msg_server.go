@@ -505,8 +505,7 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 			if err != nil {
 				return nil, err
 			}
-		}
-		if delegation.GovernorAddress != govAddr.String() {
+		} else if delegation.GovernorAddress != govAddr.String() {
 			err := k.RedelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err

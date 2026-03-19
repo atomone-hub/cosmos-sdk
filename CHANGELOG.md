@@ -70,6 +70,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (x/gov) [#57](https://github.com/atomone-hub/cosmos-sdk/pull/57) Fix active governor check in hooks.
 * (x/gov) [#58](https://github.com/atomone-hub/cosmos-sdk/pull/58) Check errors in endblocker when traversing the quorum check queue.
 * (x/gov) [#59](https://github.com/atomone-hub/cosmos-sdk/pull/59) Ensure governor exists and is active before processing governance delegations.
+* (x/gov) [#79](https://github.com/atomone-hub/cosmos-sdk/pull/79) Remove redundant redelegation in `UpdateGovernorStatus`
 
 ## [Unreleased]
 
