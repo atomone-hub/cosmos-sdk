@@ -64,6 +64,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+* (x/gov) [#77](https://github.com/atomone-hub/cosmos-sdk/pull/77) Fix missing validation for EMA fields in genesis
 * (x/gov) [#35](https://github.com/atomone-hub/cosmos-sdk/pull/35) Cherry-pick [proposal v1 to v1beta1 converter fix from AtomOne](https://github.com/atomone-hub/atomone/pull/102)
 * (x/gov) [#54](https://github.com/atomone-hub/cosmos-sdk/pull/54) Properly update min deposit and min initial deposit.
 * (x/gov) [#56](https://github.com/atomone-hub/cosmos-sdk/pull/56) Fix unified diff parser to reject out-of-order hunks and invalid control characters in insertion lines.
