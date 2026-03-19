@@ -423,13 +423,13 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 		return nil, govtypes.ErrGovernorNotFound
 	}
 
-	// Ensure the governor has a valid description
-	if _, err := msg.GetDescription().EnsureLength(); err != nil {
+	// Update the governor description
+	description, err := governor.Description.UpdateDescription(msg.GetDescription())
+	if err != nil {
 		return nil, err
 	}
+	governor.Description = description
 
-	// Update the governor
-	governor.Description = msg.GetDescription()
 	err = k.Governors.Set(goCtx, governor.GetAddress(), governor)
 	if err != nil {
 		return nil, err
