@@ -181,7 +181,9 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			panic(fmt.Sprintf("account %s does not exist", accAddr.String()))
 		}
 
-		k.Governors.Set(ctx, governor.GetAddress(), *governor)
+		if err := k.Governors.Set(ctx, governor.GetAddress(), *governor); err != nil {
+			panic(err)
+		}
 		if governor.IsActive() {
 			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 			if err != nil {

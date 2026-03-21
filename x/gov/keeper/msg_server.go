@@ -636,7 +636,9 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 			return nil, err
 		}
 		if len(delegations) == 0 {
-			k.Governors.Remove(goCtx, governor.GetAddress())
+			if err := k.Governors.Remove(goCtx, governor.GetAddress()); err != nil {
+				return nil, err
+			}
 		}
 	}
 
