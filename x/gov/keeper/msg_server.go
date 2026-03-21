@@ -628,10 +628,13 @@ func (k msgServer) UndelegateGovernor(goCtx context.Context, msg *v1.MsgUndelega
 	}
 	if !governor.IsActive() {
 		var delegations []*v1.GovernanceDelegation
-		k.GovernanceDelegationsByGovernor.Walk(goCtx, collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[govtypes.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
+		err = k.GovernanceDelegationsByGovernor.Walk(goCtx, collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.AccAddress](governor.GetAddress()), func(_ collections.Pair[govtypes.GovernorAddress, sdk.AccAddress], value v1.GovernanceDelegation) (stop bool, err error) {
 			delegations = append(delegations, &value)
 			return false, nil
 		})
+		if err != nil {
+			return nil, err
+		}
 		if len(delegations) == 0 {
 			k.Governors.Remove(goCtx, governor.GetAddress())
 		}

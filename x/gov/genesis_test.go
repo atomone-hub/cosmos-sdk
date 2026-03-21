@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/collections"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
@@ -53,4 +55,29 @@ func TestImportExportQueues_ErrorUnconsistentState(t *testing.T) {
 	require.NotNil(t, genState.LastMinInitialDeposit)
 	require.NotEmpty(t, genState.LastMinDeposit.Value)
 	require.NotEmpty(t, genState.LastMinInitialDeposit.Value)
+}
+
+func TestExportGenesis_ReturnsGovernanceDelegationWalkError(t *testing.T) {
+	suite := createTestSuite(t)
+	ctx := suite.App.BaseApp.NewContext(false)
+
+	gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, v1.DefaultGenesisState())
+
+	governorAddr := types.GovernorAddress(pubkeys[0].Address())
+	governor, err := v1.NewGovernor(governorAddr.String(), v1.GovernorDescription{}, ctx.BlockTime())
+	require.NoError(t, err)
+	require.NoError(t, suite.GovKeeper.Governors.Set(ctx, governor.GetAddress(), governor))
+
+	corruptKey, err := collections.EncodeKeyWithPrefix(
+		types.GovernanceDelegationsByGovernorKeyPrefix,
+		suite.GovKeeper.GovernanceDelegationsByGovernor.KeyCodec(),
+		collections.Join(governor.GetAddress(), sdk.AccAddress(pubkeys[1].Address())),
+	)
+	require.NoError(t, err)
+
+	storeKey := suite.App.UnsafeFindStoreKey(types.StoreKey)
+	ctx.KVStore(storeKey).Set(corruptKey, []byte{0x01})
+
+	_, err = gov.ExportGenesis(ctx, suite.GovKeeper)
+	require.Error(t, err)
 }
