@@ -29,38 +29,25 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 		panic(err)
 	}
 
-	// Use default values for participation EMAs if not provided
-	participationEmaStr := data.ParticipationEma
-	if participationEmaStr == "" {
-		participationEmaStr = v1.DefaultParticipationEma
-	}
-	participationEma, err := math.LegacyNewDecFromStr(participationEmaStr)
+	participationEma, err := math.LegacyNewDecFromStr(data.ParticipationEma)
 	if err != nil {
-		panic(fmt.Sprintf("invalid value for participationEma %s: %v", participationEmaStr, err))
+		panic(fmt.Sprintf("invalid value for participationEma %s: %v", data.ParticipationEma, err))
 	}
 	if err := k.ParticipationEMA.Set(ctx, participationEma); err != nil {
 		panic(err)
 	}
 
-	constitutionAmendmentParticipationEmaStr := data.ConstitutionAmendmentParticipationEma
-	if constitutionAmendmentParticipationEmaStr == "" {
-		constitutionAmendmentParticipationEmaStr = v1.DefaultParticipationEma
-	}
-	constitutionAmendmentparticipationEma, err := math.LegacyNewDecFromStr(constitutionAmendmentParticipationEmaStr)
+	constitutionAmendmentParticipationEma, err := math.LegacyNewDecFromStr(data.ConstitutionAmendmentParticipationEma)
 	if err != nil {
-		panic(fmt.Sprintf("invalid value for constitutionAmendmentparticipationEma %s: %v", constitutionAmendmentParticipationEmaStr, err))
+		panic(fmt.Sprintf("invalid value for constitutionAmendmentParticipationEma %s: %v", data.ConstitutionAmendmentParticipationEma, err))
 	}
-	if err := k.ConstitutionAmendmentParticipationEMA.Set(ctx, constitutionAmendmentparticipationEma); err != nil {
+	if err := k.ConstitutionAmendmentParticipationEMA.Set(ctx, constitutionAmendmentParticipationEma); err != nil {
 		panic(err)
 	}
 
-	lawParticipationEmaStr := data.LawParticipationEma
-	if lawParticipationEmaStr == "" {
-		lawParticipationEmaStr = v1.DefaultParticipationEma
-	}
-	lawParticipationEma, err := math.LegacyNewDecFromStr(lawParticipationEmaStr)
+	lawParticipationEma, err := math.LegacyNewDecFromStr(data.LawParticipationEma)
 	if err != nil {
-		panic(fmt.Sprintf("invalid value for lawParticipationEma %s: %v", lawParticipationEmaStr, err))
+		panic(fmt.Sprintf("invalid value for lawParticipationEma %s: %v", data.LawParticipationEma, err))
 	}
 	if err := k.LawParticipationEMA.Set(ctx, lawParticipationEma); err != nil {
 		panic(err)
