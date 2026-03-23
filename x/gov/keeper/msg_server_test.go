@@ -1749,9 +1749,10 @@ func (suite *KeeperTestSuite) TestSubmitProposal_InitialDeposit() {
 
 func TestUpdateGovernorStatus(t *testing.T) {
 	tests := []struct {
-		name         string
-		bondedTokens sdkmath.Int
-		expectErr    error
+		name                    string
+		bondedTokens            sdkmath.Int
+		existingDelegationToOther bool
+		expectErr               error
 	}{
 		{
 			name:         "sufficient delegation creates governance delegation",
@@ -1762,12 +1763,20 @@ func TestUpdateGovernorStatus(t *testing.T) {
 			bondedTokens: sdkmath.NewInt(500_000000),
 			expectErr:    govtypes.ErrInsufficientGovernorDelegation,
 		},
+		{
+			name:                    "existing delegation to other governor triggers redelegation",
+			bondedTokens:            sdkmath.NewInt(2000_000000),
+			existingDelegationToOther: true,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			var (
-				addr            = simtestutil.CreateRandomAccounts(1)[0]
+				accs            = simtestutil.CreateRandomAccounts(2)
+				addr            = accs[0]
+				otherAddr       = accs[1]
 				govAddr         = govtypes.GovernorAddress(addr.Bytes())
+				otherGovAddr    = govtypes.GovernorAddress(otherAddr.Bytes())
 				valAddr         = sdk.ValAddress(addr)
 				delegatorShares = sdkmath.LegacyNewDecFromInt(tc.bondedTokens)
 			)
@@ -1792,9 +1801,22 @@ func TestUpdateGovernorStatus(t *testing.T) {
 				}, nil).AnyTimes()
 			})
 			msgSrvr := keeper.NewMsgServerImpl(govKeeper)
+			pastTime := time.Now().Add(-30 * 24 * time.Hour)
+
+			if tc.existingDelegationToOther {
+				// Create an active governor that addr is currently delegating to
+				otherGovernor, err := v1.NewGovernor(otherGovAddr.String(), v1.GovernorDescription{}, pastTime)
+				require.NoError(t, err)
+				otherGovernor.Status = v1.Active
+				otherGovernor.LastStatusChangeTime = &pastTime
+				err = govKeeper.Governors.Set(ctx, otherGovernor.GetAddress(), otherGovernor)
+				require.NoError(t, err)
+				err = govKeeper.DelegateToGovernor(ctx, addr, otherGovAddr)
+				require.NoError(t, err)
+			}
+
 			// Create an inactive governor with a status change time far enough in the past
 			// to satisfy the GovernorStatusChangePeriod (default 28 days)
-			pastTime := time.Now().Add(-30 * 24 * time.Hour)
 			governor, err := v1.NewGovernor(govAddr.String(), v1.GovernorDescription{}, pastTime)
 			require.NoError(t, err)
 			governor.Status = v1.Inactive
@@ -1824,6 +1846,19 @@ func TestUpdateGovernorStatus(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, shares, 1)
 			require.Equal(t, delegatorShares.String(), shares[0].Shares.String())
+
+			if tc.existingDelegationToOther {
+				// Assert shares removed from the other governor
+				var otherShares []v1.GovernorValShares
+				err = govKeeper.ValidatorSharesByGovernor.Walk(ctx,
+					collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.ValAddress](otherGovAddr),
+					func(_ collections.Pair[govtypes.GovernorAddress, sdk.ValAddress], s v1.GovernorValShares) (stop bool, err error) {
+						otherShares = append(otherShares, s)
+						return false, nil
+					})
+				require.NoError(t, err)
+				require.Empty(t, otherShares)
+			}
 		})
 	}
 }
