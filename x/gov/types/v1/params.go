@@ -447,6 +447,10 @@ func (p Params) ValidateBasic() error {
 		return fmt.Errorf("minimum initial deposit update period must be less than or equal to the voting period: %s", p.MinInitialDepositThrottler.UpdatePeriod)
 	}
 
+	if p.MinInitialDepositThrottler.TargetProposals <= 0 {
+		return fmt.Errorf("minimum initial deposit target proposals must be positive: %d", p.MinInitialDepositThrottler.TargetProposals)
+	}
+
 	if p.MinInitialDepositThrottler.DecreaseSensitivityTargetDistance == 0 {
 		return fmt.Errorf("minimum initial deposit sensitivity target distance must be positive: %d", p.MinInitialDepositThrottler.DecreaseSensitivityTargetDistance)
 	}
