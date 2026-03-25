@@ -1749,10 +1749,10 @@ func (suite *KeeperTestSuite) TestSubmitProposal_InitialDeposit() {
 
 func TestUpdateGovernorStatus(t *testing.T) {
 	tests := []struct {
-		name                    string
-		bondedTokens            sdkmath.Int
+		name                      string
+		bondedTokens              sdkmath.Int
 		existingDelegationToOther bool
-		expectErr               error
+		expectErr                 error
 	}{
 		{
 			name:         "sufficient delegation creates governance delegation",
@@ -1764,8 +1764,8 @@ func TestUpdateGovernorStatus(t *testing.T) {
 			expectErr:    govtypes.ErrInsufficientGovernorDelegation,
 		},
 		{
-			name:                    "existing delegation to other governor triggers redelegation",
-			bondedTokens:            sdkmath.NewInt(2000_000000),
+			name:                      "existing delegation to other governor triggers redelegation",
+			bondedTokens:              sdkmath.NewInt(2000_000000),
 			existingDelegationToOther: true,
 		},
 	}
