@@ -49,7 +49,6 @@ const (
 	MaxConstitutionAmendmentQuorum                          = "max_constitution_amendment_quorum"
 	MinLawQuorum                                            = "min_law_quorum"
 	MaxLawQuorum                                            = "max_law_quorum"
-	ProposalCancelRate                                      = "proposal_cancel_rate"
 	GovernorStatusChangePeriod                              = "governor_status_change_period"
 	MinGovernorSelfDelegation                               = "min_governor_self_delegation"
 )
@@ -164,11 +163,6 @@ func GenDepositParamsMinInitialDepositTargetProposals(r *rand.Rand) uint64 {
 // GenBurnDepositNoThreshold returns a randomized BurnDepositNoThreshold between 0.5 and 0.95
 func GenBurnDepositNoThreshold(r *rand.Rand) math.LegacyDec {
 	return math.LegacyNewDecWithPrec(int64(simulation.RandIntBetween(r, 500, 950)), 3)
-}
-
-// GenProposalCancelRate returns randomized ProposalCancelRate
-func GenProposalCancelRate(r *rand.Rand) math.LegacyDec {
-	return math.LegacyNewDec(int64(simulation.RandIntBetween(r, 0, 99))).Quo(math.LegacyNewDec(100))
 }
 
 // GenMinGovernorSelfDelegation returns a randomized MinGovernorSelfDelegation
@@ -355,9 +349,6 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	var maxLawQuorum math.LegacyDec
 	simState.AppParams.GetOrGenerate(MaxLawQuorum, &maxLawQuorum, simState.Rand, func(r *rand.Rand) { maxLawQuorum = GenMaxQuorum(r) })
-
-	var proposalCancelRate math.LegacyDec
-	simState.AppParams.GetOrGenerate(ProposalCancelRate, &proposalCancelRate, simState.Rand, func(r *rand.Rand) { proposalCancelRate = GenProposalCancelRate(r) })
 
 	var governorStatusChangePeriod time.Duration
 	simState.AppParams.GetOrGenerate(
