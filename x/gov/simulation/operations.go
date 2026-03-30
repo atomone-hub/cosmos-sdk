@@ -26,21 +26,18 @@ var (
 	TypeMsgVote           = sdk.MsgTypeURL(&v1.MsgVote{})
 	TypeMsgVoteWeighted   = sdk.MsgTypeURL(&v1.MsgVoteWeighted{})
 	TypeMsgSubmitProposal = sdk.MsgTypeURL(&v1.MsgSubmitProposal{})
-	TypeMsgCancelProposal = sdk.MsgTypeURL(&v1.MsgCancelProposal{})
 )
 
 // Simulation operation weights constants
 const (
-	OpWeightMsgDeposit        = "op_weight_msg_deposit"
-	OpWeightMsgVote           = "op_weight_msg_vote"
-	OpWeightMsgVoteWeighted   = "op_weight_msg_weighted_vote"
-	OpWeightMsgCancelProposal = "op_weight_msg_cancel_proposal"
+	OpWeightMsgDeposit      = "op_weight_msg_deposit"
+	OpWeightMsgVote         = "op_weight_msg_vote"
+	OpWeightMsgVoteWeighted = "op_weight_msg_weighted_vote"
 
-	DefaultWeightMsgDeposit        = 100
-	DefaultWeightMsgVote           = 67
-	DefaultWeightMsgVoteWeighted   = 33
-	DefaultWeightTextProposal      = 5
-	DefaultWeightMsgCancelProposal = 5
+	DefaultWeightMsgDeposit      = 100
+	DefaultWeightMsgVote         = 67
+	DefaultWeightMsgVoteWeighted = 33
+	DefaultWeightTextProposal    = 5
 )
 
 // WeightedOperations returns all the operations from the module with their respective weights
@@ -54,10 +51,9 @@ func WeightedOperations(
 	wContents []simtypes.WeightedProposalContent, //nolint:staticcheck // used for legacy testing
 ) simulation.WeightedOperations {
 	var (
-		weightMsgDeposit        int
-		weightMsgVote           int
-		weightMsgVoteWeighted   int
-		weightMsgCancelProposal int
+		weightMsgDeposit      int
+		weightMsgVote         int
+		weightMsgVoteWeighted int
 	)
 
 	appParams.GetOrGenerate(OpWeightMsgDeposit, &weightMsgDeposit, nil,
@@ -75,12 +71,6 @@ func WeightedOperations(
 	appParams.GetOrGenerate(OpWeightMsgVoteWeighted, &weightMsgVoteWeighted, nil,
 		func(_ *rand.Rand) {
 			weightMsgVoteWeighted = DefaultWeightMsgVoteWeighted
-		},
-	)
-
-	appParams.GetOrGenerate(OpWeightMsgCancelProposal, &weightMsgCancelProposal, nil,
-		func(_ *rand.Rand) {
-			weightMsgCancelProposal = DefaultWeightMsgCancelProposal
 		},
 	)
 
@@ -132,10 +122,6 @@ func WeightedOperations(
 		simulation.NewWeightedOperation(
 			weightMsgVoteWeighted,
 			SimulateMsgVoteWeighted(txGen, ak, bk, k),
-		),
-		simulation.NewWeightedOperation(
-			weightMsgCancelProposal,
-			SimulateMsgCancelProposal(txGen, ak, bk, k),
 		),
 	}
 
@@ -468,53 +454,6 @@ func operationSimulateMsgVoteWeighted(
 
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
-
-		txCtx := simulation.OperationInput{
-			R:               r,
-			App:             app,
-			TxGen:           txGen,
-			Cdc:             nil,
-			Msg:             msg,
-			Context:         ctx,
-			SimAccount:      simAccount,
-			AccountKeeper:   ak,
-			Bankkeeper:      bk,
-			ModuleName:      types.ModuleName,
-			CoinsSpentInMsg: spendable,
-		}
-
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
-	}
-}
-
-// SimulateMsgCancelProposal generates a MsgCancelProposal.
-func SimulateMsgCancelProposal(
-	txGen client.TxConfig,
-	ak types.AccountKeeper,
-	bk types.BankKeeper,
-	k *keeper.Keeper,
-) simtypes.Operation {
-	return func(
-		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, _ string,
-	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount := accs[0]
-		proposal := randomProposal(r, k, ctx)
-		if proposal == nil {
-			return simtypes.NoOpMsg(types.ModuleName, TypeMsgCancelProposal, "no proposals found"), nil, nil
-		}
-
-		if proposal.Proposer != simAccount.Address.String() {
-			return simtypes.NoOpMsg(types.ModuleName, TypeMsgCancelProposal, "invalid proposer"), nil, nil
-		}
-
-		if (proposal.Status != v1.StatusDepositPeriod) && (proposal.Status != v1.StatusVotingPeriod) {
-			return simtypes.NoOpMsg(types.ModuleName, TypeMsgCancelProposal, "invalid proposal status"), nil, nil
-		}
-
-		account := ak.GetAccount(ctx, simAccount.Address)
-		spendable := bk.SpendableCoins(ctx, account.GetAddress())
-
-		msg := v1.NewMsgCancelProposal(proposal.Id, account.GetAddress().String())
 
 		txCtx := simulation.OperationInput{
 			R:               r,

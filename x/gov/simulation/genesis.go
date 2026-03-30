@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 // Simulation parameter constants
@@ -383,7 +383,6 @@ func RandomizedGenState(simState *module.SimulationState) {
 			burnDepositNoThreshold.String(), maxQuorum.String(), minQuorum.String(),
 			maxConstitutionAmendmentQuorum.String(), minConstitutionAmendmentQuorum.String(),
 			maxLawQuorum.String(), minQuorum.String(),
-			proposalCancelRate.String(), "",
 			governorStatusChangePeriod, minGovernorSelfDelegation.String(),
 		),
 	)

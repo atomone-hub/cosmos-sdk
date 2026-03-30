@@ -47,8 +47,6 @@ func MigrateStore(
 	}
 
 	defaultParams := govv1.DefaultParams()
-	params.ProposalCancelRatio = defaultParams.ProposalCancelRatio
-	params.ProposalCancelDest = defaultParams.ProposalCancelDest
 	params.MinDepositRatio = defaultParams.MinDepositRatio
 	params.MinDepositThrottler = defaultParams.MinDepositThrottler
 	params.MinDepositThrottler.FloorValue[0].Denom = sdk.DefaultBondDenom

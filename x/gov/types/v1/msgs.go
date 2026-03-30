@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _, _, _, _, _, _, _ sdk.Msg                            = &MsgSubmitProposal{}, &MsgDeposit{}, &MsgVote{}, &MsgVoteWeighted{}, &MsgExecLegacyContent{}, &MsgUpdateParams{}, &MsgCancelProposal{}, &MsgProposeConstitutionAmendment{}, &MsgProposeLaw{}, &MsgCreateGovernor{}, &MsgEditGovernor{}, &MsgDelegateGovernor{}, &MsgUndelegateGovernor{}, &MsgUpdateGovernorStatus{}
-	_, _                                     codectypes.UnpackInterfacesMessage = &MsgSubmitProposal{}, &MsgExecLegacyContent{}
+	_, _, _, _, _, _, _, _, _, _, _, _, _ sdk.Msg                            = &MsgSubmitProposal{}, &MsgDeposit{}, &MsgVote{}, &MsgVoteWeighted{}, &MsgExecLegacyContent{}, &MsgUpdateParams{}, &MsgProposeConstitutionAmendment{}, &MsgProposeLaw{}, &MsgCreateGovernor{}, &MsgEditGovernor{}, &MsgDelegateGovernor{}, &MsgUndelegateGovernor{}, &MsgUpdateGovernorStatus{}
+	_, _                                  codectypes.UnpackInterfacesMessage = &MsgSubmitProposal{}, &MsgExecLegacyContent{}
 )
 
 // NewMsgSubmitProposal creates a new MsgSubmitProposal.
@@ -96,14 +96,6 @@ func (c MsgExecLegacyContent) ValidateBasic() error {
 func (c MsgExecLegacyContent) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	var content v1beta1.Content
 	return unpacker.UnpackAny(c.Content, &content)
-}
-
-// NewMsgCancelProposal creates a new MsgCancelProposal instance.
-func NewMsgCancelProposal(proposalID uint64, proposer string) *MsgCancelProposal {
-	return &MsgCancelProposal{
-		ProposalId: proposalID,
-		Proposer:   proposer,
-	}
 }
 
 func NewMsgProposeConstitutionAmendment(authority sdk.AccAddress, amendment string) *MsgProposeConstitutionAmendment {
