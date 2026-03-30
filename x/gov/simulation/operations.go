@@ -544,23 +544,6 @@ func randomDeposit(
 	return sdk.Coins{sdk.NewCoin(denom, amount)}, false, nil
 }
 
-// randomProposal returns a random proposal stored in state
-func randomProposal(r *rand.Rand, k *keeper.Keeper, ctx sdk.Context) *v1.Proposal {
-	var proposals []*v1.Proposal
-	err := k.Proposals.Walk(ctx, nil, func(_ uint64, value v1.Proposal) (stop bool, err error) {
-		proposals = append(proposals, &value)
-		return false, nil
-	})
-	if err != nil {
-		panic(err)
-	}
-	if len(proposals) == 0 {
-		return nil
-	}
-	randomIndex := r.Intn(len(proposals))
-	return proposals[randomIndex]
-}
-
 // Pick a random proposal ID between the initial proposal ID
 // (defined in gov GenesisState) and the latest proposal ID
 // that matches a given Status.
