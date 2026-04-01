@@ -57,6 +57,95 @@ func TestImportExportQueues_ErrorUnconsistentState(t *testing.T) {
 	require.NotEmpty(t, genState.LastMinInitialDeposit.Value)
 }
 
+// TestInitGenesis_GovernorDelegationToOtherGovernorPanics verifies that an
+// active governor cannot delegate to a different governor.
+func TestInitGenesis_GovernorDelegationToOtherGovernorPanics(t *testing.T) {
+	suite := createTestSuite(t)
+	app := suite.App
+	ctx := app.BaseApp.NewContext(false)
+
+	// Create two governors
+	governor1PubKey := pubkeys[0]
+	governor2PubKey := pubkeys[1]
+
+	governor1AccAddr := sdk.AccAddress(governor1PubKey.Address())
+	governor2AccAddr := sdk.AccAddress(governor2PubKey.Address())
+
+	gov1Acc := suite.AccountKeeper.NewAccountWithAddress(ctx, governor1AccAddr)
+	suite.AccountKeeper.SetAccount(ctx, gov1Acc)
+
+	gov2Acc := suite.AccountKeeper.NewAccountWithAddress(ctx, governor2AccAddr)
+	suite.AccountKeeper.SetAccount(ctx, gov2Acc)
+
+	govAddr1 := types.GovernorAddress(governor1AccAddr)
+	govAddr2 := types.GovernorAddress(governor2AccAddr)
+	now := time.Now().UTC()
+
+	governor1, err := v1.NewGovernor(govAddr1.String(), v1.NewGovernorDescription("test-gov-1", "", "", "", ""), now)
+	require.NoError(t, err)
+	governor2, err := v1.NewGovernor(govAddr2.String(), v1.NewGovernorDescription("test-gov-2", "", "", "", ""), now)
+	require.NoError(t, err)
+
+	defaultState := v1.DefaultGenesisState()
+	defaultState.Governors = []*v1.Governor{&governor1, &governor2}
+	// Governor 1 attempts to delegate to Governor 2 — must panic
+	defaultState.GovernanceDelegations = []*v1.GovernanceDelegation{
+		{
+			DelegatorAddress: governor1AccAddr.String(),
+			GovernorAddress:  govAddr2.String(),
+		},
+	}
+
+	require.Panics(t, func() {
+		gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, defaultState)
+	})
+}
+
+// TestInitGenesis_InactiveGovernorDelegationToOtherGovernor verifies that an
+// inactive governor can delegate to a different governor.
+func TestInitGenesis_InactiveGovernorDelegationToOtherGovernor(t *testing.T) {
+	suite := createTestSuite(t)
+	app := suite.App
+	ctx := app.BaseApp.NewContext(false)
+
+	governor1PubKey := pubkeys[0]
+	governor2PubKey := pubkeys[1]
+
+	governor1AccAddr := sdk.AccAddress(governor1PubKey.Address())
+	governor2AccAddr := sdk.AccAddress(governor2PubKey.Address())
+
+	gov1Acc := suite.AccountKeeper.NewAccountWithAddress(ctx, governor1AccAddr)
+	suite.AccountKeeper.SetAccount(ctx, gov1Acc)
+
+	gov2Acc := suite.AccountKeeper.NewAccountWithAddress(ctx, governor2AccAddr)
+	suite.AccountKeeper.SetAccount(ctx, gov2Acc)
+
+	govAddr1 := types.GovernorAddress(governor1AccAddr)
+	govAddr2 := types.GovernorAddress(governor2AccAddr)
+	now := time.Now().UTC()
+
+	governor1, err := v1.NewGovernor(govAddr1.String(), v1.NewGovernorDescription("test-gov-1", "", "", "", ""), now)
+	require.NoError(t, err)
+	governor1.Status = v1.Inactive // make governor 1 inactive
+
+	governor2, err := v1.NewGovernor(govAddr2.String(), v1.NewGovernorDescription("test-gov-2", "", "", "", ""), now)
+	require.NoError(t, err)
+
+	defaultState := v1.DefaultGenesisState()
+	defaultState.Governors = []*v1.Governor{&governor1, &governor2}
+	// Inactive governor 1 delegates to active governor 2 — must not panic
+	defaultState.GovernanceDelegations = []*v1.GovernanceDelegation{
+		{
+			DelegatorAddress: governor1AccAddr.String(),
+			GovernorAddress:  govAddr2.String(),
+		},
+	}
+
+	require.NotPanics(t, func() {
+		gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, defaultState)
+	})
+}
+
 // TestInitGenesis_NonGovernorDelegation verifies that a non-governor account
 // can delegate to a governor.
 func TestInitGenesis_NonGovernorDelegation(t *testing.T) {
