@@ -170,7 +170,9 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			panic(fmt.Sprintf("account %s does not exist", accAddr.String()))
 		}
 
-		k.Governors.Set(ctx, governor.GetAddress(), *governor)
+		if err := k.Governors.Set(ctx, governor.GetAddress(), *governor); err != nil {
+			panic(err)
+		}
 		if governor.IsActive() {
 			activeGovernors[governor.GetAddress().String()] = struct{}{}
 			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
@@ -297,10 +299,13 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) (*v1.GenesisState, error) 
 	var governanceDelegations []*v1.GovernanceDelegation
 	for _, g := range governors {
 		var delegations []*v1.GovernanceDelegation
-		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](g.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
+		err = k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](g.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
 			delegations = append(delegations, &delegation)
 			return false, nil
 		})
+		if err != nil {
+			return nil, err
+		}
 		governanceDelegations = append(governanceDelegations, delegations...)
 	}
 
