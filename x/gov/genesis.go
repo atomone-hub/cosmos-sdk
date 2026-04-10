@@ -173,6 +173,8 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 	}
 
 	// set governors
+	// track active governors to skip their self-delegations in the second loop
+	activeGovernors := make(map[string]struct{})
 	for _, governor := range data.Governors {
 		// check that base account exists
 		accAddr := sdk.AccAddress(governor.GetAddress())
@@ -183,6 +185,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 
 		k.Governors.Set(ctx, governor.GetAddress(), *governor)
 		if governor.IsActive() {
+			activeGovernors[governor.GetAddress().String()] = struct{}{}
 			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 			if err != nil {
 				panic(fmt.Sprintf("failed to delegate to governor %s: %v", governor.GetAddress().String(), err))
@@ -193,6 +196,15 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 	for _, delegation := range data.GovernanceDelegations {
 		delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
 		govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
+
+		// skip self-delegations for active governors (already handled in first loop)
+		delGovAddr := types.GovernorAddress(delAddr)
+		if delGovAddr.Equals(govAddr) {
+			if _, isActive := activeGovernors[delGovAddr.String()]; isActive {
+				continue
+			}
+		}
+
 		// check delegator exists
 		acc := ak.GetAccount(ctx, delAddr)
 		if acc == nil {
@@ -205,8 +217,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 		}
 
 		// if account is active governor and delegation is not to self, error
-		delGovAddr := types.GovernorAddress(delAddr)
-		if _, err = k.Governors.Get(ctx, delGovAddr); err != nil && !delGovAddr.Equals(govAddr) {
+		if _, isActive := activeGovernors[delGovAddr.String()]; isActive && !delGovAddr.Equals(govAddr) {
 			panic(fmt.Sprintf("account %s is an active governor and cannot delegate", delAddr.String()))
 		}
 
