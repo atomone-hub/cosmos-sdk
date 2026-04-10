@@ -1622,6 +1622,38 @@ func (suite *KeeperTestSuite) TestMsgUpdateParams() {
 			expErr:    true,
 			expErrMsg: "voting period must be at least",
 		},
+		{
+			name: "zero target active proposals",
+			input: func() *v1.MsgUpdateParams {
+				params1 := params
+				mdt := *params1.MinDepositThrottler
+				mdt.TargetActiveProposals = 0
+				params1.MinDepositThrottler = &mdt
+
+				return &v1.MsgUpdateParams{
+					Authority: authority,
+					Params:    params1,
+				}
+			},
+			expErr:    true,
+			expErrMsg: "minimum deposit target active proposals must be positive",
+		},
+		{
+			name: "zero target proposals",
+			input: func() *v1.MsgUpdateParams {
+				params1 := params
+				midt := *params1.MinInitialDepositThrottler
+				midt.TargetProposals = 0
+				params1.MinInitialDepositThrottler = &midt
+
+				return &v1.MsgUpdateParams{
+					Authority: authority,
+					Params:    params1,
+				}
+			},
+			expErr:    true,
+			expErrMsg: "minimum initial deposit target proposals must be positive",
+		},
 	}
 
 	for _, tc := range testCases {
