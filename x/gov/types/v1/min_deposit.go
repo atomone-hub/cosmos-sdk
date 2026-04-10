@@ -39,5 +39,5 @@ func GetNewMinDeposit(minDepositFloor, lastMinDeposit sdk.Coins, percChange math
 		}
 	}
 
-	return newMinDeposit
+	return sdk.NewCoins(newMinDeposit...)
 }
