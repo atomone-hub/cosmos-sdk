@@ -58,7 +58,7 @@ var (
 	DefaultLawThreshold                   = math.LegacyNewDecWithPrec(9, 1)
 	// DefaultMinInitialDepositRatio         = math.LegacyZeroDec()
 	DefaultBurnProposalPrevote = false                           // set to false to replicate behavior of when this change was made (0.47)
-	DefaultBurnVoteQuorom      = false                           // set to false to  replicate behavior of when this change was made (0.47)
+	DefaultBurnVoteQuorum      = false                           // set to false to  replicate behavior of when this change was made (0.47)
 	DefaultMinDepositRatio     = math.LegacyNewDecWithPrec(1, 2) // NOTE: backport from v50
 
 	DefaultQuorumTimeout                                             = DefaultVotingPeriod - (time.Hour * 24 * 1) // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
@@ -192,7 +192,7 @@ func DefaultParams() Params {
 		DefaultLawThreshold.String(),
 		// DefaultMinInitialDepositRatio.String(),
 		DefaultBurnProposalPrevote,
-		DefaultBurnVoteQuorom,
+		DefaultBurnVoteQuorum,
 		DefaultMinDepositRatio.String(),
 		DefaultQuorumTimeout,
 		DefaultMaxVotingPeriodExtension,
@@ -339,13 +339,13 @@ func (p Params) ValidateBasic() error {
 
 	minDepositRatio, err := math.LegacyNewDecFromStr(p.MinDepositRatio)
 	if err != nil {
-		return fmt.Errorf("invalid mininum deposit ratio of proposal: %w", err)
+		return fmt.Errorf("invalid minimum deposit ratio of proposal: %w", err)
 	}
 	if minDepositRatio.IsNegative() {
-		return fmt.Errorf("mininum deposit ratio of proposal must be positive: %s", minDepositRatio)
+		return fmt.Errorf("minimum deposit ratio of proposal must be positive: %s", minDepositRatio)
 	}
 	if minDepositRatio.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("mininum deposit ratio of proposal is too large: %s", minDepositRatio)
+		return fmt.Errorf("minimum deposit ratio of proposal is too large: %s", minDepositRatio)
 	}
 
 	if p.QuorumCheckCount > 0 {
