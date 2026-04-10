@@ -97,7 +97,7 @@ func legacyV4Params() v1.Params {
 		Quorum:                         "0.334000000000000000",
 		Threshold:                      v1.DefaultThreshold.String(),
 		MinInitialDepositRatio:         "0.100000000000000000",
-		BurnVoteQuorum:                 v1.DefaultBurnVoteQuorom,
+		BurnVoteQuorum:                 v1.DefaultBurnVoteQuorum,
 		BurnProposalDepositPrevote:     v1.DefaultBurnProposalPrevote,
 		ConstitutionAmendmentQuorum:    v1.DefaultMinConstitutionAmendmentQuorum.String(),
 		ConstitutionAmendmentThreshold: v1.DefaultConstitutionAmendmentThreshold.String(),
