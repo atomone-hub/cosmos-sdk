@@ -350,7 +350,11 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 	// Ensure the governor does not already exist
 	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
-	if _, err := k.Governors.Get(goCtx, govAddr); err == nil {
+	_, err := k.Governors.Get(goCtx, govAddr)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if err == nil {
 		return nil, govtypes.ErrGovernorExists
 	}
 
@@ -419,17 +423,20 @@ func (k msgServer) EditGovernor(goCtx context.Context, msg *v1.MsgEditGovernor) 
 	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	governor, err := k.Governors.Get(goCtx, govAddr)
-	if err != nil {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernorNotFound
 	}
 
-	// Ensure the governor has a valid description
-	if _, err := msg.GetDescription().EnsureLength(); err != nil {
+	// Update the governor description
+	description, err := governor.Description.UpdateDescription(msg.GetDescription())
+	if err != nil {
 		return nil, err
 	}
+	governor.Description = description
 
-	// Update the governor
-	governor.Description = msg.GetDescription()
 	err = k.Governors.Set(goCtx, governor.GetAddress(), governor)
 	if err != nil {
 		return nil, err
@@ -451,7 +458,10 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	addr := sdk.MustAccAddressFromBech32(msg.GetAddress())
 	govAddr := govtypes.GovernorAddress(addr.Bytes())
 	governor, err := k.Governors.Get(goCtx, govAddr)
-	if err != nil {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		panic(err)
+	}
+	if errors.Is(err, collections.ErrNotFound) {
 		return nil, govtypes.ErrGovernorNotFound
 	}
 
@@ -483,8 +493,13 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	governor.LastStatusChangeTime = &changeTime
 	// prevent a change to active if min self-delegation is not met
 	if governor.IsActive() {
-		if !k.ValidateGovernorMinSelfDelegation(ctx, governor) {
-			return nil, govtypes.ErrInsufficientGovernorDelegation.Wrap("cannot set status to active: minimum self-delegation not met")
+		minSelfDelegation, _ := math.NewIntFromString(params.MinGovernorSelfDelegation)
+		bondedTokens, err := k.getGovernorBondedTokens(ctx, govAddr)
+		if err != nil {
+			return nil, err
+		}
+		if bondedTokens.LT(minSelfDelegation) {
+			return nil, govtypes.ErrInsufficientGovernorDelegation.Wrapf("minimum self-delegation required: %s, total bonded tokens: %s", minSelfDelegation, bondedTokens)
 		}
 	}
 
@@ -505,8 +520,7 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 			if err != nil {
 				return nil, err
 			}
-		}
-		if delegation.GovernorAddress != govAddr.String() {
+		} else if delegation.GovernorAddress != govAddr.String() {
 			err := k.RedelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err

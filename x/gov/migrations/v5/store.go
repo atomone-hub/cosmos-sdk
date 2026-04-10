@@ -24,6 +24,7 @@ var (
 // migration includes:
 //
 // Addition of the new proposal expedited parameters that are set to 0 by default.
+// Clearing deprecated params that are no longer accepted in exported genesis.
 // Set of default chain constitution.
 func MigrateStore(
 	ctx sdk.Context,
@@ -45,6 +46,13 @@ func MigrateStore(
 	if err != nil {
 		return err
 	}
+
+	// Clear deprecated fields so exported genesis validates after the migration.
+	params.MinDeposit = nil
+	params.Quorum = ""
+	params.ConstitutionAmendmentQuorum = ""
+	params.LawQuorum = ""
+	params.MinInitialDepositRatio = ""
 
 	defaultParams := govv1.DefaultParams()
 	params.ProposalCancelRatio = defaultParams.ProposalCancelRatio
