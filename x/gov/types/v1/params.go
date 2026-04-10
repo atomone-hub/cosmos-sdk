@@ -78,7 +78,6 @@ var (
 	DefaultBurnDepositNoThreshold                                    = math.LegacyNewDecWithPrec(80, 2)
 	DefaultProposalCancelRatio                                       = math.LegacyMustNewDecFromStr("0.5")
 	DefaultProposalCancelDestAddress                                 = ""
-	DefaultMaxGovernors                                       uint64 = 100
 	DefaultMinGovernorSelfDelegation                                 = math.NewInt(1000_000000)
 )
 
