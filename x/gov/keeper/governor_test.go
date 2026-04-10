@@ -102,6 +102,60 @@ func TestGovernor(t *testing.T) {
 	}
 }
 
+func TestEditGovernorDescriptionMerge(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t)
+
+	// Create a governor with all description fields
+	govAddr := convertAddrsToGovAddrs(simtestutil.CreateRandomAccounts(1))[0]
+	govDesc := v1.NewGovernorDescription(
+		"original-moniker",
+		"original-identity",
+		"original-website",
+		"original-security-contact",
+		"original-details",
+	)
+	gov, err := v1.NewGovernor(govAddr.String(), govDesc, time.Now().UTC())
+	require.NoError(err)
+	err = govKeeper.Governors.Set(ctx, govAddr, gov)
+	require.NoError(err)
+
+	// Edit only the moniker, preserving other fields using DoNotModifyDesc
+	editedDesc := v1.NewGovernorDescription(
+		"updated-moniker",
+		stakingtypes.DoNotModifyDesc,
+		stakingtypes.DoNotModifyDesc,
+		stakingtypes.DoNotModifyDesc,
+		stakingtypes.DoNotModifyDesc,
+	)
+
+	// Use the UpdateDescription method directly (which EditGovernor should call)
+	updatedDesc, err := gov.Description.UpdateDescription(editedDesc)
+	require.NoError(err)
+
+	// Verify that only moniker changed
+	assert.Equal("updated-moniker", updatedDesc.Moniker)
+	assert.Equal("original-identity", updatedDesc.Identity)
+	assert.Equal("original-website", updatedDesc.Website)
+	assert.Equal("original-security-contact", updatedDesc.SecurityContact)
+	assert.Equal("original-details", updatedDesc.Details)
+
+	// Update the governor
+	gov.Description = updatedDesc
+	err = govKeeper.Governors.Set(ctx, govAddr, gov)
+	require.NoError(err)
+
+	// Retrieve and verify
+	retrievedGov, err := govKeeper.Governors.Get(ctx, govAddr)
+	require.NoError(err)
+	assert.Equal("updated-moniker", retrievedGov.Description.Moniker)
+	assert.Equal("original-identity", retrievedGov.Description.Identity)
+	assert.Equal("original-website", retrievedGov.Description.Website)
+	assert.Equal("original-security-contact", retrievedGov.Description.SecurityContact)
+	assert.Equal("original-details", retrievedGov.Description.Details)
+}
+
 func TestValidateGovernorMinSelfDelegation(t *testing.T) {
 	tests := []struct {
 		name           string
