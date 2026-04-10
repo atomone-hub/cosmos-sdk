@@ -93,7 +93,7 @@ func validateNakamotoBonus(v NakamotoBonus) error {
 	case v.MaximumCoefficient.IsNil():
 		return fmt.Errorf("nakamoto bonus maximum must be not nil")
 	case v.MaximumCoefficient.IsNegative() || v.MaximumCoefficient.IsZero():
-		return fmt.Errorf("nakamoto bonus maximum must be positive: %v", v.Step)
+		return fmt.Errorf("nakamoto bonus maximum must be positive: %v", v.MaximumCoefficient)
 	case v.MaximumCoefficient.GT(math.LegacyOneDec()):
 		return fmt.Errorf("nakamoto bonus maximum too large: %v", v.MaximumCoefficient)
 	}

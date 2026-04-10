@@ -54,7 +54,7 @@ func (k Keeper) AdjustNakamotoBonusCoefficient(ctx sdk.Context) error {
 	// split into 3 groups as evenly as possible: high, medium, low
 	groupSize := n / 3
 	high := validators[:groupSize]
-	low := validators[groupSize*2:]
+	low := validators[n-groupSize:]
 
 	sum := func(vals []stakingtypes.Validator) math.Int {
 		total := math.ZeroInt()

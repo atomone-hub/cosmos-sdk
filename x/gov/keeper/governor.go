@@ -21,7 +21,10 @@ func (keeper Keeper) getGovernorBondedTokens(ctx sdk.Context, govAddr types.Gove
 		if err != nil {
 			panic(err) // This should never happen
 		}
-		validator, _ := keeper.sk.GetValidator(ctx, validatorAddr)
+		validator, err := keeper.sk.GetValidator(ctx, validatorAddr)
+		if err != nil {
+			panic(err) // This should never happen (a delegation to a non-existent validator should not be possible)
+		}
 		shares := delegation.GetShares()
 		bt := shares.MulInt(validator.GetBondedTokens()).Quo(validator.GetDelegatorShares()).TruncateInt()
 		bondedTokens = bondedTokens.Add(bt)
