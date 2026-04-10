@@ -483,8 +483,13 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	governor.LastStatusChangeTime = &changeTime
 	// prevent a change to active if min self-delegation is not met
 	if governor.IsActive() {
-		if !k.ValidateGovernorMinSelfDelegation(ctx, governor) {
-			return nil, govtypes.ErrInsufficientGovernorDelegation.Wrap("cannot set status to active: minimum self-delegation not met")
+		minSelfDelegation, _ := math.NewIntFromString(params.MinGovernorSelfDelegation)
+		bondedTokens, err := k.getGovernorBondedTokens(ctx, govAddr)
+		if err != nil {
+			return nil, err
+		}
+		if bondedTokens.LT(minSelfDelegation) {
+			return nil, govtypes.ErrInsufficientGovernorDelegation.Wrapf("minimum self-delegation required: %s, total bonded tokens: %s", minSelfDelegation, bondedTokens)
 		}
 	}
 
@@ -505,8 +510,7 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 			if err != nil {
 				return nil, err
 			}
-		}
-		if delegation.GovernorAddress != govAddr.String() {
+		} else if delegation.GovernorAddress != govAddr.String() {
 			err := k.RedelegateToGovernor(ctx, addr, govAddr)
 			if err != nil {
 				return nil, err
