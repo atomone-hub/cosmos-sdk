@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"cosmossdk.io/collections"
 	errorsmod "cosmossdk.io/errors"
@@ -169,6 +170,20 @@ func (keeper Keeper) DeleteProposal(ctx context.Context, proposalID uint64) erro
 		}
 
 		err = keeper.VotingPeriodProposals.Remove(ctx, proposalID)
+		if err != nil {
+			return err
+		}
+
+		err = keeper.QuorumCheckQueue.Walk(ctx, nil, func(key collections.Pair[time.Time, uint64], _ v1.QuorumCheckQueueEntry) (bool, error) {
+			if key.K2() == proposalID {
+				err := keeper.QuorumCheckQueue.Remove(ctx, key)
+				if err != nil {
+					return false, err
+				}
+				return true, nil
+			}
+			return false, nil
+		})
 		if err != nil {
 			return err
 		}

@@ -58,7 +58,7 @@ var (
 	DefaultLawThreshold                   = math.LegacyNewDecWithPrec(9, 1)
 	// DefaultMinInitialDepositRatio         = math.LegacyZeroDec()
 	DefaultBurnProposalPrevote = false                           // set to false to replicate behavior of when this change was made (0.47)
-	DefaultBurnVoteQuorom      = false                           // set to false to  replicate behavior of when this change was made (0.47)
+	DefaultBurnVoteQuorum      = false                           // set to false to  replicate behavior of when this change was made (0.47)
 	DefaultMinDepositRatio     = math.LegacyNewDecWithPrec(1, 2) // NOTE: backport from v50
 
 	DefaultQuorumTimeout                                             = DefaultVotingPeriod - (time.Hour * 24 * 1) // disabled by default (DefaultQuorumCheckCount must be set to a non-zero value to enable)
@@ -76,7 +76,6 @@ var (
 	DefaultMinInitialDepositDecreaseRatio                            = math.LegacyNewDecWithPrec(5, 3)
 	DefaultTargetProposalsInDepositPeriod                     uint64 = 5
 	DefaultBurnDepositNoThreshold                                    = math.LegacyNewDecWithPrec(80, 2)
-	DefaultMaxGovernors                                       uint64 = 100
 	DefaultMinGovernorSelfDelegation                                 = math.NewInt(1000_000000)
 )
 
@@ -187,7 +186,7 @@ func DefaultParams() Params {
 		DefaultLawThreshold.String(),
 		// DefaultMinInitialDepositRatio.String(),
 		DefaultBurnProposalPrevote,
-		DefaultBurnVoteQuorom,
+		DefaultBurnVoteQuorum,
 		DefaultMinDepositRatio.String(),
 		DefaultQuorumTimeout,
 		DefaultMaxVotingPeriodExtension,
@@ -332,13 +331,13 @@ func (p Params) ValidateBasic() error {
 
 	minDepositRatio, err := math.LegacyNewDecFromStr(p.MinDepositRatio)
 	if err != nil {
-		return fmt.Errorf("invalid mininum deposit ratio of proposal: %w", err)
+		return fmt.Errorf("invalid minimum deposit ratio of proposal: %w", err)
 	}
 	if minDepositRatio.IsNegative() {
-		return fmt.Errorf("mininum deposit ratio of proposal must be positive: %s", minDepositRatio)
+		return fmt.Errorf("minimum deposit ratio of proposal must be positive: %s", minDepositRatio)
 	}
 	if minDepositRatio.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("mininum deposit ratio of proposal is too large: %s", minDepositRatio)
+		return fmt.Errorf("minimum deposit ratio of proposal is too large: %s", minDepositRatio)
 	}
 
 	if p.QuorumCheckCount > 0 {
@@ -384,6 +383,10 @@ func (p Params) ValidateBasic() error {
 
 	if p.MinDepositThrottler.UpdatePeriod.Seconds() > p.VotingPeriod.Seconds() {
 		return fmt.Errorf("minimum deposit update period must be less than or equal to the voting period: %s", p.MinDepositThrottler.UpdatePeriod)
+	}
+
+	if p.MinDepositThrottler.TargetActiveProposals <= 0 {
+		return fmt.Errorf("minimum deposit target active proposals must be positive: %d", p.MinDepositThrottler.TargetActiveProposals)
 	}
 
 	if p.MinDepositThrottler.DecreaseSensitivityTargetDistance == 0 {
@@ -434,6 +437,10 @@ func (p Params) ValidateBasic() error {
 
 	if p.MinInitialDepositThrottler.UpdatePeriod.Seconds() > p.VotingPeriod.Seconds() {
 		return fmt.Errorf("minimum initial deposit update period must be less than or equal to the voting period: %s", p.MinInitialDepositThrottler.UpdatePeriod)
+	}
+
+	if p.MinInitialDepositThrottler.TargetProposals <= 0 {
+		return fmt.Errorf("minimum initial deposit target proposals must be positive: %d", p.MinInitialDepositThrottler.TargetProposals)
 	}
 
 	if p.MinInitialDepositThrottler.DecreaseSensitivityTargetDistance == 0 {

@@ -150,6 +150,10 @@ func (msg MsgEditGovernor) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.GetAddress()); err != nil {
 		return err
 	}
+
+	if _, err := msg.GetDescription().EnsureLength(); err != nil {
+		return types.ErrInvalidGovernanceDescription.Wrap(err.Error())
+	}
 	return nil
 }
 

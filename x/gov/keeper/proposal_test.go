@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -85,7 +86,27 @@ func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 	err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, suite.addrs[0], voteOptions, "")
 	suite.Require().NoError(err)
 
+	var inQueue bool
+	err = suite.govKeeper.QuorumCheckQueue.Walk(suite.ctx, nil, func(key collections.Pair[time.Time, uint64], _ v1.QuorumCheckQueueEntry) (bool, error) {
+		if key.K2() == proposal.Id {
+			inQueue = true
+		}
+		return false, nil
+	})
+	suite.Require().NoError(err)
+	suite.Require().True(inQueue)
+
 	suite.Require().NoError(suite.govKeeper.DeleteProposal(suite.ctx, proposal.Id))
+
+	inQueue = false
+	err = suite.govKeeper.QuorumCheckQueue.Walk(suite.ctx, nil, func(key collections.Pair[time.Time, uint64], _ v1.QuorumCheckQueueEntry) (bool, error) {
+		if key.K2() == proposal.Id {
+			inQueue = true
+		}
+		return false, nil
+	})
+	suite.Require().NoError(err)
+	suite.Require().False(inQueue)
 
 	// add vote but proposal is deleted along with its VotingPeriodProposalKey
 	err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, suite.addrs[0], voteOptions, "")
