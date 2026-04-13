@@ -107,7 +107,9 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) error {
 	rng = collections.NewPrefixUntilPairRange[time.Time, uint64](ctx.BlockTime())
 	err = keeper.QuorumCheckQueue.Walk(ctx, rng, func(key collections.Pair[time.Time, uint64], quorumCheckEntry v1.QuorumCheckQueueEntry) (bool, error) {
 		// remove from queue
-		keeper.QuorumCheckQueue.Remove(ctx, key)
+		if err := keeper.QuorumCheckQueue.Remove(ctx, key); err != nil {
+			return false, err
+		}
 
 		proposal, err := keeper.Proposals.Get(ctx, key.K2())
 		if err != nil {

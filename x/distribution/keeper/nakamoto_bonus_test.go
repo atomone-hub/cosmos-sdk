@@ -152,6 +152,24 @@ func TestAdjustEta_ClampOne(t *testing.T) {
 	require.Equal(t, types.DefaultNakamotoBonusMaximumCoefficient, nakamotoBonusCoefficient)
 }
 
+func TestAdjustEta_EvenGroupSplitNonDivisibleBy3(t *testing.T) {
+	initialEta := math.LegacyNewDecWithPrec(5, 2) // 0.05
+	s := setupTestKeeper(t, initialEta, 100)
+
+	// 5 validators (not divisible by 3): groupSize = 5/3 = 1
+	// Sorted descending: [300, 200, 200, 200, 100]
+	// high = [300], low = [100], highAvg/lowAvg = 3 >= 3 → should increase
+	createValidators(s.ctx, s.stakingKeeper, 300, 200, 200, 200, 100)
+
+	require.NoError(t, s.distrKeeper.AdjustNakamotoBonusCoefficient(s.ctx))
+
+	nakamotoBonusCoefficient, err := s.distrKeeper.GetNakamotoBonusCoefficient(s.ctx)
+	require.NoError(t, err)
+	expectedEta := initialEta.Add(types.DefaultNakamotoBonusStep)
+	require.Equal(t, expectedEta, nakamotoBonusCoefficient,
+		"η should increase when high/low ratio >= 3 with even group sizes")
+}
+
 func TestAllocateTokensWithNakamotoBonusImbalancedValidators(t *testing.T) {
 	// Realistic scenario: top 5 validators have 70% of stake
 	s := setupTestKeeper(t, math.LegacyNewDecWithPrec(5, 2), 100) // η = 0.05

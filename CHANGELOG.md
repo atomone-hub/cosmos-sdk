@@ -64,12 +64,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+* (x/gov) [#77](https://github.com/atomone-hub/cosmos-sdk/pull/77) Fix missing validation for EMA fields in genesis
 * (x/gov) [#35](https://github.com/atomone-hub/cosmos-sdk/pull/35) Cherry-pick [proposal v1 to v1beta1 converter fix from AtomOne](https://github.com/atomone-hub/atomone/pull/102)
 * (x/gov) [#54](https://github.com/atomone-hub/cosmos-sdk/pull/54) Properly update min deposit and min initial deposit.
 * (x/gov) [#56](https://github.com/atomone-hub/cosmos-sdk/pull/56) Fix unified diff parser to reject out-of-order hunks and invalid control characters in insertion lines.
 * (x/gov) [#57](https://github.com/atomone-hub/cosmos-sdk/pull/57) Fix active governor check in hooks.
 * (x/gov) [#58](https://github.com/atomone-hub/cosmos-sdk/pull/58) Check errors in endblocker when traversing the quorum check queue.
 * (x/gov) [#59](https://github.com/atomone-hub/cosmos-sdk/pull/59) Ensure governor exists and is active before processing governance delegations.
+* (x/gov) [#70](https://github.com/atomone-hub/cosmos-sdk/pull/70) Refine error checking on governor existence checks
 * (x/staking) [#83](https://github.com/atomone-hub/cosmos-sdk/pull/83) Update existing validator commissions when commission params change.
 
 ## [Unreleased]

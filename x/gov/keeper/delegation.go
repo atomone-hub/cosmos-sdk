@@ -39,8 +39,12 @@ func (keeper Keeper) RemoveGovernanceDelegation(ctx sdk.Context, delegatorAddr s
 		return
 	}
 	govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
-	keeper.GovernanceDelegations.Remove(ctx, delegatorAddr)
-	keeper.GovernanceDelegationsByGovernor.Remove(ctx, collections.Join(govAddr, delegatorAddr))
+	if err := keeper.GovernanceDelegations.Remove(ctx, delegatorAddr); err != nil {
+		panic(err)
+	}
+	if err := keeper.GovernanceDelegationsByGovernor.Remove(ctx, collections.Join(govAddr, delegatorAddr)); err != nil {
+		panic(err)
+	}
 }
 
 // IncreaseGovernorShares increases the governor validator shares in the store
@@ -73,7 +77,9 @@ func (keeper Keeper) DecreaseGovernorShares(ctx sdk.Context, governorAddr types.
 		panic("negative shares")
 	}
 	if share.Shares.IsZero() {
-		keeper.ValidatorSharesByGovernor.Remove(ctx, collections.Join(governorAddr, validatorAddr))
+		if err := keeper.ValidatorSharesByGovernor.Remove(ctx, collections.Join(governorAddr, validatorAddr)); err != nil {
+			panic(err)
+		}
 	} else {
 		if err := keeper.ValidatorSharesByGovernor.Set(ctx, collections.Join(governorAddr, validatorAddr), share); err != nil {
 			panic(err)
