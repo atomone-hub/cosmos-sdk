@@ -2,16 +2,24 @@ package keeper_test
 
 import (
 	"strings"
+	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
+
+	"cosmossdk.io/collections"
 	sdkmath "cosmossdk.io/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 const (
@@ -1614,6 +1622,38 @@ func (suite *KeeperTestSuite) TestMsgUpdateParams() {
 			expErr:    true,
 			expErrMsg: "voting period must be at least",
 		},
+		{
+			name: "zero target active proposals",
+			input: func() *v1.MsgUpdateParams {
+				params1 := params
+				mdt := *params1.MinDepositThrottler
+				mdt.TargetActiveProposals = 0
+				params1.MinDepositThrottler = &mdt
+
+				return &v1.MsgUpdateParams{
+					Authority: authority,
+					Params:    params1,
+				}
+			},
+			expErr:    true,
+			expErrMsg: "minimum deposit target active proposals must be positive",
+		},
+		{
+			name: "zero target proposals",
+			input: func() *v1.MsgUpdateParams {
+				params1 := params
+				midt := *params1.MinInitialDepositThrottler
+				midt.TargetProposals = 0
+				params1.MinInitialDepositThrottler = &midt
+
+				return &v1.MsgUpdateParams{
+					Authority: authority,
+					Params:    params1,
+				}
+			},
+			expErr:    true,
+			expErrMsg: "minimum initial deposit target proposals must be positive",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -1735,6 +1775,122 @@ func (suite *KeeperTestSuite) TestSubmitProposal_InitialDeposit() {
 				return
 			}
 			suite.Require().NoError(err)
+		})
+	}
+}
+
+func TestUpdateGovernorStatus(t *testing.T) {
+	tests := []struct {
+		name                      string
+		bondedTokens              sdkmath.Int
+		existingDelegationToOther bool
+		expectErr                 error
+	}{
+		{
+			name:         "sufficient delegation creates governance delegation",
+			bondedTokens: sdkmath.NewInt(2000_000000),
+		},
+		{
+			name:         "insufficient delegation fails",
+			bondedTokens: sdkmath.NewInt(500_000000),
+			expectErr:    govtypes.ErrInsufficientGovernorDelegation,
+		},
+		{
+			name:                      "existing delegation to other governor triggers redelegation",
+			bondedTokens:              sdkmath.NewInt(2000_000000),
+			existingDelegationToOther: true,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var (
+				accs            = simtestutil.CreateRandomAccounts(2)
+				addr            = accs[0]
+				otherAddr       = accs[1]
+				govAddr         = govtypes.GovernorAddress(addr.Bytes())
+				otherGovAddr    = govtypes.GovernorAddress(otherAddr.Bytes())
+				valAddr         = sdk.ValAddress(addr)
+				delegatorShares = sdkmath.LegacyNewDecFromInt(tc.bondedTokens)
+			)
+			govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t, func(ctx sdk.Context, m mocks) {
+				mockAccountKeeperExpectations(ctx, m)
+				m.stakingKeeper.EXPECT().IterateDelegations(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
+					func(ctx sdk.Context, delegator sdk.AccAddress, fn func(int64, stakingtypes.DelegationI) bool) error {
+						if delegator.Equals(addr) {
+							fn(0, stakingtypes.Delegation{
+								DelegatorAddress: delegator.String(),
+								ValidatorAddress: valAddr.String(),
+								Shares:           delegatorShares,
+							})
+						}
+						return nil
+					},
+				).AnyTimes()
+				m.stakingKeeper.EXPECT().GetValidator(gomock.Any(), gomock.Any()).Return(stakingtypes.Validator{
+					Tokens:          tc.bondedTokens,
+					DelegatorShares: delegatorShares,
+					Status:          stakingtypes.Bonded,
+				}, nil).AnyTimes()
+			})
+			msgSrvr := keeper.NewMsgServerImpl(govKeeper)
+			pastTime := time.Now().Add(-30 * 24 * time.Hour)
+
+			if tc.existingDelegationToOther {
+				// Create an active governor that addr is currently delegating to
+				otherGovernor, err := v1.NewGovernor(otherGovAddr.String(), v1.GovernorDescription{}, pastTime)
+				require.NoError(t, err)
+				otherGovernor.Status = v1.Active
+				otherGovernor.LastStatusChangeTime = &pastTime
+				err = govKeeper.Governors.Set(ctx, otherGovernor.GetAddress(), otherGovernor)
+				require.NoError(t, err)
+				err = govKeeper.DelegateToGovernor(ctx, addr, otherGovAddr)
+				require.NoError(t, err)
+			}
+
+			// Create an inactive governor with a status change time far enough in the past
+			// to satisfy the GovernorStatusChangePeriod (default 28 days)
+			governor, err := v1.NewGovernor(govAddr.String(), v1.GovernorDescription{}, pastTime)
+			require.NoError(t, err)
+			governor.Status = v1.Inactive
+			governor.LastStatusChangeTime = &pastTime
+			err = govKeeper.Governors.Set(ctx, governor.GetAddress(), governor)
+			require.NoError(t, err)
+
+			_, err = msgSrvr.UpdateGovernorStatus(ctx, v1.NewMsgUpdateGovernorStatus(addr, v1.Active))
+
+			if tc.expectErr != nil {
+				require.ErrorIs(t, err, tc.expectErr)
+				return
+			}
+			require.NoError(t, err)
+			// Assert self governance delegation
+			delegation, err := govKeeper.GovernanceDelegations.Get(ctx, addr)
+			require.NoError(t, err)
+			require.Equal(t, govAddr.String(), delegation.GovernorAddress)
+			// Assert governor shares
+			var shares []v1.GovernorValShares
+			err = govKeeper.ValidatorSharesByGovernor.Walk(ctx,
+				collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.ValAddress](govAddr),
+				func(_ collections.Pair[govtypes.GovernorAddress, sdk.ValAddress], s v1.GovernorValShares) (stop bool, err error) {
+					shares = append(shares, s)
+					return false, nil
+				})
+			require.NoError(t, err)
+			require.Len(t, shares, 1)
+			require.Equal(t, delegatorShares.String(), shares[0].Shares.String())
+
+			if tc.existingDelegationToOther {
+				// Assert shares removed from the other governor
+				var otherShares []v1.GovernorValShares
+				err = govKeeper.ValidatorSharesByGovernor.Walk(ctx,
+					collections.NewPrefixedPairRange[govtypes.GovernorAddress, sdk.ValAddress](otherGovAddr),
+					func(_ collections.Pair[govtypes.GovernorAddress, sdk.ValAddress], s v1.GovernorValShares) (stop bool, err error) {
+						otherShares = append(otherShares, s)
+						return false, nil
+					})
+				require.NoError(t, err)
+				require.Empty(t, otherShares)
+			}
 		})
 	}
 }

@@ -29,38 +29,25 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 		panic(err)
 	}
 
-	// Use default values for participation EMAs if not provided
-	participationEmaStr := data.ParticipationEma
-	if participationEmaStr == "" {
-		participationEmaStr = v1.DefaultParticipationEma
-	}
-	participationEma, err := math.LegacyNewDecFromStr(participationEmaStr)
+	participationEma, err := math.LegacyNewDecFromStr(data.ParticipationEma)
 	if err != nil {
-		panic(fmt.Sprintf("invalid value for participationEma %s: %v", participationEmaStr, err))
+		panic(fmt.Sprintf("invalid value for participationEma %s: %v", data.ParticipationEma, err))
 	}
 	if err := k.ParticipationEMA.Set(ctx, participationEma); err != nil {
 		panic(err)
 	}
 
-	constitutionAmendmentParticipationEmaStr := data.ConstitutionAmendmentParticipationEma
-	if constitutionAmendmentParticipationEmaStr == "" {
-		constitutionAmendmentParticipationEmaStr = v1.DefaultParticipationEma
-	}
-	constitutionAmendmentparticipationEma, err := math.LegacyNewDecFromStr(constitutionAmendmentParticipationEmaStr)
+	constitutionAmendmentParticipationEma, err := math.LegacyNewDecFromStr(data.ConstitutionAmendmentParticipationEma)
 	if err != nil {
-		panic(fmt.Sprintf("invalid value for constitutionAmendmentparticipationEma %s: %v", constitutionAmendmentParticipationEmaStr, err))
+		panic(fmt.Sprintf("invalid value for constitutionAmendmentParticipationEma %s: %v", data.ConstitutionAmendmentParticipationEma, err))
 	}
-	if err := k.ConstitutionAmendmentParticipationEMA.Set(ctx, constitutionAmendmentparticipationEma); err != nil {
+	if err := k.ConstitutionAmendmentParticipationEMA.Set(ctx, constitutionAmendmentParticipationEma); err != nil {
 		panic(err)
 	}
 
-	lawParticipationEmaStr := data.LawParticipationEma
-	if lawParticipationEmaStr == "" {
-		lawParticipationEmaStr = v1.DefaultParticipationEma
-	}
-	lawParticipationEma, err := math.LegacyNewDecFromStr(lawParticipationEmaStr)
+	lawParticipationEma, err := math.LegacyNewDecFromStr(data.LawParticipationEma)
 	if err != nil {
-		panic(fmt.Sprintf("invalid value for lawParticipationEma %s: %v", lawParticipationEmaStr, err))
+		panic(fmt.Sprintf("invalid value for lawParticipationEma %s: %v", data.LawParticipationEma, err))
 	}
 	if err := k.LawParticipationEMA.Set(ctx, lawParticipationEma); err != nil {
 		panic(err)
@@ -174,6 +161,8 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 
 	// set governors
 	minSelfDelegation, _ := math.NewIntFromString(data.Params.MinGovernorSelfDelegation)
+	// track active governors to skip their self-delegations in the second loop
+	activeGovernors := make(map[string]struct{})
 	for _, governor := range data.Governors {
 		// check that base account exists
 		accAddr := sdk.AccAddress(governor.GetAddress())
@@ -182,7 +171,9 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			panic(fmt.Sprintf("account %s does not exist", accAddr.String()))
 		}
 
-		k.Governors.Set(ctx, governor.GetAddress(), *governor)
+		if err := k.Governors.Set(ctx, governor.GetAddress(), *governor); err != nil {
+			panic(err)
+		}
 		if governor.IsActive() {
 			// validate min self-delegation
 			bondedTokens, err := k.GetGovernorBondedTokens(ctx, governor.GetAddress())
@@ -193,7 +184,8 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 				panic(types.ErrInsufficientGovernorDelegation.Wrapf("minimum self-delegation required: %s, total bonded tokens: %s", minSelfDelegation, bondedTokens))
 			}
 
-			err = k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
+			activeGovernors[governor.GetAddress().String()] = struct{}{}
+			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 			if err != nil {
 				panic(fmt.Sprintf("failed to delegate to governor %s: %v", governor.GetAddress().String(), err))
 			}
@@ -203,6 +195,15 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 	for _, delegation := range data.GovernanceDelegations {
 		delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
 		govAddr := types.MustGovernorAddressFromBech32(delegation.GovernorAddress)
+
+		// skip self-delegations for active governors (already handled in first loop)
+		delGovAddr := types.GovernorAddress(delAddr)
+		if delGovAddr.Equals(govAddr) {
+			if _, isActive := activeGovernors[delGovAddr.String()]; isActive {
+				continue
+			}
+		}
+
 		// check delegator exists
 		acc := ak.GetAccount(ctx, delAddr)
 		if acc == nil {
@@ -215,8 +216,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 		}
 
 		// if account is active governor and delegation is not to self, error
-		delGovAddr := types.GovernorAddress(delAddr)
-		if _, err = k.Governors.Get(ctx, delGovAddr); err != nil && !delGovAddr.Equals(govAddr) {
+		if _, isActive := activeGovernors[delGovAddr.String()]; isActive && !delGovAddr.Equals(govAddr) {
 			panic(fmt.Sprintf("account %s is an active governor and cannot delegate", delAddr.String()))
 		}
 
@@ -309,10 +309,13 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) (*v1.GenesisState, error) 
 	var governanceDelegations []*v1.GovernanceDelegation
 	for _, g := range governors {
 		var delegations []*v1.GovernanceDelegation
-		k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](g.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
+		err = k.GovernanceDelegationsByGovernor.Walk(ctx, collections.NewPrefixedPairRange[types.GovernorAddress, sdk.AccAddress](g.GetAddress()), func(_ collections.Pair[types.GovernorAddress, sdk.AccAddress], delegation v1.GovernanceDelegation) (stop bool, err error) {
 			delegations = append(delegations, &delegation)
 			return false, nil
 		})
+		if err != nil {
+			return nil, err
+		}
 		governanceDelegations = append(governanceDelegations, delegations...)
 	}
 
