@@ -160,7 +160,10 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 	}
 
 	// set governors
-	minSelfDelegation, _ := math.NewIntFromString(data.Params.MinGovernorSelfDelegation)
+	minSelfDelegation, ok := math.NewIntFromString(data.Params.MinGovernorSelfDelegation)
+	if !ok {
+		panic(fmt.Sprintf("invalid min governor self-delegation: %s", data.Params.MinGovernorSelfDelegation))
+	}
 	// track active governors to skip their self-delegations in the second loop
 	activeGovernors := make(map[string]struct{})
 	for _, governor := range data.Governors {
@@ -185,7 +188,7 @@ func InitGenesis(ctx sdk.Context, ak types.AccountKeeper, bk types.BankKeeper, k
 			}
 
 			activeGovernors[governor.GetAddress().String()] = struct{}{}
-			err := k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
+			err = k.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 			if err != nil {
 				panic(fmt.Sprintf("failed to delegate to governor %s: %v", governor.GetAddress().String(), err))
 			}
