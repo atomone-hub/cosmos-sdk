@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/collections"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -87,6 +88,7 @@ func TestInitGenesis_GovernorDelegationToOtherGovernorPanics(t *testing.T) {
 	require.NoError(t, err)
 
 	defaultState := v1.DefaultGenesisState()
+	defaultState.Params.MinGovernorSelfDelegation = "0"
 	defaultState.Governors = []*v1.Governor{&governor1, &governor2}
 	// Governor 1 attempts to delegate to Governor 2 — must panic
 	defaultState.GovernanceDelegations = []*v1.GovernanceDelegation{
@@ -132,6 +134,7 @@ func TestInitGenesis_InactiveGovernorDelegationToOtherGovernor(t *testing.T) {
 	require.NoError(t, err)
 
 	defaultState := v1.DefaultGenesisState()
+	defaultState.Params.MinGovernorSelfDelegation = "0"
 	defaultState.Governors = []*v1.Governor{&governor1, &governor2}
 	// Inactive governor 1 delegates to active governor 2 — must not panic
 	defaultState.GovernanceDelegations = []*v1.GovernanceDelegation{
@@ -174,6 +177,7 @@ func TestInitGenesis_NonGovernorDelegation(t *testing.T) {
 	require.NoError(t, err)
 
 	defaultState := v1.DefaultGenesisState()
+	defaultState.Params.MinGovernorSelfDelegation = "0"
 	defaultState.Governors = []*v1.Governor{&governor}
 	defaultState.GovernanceDelegations = []*v1.GovernanceDelegation{
 		{
@@ -185,4 +189,29 @@ func TestInitGenesis_NonGovernorDelegation(t *testing.T) {
 	require.NotPanics(t, func() {
 		gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, defaultState)
 	})
+}
+
+func TestExportGenesis_ReturnsGovernanceDelegationWalkError(t *testing.T) {
+	suite := createTestSuite(t)
+	ctx := suite.App.BaseApp.NewContext(false)
+
+	gov.InitGenesis(ctx, suite.AccountKeeper, suite.BankKeeper, suite.GovKeeper, v1.DefaultGenesisState())
+
+	governorAddr := types.GovernorAddress(pubkeys[0].Address())
+	governor, err := v1.NewGovernor(governorAddr.String(), v1.GovernorDescription{}, ctx.BlockTime())
+	require.NoError(t, err)
+	require.NoError(t, suite.GovKeeper.Governors.Set(ctx, governor.GetAddress(), governor))
+
+	corruptKey, err := collections.EncodeKeyWithPrefix(
+		types.GovernanceDelegationsByGovernorKeyPrefix,
+		suite.GovKeeper.GovernanceDelegationsByGovernor.KeyCodec(),
+		collections.Join(governor.GetAddress(), sdk.AccAddress(pubkeys[1].Address())),
+	)
+	require.NoError(t, err)
+
+	storeKey := suite.App.UnsafeFindStoreKey(types.StoreKey)
+	ctx.KVStore(storeKey).Set(corruptKey, []byte{0x01})
+
+	_, err = gov.ExportGenesis(ctx, suite.GovKeeper)
+	require.Error(t, err)
 }

@@ -13,7 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func (keeper Keeper) getGovernorBondedTokens(ctx sdk.Context, govAddr types.GovernorAddress) (bondedTokens math.Int, err error) {
+func (keeper Keeper) GetGovernorBondedTokens(ctx sdk.Context, govAddr types.GovernorAddress) (bondedTokens math.Int, err error) {
 	bondedTokens = math.ZeroInt()
 	addr := sdk.AccAddress(govAddr)
 	err = keeper.sk.IterateDelegations(ctx, addr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
@@ -21,7 +21,10 @@ func (keeper Keeper) getGovernorBondedTokens(ctx sdk.Context, govAddr types.Gove
 		if err != nil {
 			panic(err) // This should never happen
 		}
-		validator, _ := keeper.sk.GetValidator(ctx, validatorAddr)
+		validator, err := keeper.sk.GetValidator(ctx, validatorAddr)
+		if err != nil {
+			panic(err) // This should never happen (a delegation to a non-existent validator should not be possible)
+		}
 		shares := delegation.GetShares()
 		bt := shares.MulInt(validator.GetBondedTokens()).Quo(validator.GetDelegatorShares()).TruncateInt()
 		bondedTokens = bondedTokens.Add(bt)
@@ -48,7 +51,7 @@ func (keeper Keeper) ValidateGovernorMinSelfDelegation(ctx sdk.Context, governor
 	if !ok {
 		panic(fmt.Sprintf("invalid min governor self delegation: %s", params.MinGovernorSelfDelegation)) // This should never happen
 	}
-	bondedTokens, err := keeper.getGovernorBondedTokens(ctx, governor.GetAddress())
+	bondedTokens, err := keeper.GetGovernorBondedTokens(ctx, governor.GetAddress())
 	if err != nil {
 		return false
 	}

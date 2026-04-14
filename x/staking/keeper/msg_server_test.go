@@ -1143,3 +1143,77 @@ func (s *KeeperTestSuite) TestMsgUpdateParams() {
 		})
 	}
 }
+
+func (s *KeeperTestSuite) TestMsgUpdateParamsUpdatesExistingValidatorCommissions() {
+	ctx, keeper, msgServer := s.ctx, s.stakingKeeper, s.msgServer
+	require := s.Require()
+
+	minRate := math.LegacyMustNewDecFromStr("0.02")
+	maxRate := math.LegacyMustNewDecFromStr("0.05")
+	updatedAt := ctx.BlockTime().Add(-48 * time.Hour)
+
+	mustStoreValidator := func(index int, rate, maxRate, maxChangeRate math.LegacyDec) sdk.ValAddress {
+		valAddr := sdk.ValAddress(PKS[index].Address())
+		validator, err := stakingtypes.NewValidator(valAddr.String(), PKS[index], stakingtypes.Description{})
+		require.NoError(err)
+
+		validator.Commission = stakingtypes.NewCommissionWithTime(rate, maxRate, maxChangeRate, updatedAt)
+		require.NoError(keeper.SetValidator(ctx, validator))
+
+		return valAddr
+	}
+
+	lowAddr := mustStoreValidator(
+		0,
+		math.LegacyMustNewDecFromStr("0.01"),
+		math.LegacyMustNewDecFromStr("0.015"),
+		math.LegacyMustNewDecFromStr("0.01"),
+	)
+	highAddr := mustStoreValidator(
+		1,
+		math.LegacyMustNewDecFromStr("0.07"),
+		math.LegacyMustNewDecFromStr("0.10"),
+		math.LegacyMustNewDecFromStr("0.02"),
+	)
+	inRangeAddr := mustStoreValidator(
+		2,
+		math.LegacyMustNewDecFromStr("0.03"),
+		math.LegacyMustNewDecFromStr("0.04"),
+		math.LegacyMustNewDecFromStr("0.01"),
+	)
+
+	params := stakingtypes.DefaultParams()
+	params.MinCommissionRate = minRate
+	params.MaxCommissionRate = maxRate
+
+	_, err := msgServer.UpdateParams(ctx, &stakingtypes.MsgUpdateParams{
+		Authority: keeper.GetAuthority(),
+		Params:    params,
+	})
+	require.NoError(err)
+
+	storedParams, err := keeper.GetParams(ctx)
+	require.NoError(err)
+	require.Equal(params, storedParams)
+
+	lowValidator, err := keeper.GetValidator(ctx, lowAddr)
+	require.NoError(err)
+	require.True(minRate.Equal(lowValidator.Commission.Rate))
+	require.True(minRate.Equal(lowValidator.Commission.MaxRate))
+	require.True(math.LegacyMustNewDecFromStr("0.01").Equal(lowValidator.Commission.MaxChangeRate))
+	require.Equal(updatedAt, lowValidator.Commission.UpdateTime)
+
+	highValidator, err := keeper.GetValidator(ctx, highAddr)
+	require.NoError(err)
+	require.True(maxRate.Equal(highValidator.Commission.Rate))
+	require.True(math.LegacyMustNewDecFromStr("0.10").Equal(highValidator.Commission.MaxRate))
+	require.True(math.LegacyMustNewDecFromStr("0.02").Equal(highValidator.Commission.MaxChangeRate))
+	require.Equal(updatedAt, highValidator.Commission.UpdateTime)
+
+	inRangeValidator, err := keeper.GetValidator(ctx, inRangeAddr)
+	require.NoError(err)
+	require.True(math.LegacyMustNewDecFromStr("0.03").Equal(inRangeValidator.Commission.Rate))
+	require.True(math.LegacyMustNewDecFromStr("0.04").Equal(inRangeValidator.Commission.MaxRate))
+	require.True(math.LegacyMustNewDecFromStr("0.01").Equal(inRangeValidator.Commission.MaxChangeRate))
+	require.Equal(updatedAt, inRangeValidator.Commission.UpdateTime)
+}

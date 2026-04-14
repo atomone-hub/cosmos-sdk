@@ -614,5 +614,9 @@ func (k msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams)
 		return nil, err
 	}
 
+	if err := k.UpdateValidatorCommissionsForNewRange(ctx, msg.Params.MinCommissionRate, msg.Params.MaxCommissionRate); err != nil {
+		return nil, err
+	}
+
 	return &types.MsgUpdateParamsResponse{}, nil
 }

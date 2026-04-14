@@ -125,6 +125,22 @@ func setupGovKeeper(t *testing.T, expectations ...func(sdk.Context, mocks)) (
 	moduletestutil.TestEncodingConfig,
 	sdk.Context,
 ) {
+	govKeeper, _, acctKeeper, bankKeeper, stakingKeeper, distributionKeeper, encCfg, ctx := setupGovKeeperWithStoreKey(t, expectations...)
+	return govKeeper, acctKeeper, bankKeeper, stakingKeeper, distributionKeeper, encCfg, ctx
+}
+
+// setupGovKeeperWithStoreKey creates a govKeeper as well as all its dependencies
+// and returns the mounted gov store key for tests that need direct store access.
+func setupGovKeeperWithStoreKey(t *testing.T, expectations ...func(sdk.Context, mocks)) (
+	*keeper.Keeper,
+	*storetypes.KVStoreKey,
+	*govtestutil.MockAccountKeeper,
+	*govtestutil.MockBankKeeper,
+	*govtestutil.MockStakingKeeper,
+	*govtestutil.MockDistributionKeeper,
+	moduletestutil.TestEncodingConfig,
+	sdk.Context,
+) {
 	key := storetypes.NewKVStoreKey(types.StoreKey)
 	storeService := runtime.NewKVStoreService(key)
 	testCtx := testutil.DefaultContextWithDB(t, key, storetypes.NewTransientStoreKey("transient_test"))
@@ -186,7 +202,7 @@ func setupGovKeeper(t *testing.T, expectations ...func(sdk.Context, mocks)) (
 	v1.RegisterMsgServer(msr, keeper.NewMsgServerImpl(govKeeper))
 	banktypes.RegisterMsgServer(msr, nil) // Nil is fine here as long as we never execute the proposal's Msgs.
 
-	return govKeeper, acctKeeper, bankKeeper, stakingKeeper, distributionKeeper, encCfg, ctx
+	return govKeeper, key, acctKeeper, bankKeeper, stakingKeeper, distributionKeeper, encCfg, ctx
 }
 
 // trackMockBalances sets up expected calls on the Mock BankKeeper, and also
