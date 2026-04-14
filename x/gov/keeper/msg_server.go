@@ -350,7 +350,7 @@ func (k msgServer) CreateGovernor(goCtx context.Context, msg *v1.MsgCreateGovern
 		return nil, err
 	}
 	minSelfDelegation, _ := math.NewIntFromString(params.MinGovernorSelfDelegation)
-	bondedTokens, err := k.getGovernorBondedTokens(ctx, govAddr)
+	bondedTokens, err := k.GetGovernorBondedTokens(ctx, govAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -467,7 +467,7 @@ func (k msgServer) UpdateGovernorStatus(goCtx context.Context, msg *v1.MsgUpdate
 	// prevent a change to active if min self-delegation is not met
 	if governor.IsActive() {
 		minSelfDelegation, _ := math.NewIntFromString(params.MinGovernorSelfDelegation)
-		bondedTokens, err := k.getGovernorBondedTokens(ctx, govAddr)
+		bondedTokens, err := k.GetGovernorBondedTokens(ctx, govAddr)
 		if err != nil {
 			return nil, err
 		}

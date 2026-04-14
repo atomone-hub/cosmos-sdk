@@ -73,6 +73,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (x/gov) [#58](https://github.com/atomone-hub/cosmos-sdk/pull/58) Check errors in endblocker when traversing the quorum check queue.
 * (x/gov) [#59](https://github.com/atomone-hub/cosmos-sdk/pull/59) Ensure governor exists and is active before processing governance delegations.
 * (x/gov) [#70](https://github.com/atomone-hub/cosmos-sdk/pull/70) Refine error checking on governor existence checks
+* (x/staking) [#83](https://github.com/atomone-hub/cosmos-sdk/pull/83) Update existing validator commissions when commission params change.
+* (x/gov) [#71](https://github.com/atomone-hub/cosmos-sdk/pull/71) Validate minimum self-delegation for imported governors in InitGenesis
 
 ## [Unreleased]
 

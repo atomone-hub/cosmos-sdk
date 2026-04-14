@@ -271,24 +271,24 @@ func TestInitGenesis_GovernorSelfDelegationNotDoubled(t *testing.T) {
 		m.stakingKeeper.EXPECT().GetValidator(gomock.Any(), gomock.Any()).Return(stakingtypes.Validator{
 			OperatorAddress: valAddr.String(),
 			Status:          stakingtypes.Bonded,
-			Tokens:          math.NewInt(100),
-			DelegatorShares: math.LegacyNewDec(100),
+			Tokens:          math.NewInt(1000000000),
+			DelegatorShares: math.LegacyNewDec(1000000000),
 		}, nil).AnyTimes()
 		m.stakingKeeper.EXPECT().GetDelegation(gomock.Any(), gomock.Any(), gomock.Any()).Return(stakingtypes.Delegation{
 			DelegatorAddress: accAddr.String(),
 			ValidatorAddress: valAddr.String(),
-			Shares:           math.LegacyNewDec(100),
+			Shares:           math.LegacyNewDec(1000000000),
 		}, nil).AnyTimes()
 
 		// This is the key mock - IterateDelegations must call the callback to set up shares
 		m.stakingKeeper.EXPECT().IterateDelegations(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
 			func(_ context.Context, voter sdk.AccAddress, fn func(index int64, d stakingtypes.DelegationI) bool) error {
-				// Return one delegation for the validator (100 shares)
+				// Return one delegation for the validator (1000000000 shares)
 				if voter.String() == accAddr.String() {
 					d := stakingtypes.Delegation{
 						DelegatorAddress: voter.String(),
 						ValidatorAddress: valAddr.String(),
-						Shares:           math.LegacyNewDec(100),
+						Shares:           math.LegacyNewDec(1000000000),
 					}
 					fn(0, d)
 				}
@@ -313,10 +313,10 @@ func TestInitGenesis_GovernorSelfDelegationNotDoubled(t *testing.T) {
 	err = govKeeper.DelegateToGovernor(ctx, accAddr, governor.GetAddress())
 	require.NoError(t, err)
 
-	// Verify initial shares are 100 (from the staking delegation)
+	// Verify initial shares are 1000000000 (from the staking delegation)
 	initialShares, err := govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governor.GetAddress(), valAddr))
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyNewDec(100), initialShares.Shares, "initial shares should be 100")
+	require.Equal(t, math.LegacyNewDec(1000000000), initialShares.Shares, "initial shares should be 1000000000")
 
 	// Export genesis
 	exportedState, err := gov.ExportGenesis(ctx, govKeeper)
@@ -346,7 +346,7 @@ func TestInitGenesis_GovernorSelfDelegationNotDoubled(t *testing.T) {
 	// Verify the validator shares are NOT doubled (the bug would cause them to be 200)
 	finalShares, err := govKeeper.ValidatorSharesByGovernor.Get(ctx, collections.Join(governor.GetAddress(), valAddr))
 	require.NoError(t, err)
-	require.Equal(t, math.LegacyNewDec(100), finalShares.Shares,
+	require.Equal(t, math.LegacyNewDec(1000000000), finalShares.Shares,
 		"shares should still be 100 after export/import, not doubled to 200")
 }
 

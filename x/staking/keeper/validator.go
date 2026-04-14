@@ -210,6 +210,49 @@ func (k Keeper) UpdateValidatorCommission(ctx context.Context,
 	return commission, nil
 }
 
+// UpdateValidatorCommissionsForNewRange updates stored validator commissions so
+// their current rate remains within the chain-wide bounds. If the enforced rate
+// ends up above a validator's MaxRate, MaxRate is lifted to match it.
+func (k Keeper) UpdateValidatorCommissionsForNewRange(
+	ctx context.Context, minRate, maxRate math.LegacyDec,
+) error {
+	validators, err := k.GetAllValidators(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, validator := range validators {
+		updatedRate := validator.Commission.Rate
+		switch {
+		case updatedRate.LT(minRate):
+			updatedRate = minRate
+		case updatedRate.GT(maxRate):
+			updatedRate = maxRate
+		}
+
+		changed := false
+		if !validator.Commission.Rate.Equal(updatedRate) {
+			validator.Commission.Rate = updatedRate
+			changed = true
+		}
+
+		if validator.Commission.MaxRate.LT(updatedRate) {
+			validator.Commission.MaxRate = updatedRate
+			changed = true
+		}
+
+		if !changed {
+			continue
+		}
+
+		if err := k.SetValidator(ctx, validator); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // RemoveValidator removes the validator record and associated indexes
 // except for the bonded validator index which is only handled in ApplyAndReturnTendermintUpdates
 func (k Keeper) RemoveValidator(ctx context.Context, address sdk.ValAddress) error {
