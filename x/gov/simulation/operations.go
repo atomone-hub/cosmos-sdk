@@ -545,7 +545,7 @@ func randomDeposit(
 	bk types.BankKeeper,
 	k *keeper.Keeper,
 	addr sdk.AccAddress,
-	useMinAmount bool,
+	initialDeposit bool,
 ) (deposit sdk.Coins, skip bool, err error) {
 	account := ak.GetAccount(ctx, addr)
 	spendable := bk.SpendableCoins(ctx, account.GetAddress())
@@ -555,7 +555,7 @@ func randomDeposit(
 	}
 
 	params, _ := k.Params.Get(ctx)
-	minDeposit := params.MinDepositThrottler.FloorValue
+	minDeposit := k.GetMinDeposit(ctx)
 	if len(minDeposit) == 0 {
 		return nil, true, nil // skip if no deposit denoms configured
 	}
@@ -577,15 +577,26 @@ func randomDeposit(
 	threshold := minDepositAmount.ToLegacyDec().Mul(minDepositRatio).TruncateInt()
 
 	minAmount := sdkmath.ZeroInt()
-	if useMinAmount {
+	maxAmount := minDepositAmount
+	if initialDeposit {
 		minAmount = k.GetMinInitialDeposit(ctx)[denomIndex].Amount
 	}
 
-	amount, err := simtypes.RandPositiveInt(r, minDepositAmount.Sub(minAmount))
-	if err != nil {
-		return nil, false, err
+	// min initial deposit and min deposit grow independently, which can result in
+	// the subtraction from maxAmount and minAmount here to lead to a negative number.
+	// To avoid that, we skip the
+	var amount sdkmath.Int
+	if minAmount.GTE(maxAmount) {
+		// if min initial deposit is greater than min deposit, submission of proposal triggers also inevitably
+		// to enter voting period, so we can set maxAmount = minAmount there is no need to go any higher
+		amount = minAmount
+	} else {
+		amount, err = simtypes.RandPositiveInt(r, maxAmount.Sub(minAmount))
+		if err != nil {
+			return nil, false, err
+		}
+		amount = amount.Add(minAmount)
 	}
-	amount = amount.Add(minAmount)
 
 	if amount.GT(spendableBalance) || amount.LT(threshold) {
 		return nil, true, nil

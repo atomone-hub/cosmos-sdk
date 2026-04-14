@@ -28,6 +28,8 @@ type E2ETestSuite struct {
 
 	cfg     network.Config
 	network *network.Network
+
+	proposalsDeposits []sdk.Coin
 }
 
 func NewE2ETestSuite(cfg network.Config) *E2ETestSuite {
@@ -46,10 +48,14 @@ func (s *E2ETestSuite) SetupSuite() {
 	clientCtx := val.ClientCtx
 	var resp sdk.TxResponse
 
+	s.proposalsDeposits = make([]sdk.Coin, 0)
+
 	// create a proposal with deposit
+	deposit := s.queryGovMinDeposit(val.APIAddress)
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err := govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 1", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
@@ -61,27 +67,32 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
 
 	// create a proposal with a small deposit
-	minimumAcceptedDep := v1.DefaultMinDepositTokens.ToLegacyDec().Mul(v1.DefaultMinDepositRatio).Ceil().TruncateInt()
+	deposit = s.queryGovMinInitialDeposit(val.APIAddress)
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 2", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, sdk.NewCoin(s.cfg.BondDenom, minimumAcceptedDep).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
 
 	// create a proposal3 with deposit
+	deposit = s.queryGovMinDeposit(val.APIAddress)
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 3", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
 
 	// create a proposal4 with deposit to check the cancel proposal cli tx
+	deposit = s.queryGovMinDeposit(val.APIAddress)
+	s.proposalsDeposits = append(s.proposalsDeposits, deposit)
 	out, err = govclitestutil.MsgSubmitLegacyProposal(val.ClientCtx, val.Address.String(),
 		"Text Proposal 4", "Where is the title!?", v1beta1.ProposalTypeText,
-		fmt.Sprintf("--%s=%s", cli.FlagDeposit, sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens).String()))
+		fmt.Sprintf("--%s=%s", cli.FlagDeposit, deposit.String()))
 	s.Require().NoError(err)
 	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 	s.Require().NoError(clitestutil.CheckTxCode(s.network, clientCtx, resp.TxHash, 0))
@@ -131,7 +142,7 @@ func (s *E2ETestSuite) TestNewCmdSubmitProposal() {
 	"summary": "My awesome description",
 	"metadata": "%s",
 	"deposit": "%s"
-}`, authtypes.NewModuleAddress(types.ModuleName), base64.StdEncoding.EncodeToString(propMetadata), sdk.NewCoin(s.cfg.BondDenom, math.NewInt(100000)))
+}`, authtypes.NewModuleAddress(types.ModuleName), base64.StdEncoding.EncodeToString(propMetadata), s.queryGovMinDeposit(val.APIAddress).String())
 	validPropFile := testutil.WriteToNewTempFile(s.T(), validProp)
 	defer validPropFile.Close()
 
@@ -225,7 +236,7 @@ func (s *E2ETestSuite) TestNewCmdSubmitLegacyProposal() {
 			[]string{
 				fmt.Sprintf("--%s='Where is the title!?'", cli.FlagDescription),        //nolint:staticcheck // we are intentionally using a deprecated flag here.
 				fmt.Sprintf("--%s=%s", cli.FlagProposalType, v1beta1.ProposalTypeText), //nolint:staticcheck // we are intentionally using a deprecated flag here.
-				fmt.Sprintf("--%s=%s", cli.FlagDeposit, sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10000)).String()),
+				fmt.Sprintf("--%s=%s", cli.FlagDeposit, s.queryGovMinInitialDeposit(val.APIAddress).String()),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
@@ -250,7 +261,7 @@ func (s *E2ETestSuite) TestNewCmdSubmitLegacyProposal() {
 				fmt.Sprintf("--%s='Text Proposal'", cli.FlagTitle),
 				fmt.Sprintf("--%s='Where is the title!?'", cli.FlagDescription),        //nolint:staticcheck // we are intentionally using a deprecated flag here.
 				fmt.Sprintf("--%s=%s", cli.FlagProposalType, v1beta1.ProposalTypeText), //nolint:staticcheck // we are intentionally using a deprecated flag here.
-				fmt.Sprintf("--%s=%s", cli.FlagDeposit, sdk.NewCoin(s.cfg.BondDenom, math.NewInt(100000)).String()),
+				fmt.Sprintf("--%s=%s", cli.FlagDeposit, s.queryGovMinDeposit(val.APIAddress).String()),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
@@ -374,7 +385,7 @@ func (s *E2ETestSuite) TestNewCmdCancelProposal() {
 					s.Require().NoError(err)
 					err = val.ClientCtx.Codec.UnmarshalJSON(resp, &newBalance)
 					s.Require().NoError(err)
-					remainingAmount := v1.DefaultMinDepositTokens.Mul(
+					remainingAmount := s.proposalsDeposits[3].Amount.Mul( // index is proposal_id - 1
 						v1.DefaultProposalCancelRatio.Mul(math.LegacyMustNewDecFromStr("100")).TruncateInt(),
 					).Quo(math.NewIntFromUint64(100))
 
@@ -560,4 +571,26 @@ func (s *E2ETestSuite) TestNewCmdWeightedVote() {
 			}
 		})
 	}
+}
+
+func (s *E2ETestSuite) queryGovMinInitialDeposit(endpoint string) sdk.Coin {
+	var govMinInitialDepositResp v1.QueryMinInitialDepositResponse
+	val := s.network.Validators[0]
+	path := fmt.Sprintf("%s/cosmos/gov/v1/mininitialdeposit", endpoint)
+	resp, err := testutil.GetRequest(path)
+	s.Require().NoError(err)
+	err = val.ClientCtx.Codec.UnmarshalJSON(resp, &govMinInitialDepositResp)
+	s.Require().NoError(err)
+	return govMinInitialDepositResp.MinInitialDeposit[0]
+}
+
+func (s *E2ETestSuite) queryGovMinDeposit(endpoint string) sdk.Coin {
+	var govMinDepositResp v1.QueryMinDepositResponse
+	val := s.network.Validators[0]
+	path := fmt.Sprintf("%s/cosmos/gov/v1/mindeposit", endpoint)
+	resp, err := testutil.GetRequest(path)
+	s.Require().NoError(err)
+	err = val.ClientCtx.Codec.UnmarshalJSON(resp, &govMinDepositResp)
+	s.Require().NoError(err)
+	return govMinDepositResp.MinDeposit[0]
 }

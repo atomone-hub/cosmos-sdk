@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"cosmossdk.io/collections"
 	errorsmod "cosmossdk.io/errors"
@@ -111,6 +112,8 @@ func (keeper Keeper) SubmitProposal(ctx context.Context, messages []sdk.Msg, met
 	if err != nil {
 		return v1.Proposal{}, err
 	}
+
+	keeper.UpdateMinInitialDeposit(ctx, false)
 
 	// called right after a proposal is submitted
 	err = keeper.Hooks().AfterProposalSubmission(ctx, proposalID)
@@ -232,6 +235,20 @@ func (keeper Keeper) DeleteProposal(ctx context.Context, proposalID uint64) erro
 		if err != nil {
 			return err
 		}
+
+		err = keeper.QuorumCheckQueue.Walk(ctx, nil, func(key collections.Pair[time.Time, uint64], _ v1.QuorumCheckQueueEntry) (bool, error) {
+			if key.K2() == proposalID {
+				err := keeper.QuorumCheckQueue.Remove(ctx, key)
+				if err != nil {
+					return false, err
+				}
+				return true, nil
+			}
+			return false, nil
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return keeper.Proposals.Remove(ctx, proposalID)
@@ -265,6 +282,8 @@ func (keeper Keeper) ActivateVotingPeriod(ctx context.Context, proposal v1.Propo
 	if err != nil {
 		return err
 	}
+
+	keeper.UpdateMinDeposit(ctx, false)
 
 	// Add proposal to quorum check queue
 	quorumTimeoutTime := proposal.VotingStartTime.Add(*params.QuorumTimeout)

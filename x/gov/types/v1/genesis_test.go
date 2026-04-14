@@ -243,6 +243,15 @@ func TestValidateGenesis(t *testing.T) {
 			expErrMsg: "max voting period extension -1ns must be greater than or equal to the difference between the voting period 504h0m0s and the quorum timeout 480h0m0s",
 		},
 		{
+			name: "quorum check count is greater than max allowed",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				params.QuorumCheckCount = v1.MaxQuorumCheckCount + 1
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, v1.DefaultParticipationEma, v1.DefaultParticipationEma, v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "quorum check count 1001 is too large, allowed max is 1000",
+		},
+		{
 			name: "invalid max deposit period",
 			genesisState: func() *v1.GenesisState {
 				params := v1.DefaultParams()
@@ -392,6 +401,54 @@ func TestValidateGenesis(t *testing.T) {
 				return state
 			},
 			expErrMsg: "duplicate deposit: proposal_id:1 depositor:\"depositor\"",
+		},
+		{
+			name: "invalid participation_ema - not a decimal",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, "notadecimal", v1.DefaultParticipationEma, v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "invalid participation_ema",
+		},
+		{
+			name: "negative participation_ema",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, "-0.1", v1.DefaultParticipationEma, v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "participation_ema must not be negative",
+		},
+		{
+			name: "participation_ema greater than 1",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, "1.1", v1.DefaultParticipationEma, v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "participation_ema must not be greater than 1",
+		},
+		{
+			name: "invalid constitution_amendment_participation_ema",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, v1.DefaultParticipationEma, "notadecimal", v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "invalid constitution_amendment_participation_ema",
+		},
+		{
+			name: "negative constitution_amendment_participation_ema",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, v1.DefaultParticipationEma, "-0.5", v1.DefaultParticipationEma, params)
+			},
+			expErrMsg: "constitution_amendment_participation_ema must not be negative",
+		},
+		{
+			name: "invalid law_participation_ema",
+			genesisState: func() *v1.GenesisState {
+				params := v1.DefaultParams()
+				return v1.NewGenesisState(v1.DefaultStartingProposalID, v1.DefaultParticipationEma, v1.DefaultParticipationEma, "2.0", params)
+			},
+			expErrMsg: "law_participation_ema must not be greater than 1",
 		},
 		{
 			name: "non-existent proposal id in votes",

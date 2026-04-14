@@ -56,7 +56,7 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 		)
 
 		// keeper.IterateGovernors(ctx, func(index int64, governor v1.GovernorI) bool {
-		keeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, governor v1.Governor) (stop bool, err error) {
+		err := keeper.Governors.Walk(ctx, nil, func(_ types.GovernorAddress, governor v1.Governor) (stop bool, err error) {
 			// check that if governor is active, it has a valid governance self-delegation
 			if governor.IsActive() {
 				if del, err := keeper.GovernanceDelegations.Get(ctx, sdk.AccAddress(governor.GetAddress())); err != nil || !governor.GetAddress().Equals(types.MustGovernorAddressFromBech32(del.GovernorAddress)) {
@@ -114,7 +114,7 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 				}
 			}
 
-			keeper.ValidatorSharesByGovernor.Walk(ctx, nil, func(_ collections.Pair[types.GovernorAddress, sdk.ValAddress], shares v1.GovernorValShares) (stop bool, err error) {
+			err = keeper.ValidatorSharesByGovernor.Walk(ctx, nil, func(_ collections.Pair[types.GovernorAddress, sdk.ValAddress], shares v1.GovernorValShares) (stop bool, err error) {
 				if _, ok := valShares[shares.ValidatorAddress]; !ok && shares.Shares.GT(math.LegacyZeroDec()) {
 					invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
 						fmt.Sprintf("non-zero (%s) shares stored for validator %s where there should be none", shares.Shares, shares.ValidatorAddress))
@@ -123,9 +123,20 @@ func GovernorsDelegationsInvariant(keeper *Keeper, sk types.StakingKeeper) sdk.I
 				}
 				return false, nil
 			})
+			if err != nil {
+				invariantStr = sdk.FormatInvariant(types.ModuleName, fmt.Sprintf("governor %s delegations", governor.GetAddress().String()),
+					fmt.Sprintf("failed to iterate validator shares: %v", err))
+				broken = true
+				return true, nil
+			}
 
 			return broken, nil
 		})
+		if err != nil {
+			invariantStr = sdk.FormatInvariant(types.ModuleName, "governors-delegations",
+				fmt.Sprintf("failed to iterate governors: %v", err))
+			broken = true
+		}
 		return invariantStr, broken
 	}
 }

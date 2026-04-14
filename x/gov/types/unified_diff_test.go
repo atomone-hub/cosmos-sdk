@@ -196,6 +196,24 @@ func TestApplyUnifiedDiff(t *testing.T) {
 `,
 			wantErr: true,
 		},
+		{
+			name: "Out of order hunks",
+			src:  "Line one\nLine two\nLine three",
+			diffStr: `@@ -2,1 +2,1 @@
+-Line two
++Line two modified
+@@ -1,1 +1,1 @@
+-Line one
++Line one modified
+`,
+			wantErr: true,
+		},
+		{
+			name:    "Invalid insertion content",
+			src:     "Line one\nLine two",
+			diffStr: "@@ -1,2 +1,3 @@\n Line one\n Line two\n+Line three with invalid char \b\n",
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

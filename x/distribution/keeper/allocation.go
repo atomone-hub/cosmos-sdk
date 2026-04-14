@@ -71,7 +71,7 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 		if numValidators > 0 && !nakamotoBonus.IsZero() {
 			// Distribute Nakamoto bonus across all denominations
 			for _, coin := range nakamotoBonus {
-				amount := coin.Amount.Quo(math.LegacyNewDec(numValidators))
+				amount := coin.Amount.QuoTruncate(math.LegacyNewDec(numValidators))
 				nbPerValidator = nbPerValidator.Add(sdk.NewDecCoinFromDec(coin.Denom, amount))
 			}
 		}
@@ -87,7 +87,7 @@ func (k Keeper) AllocateTokens(ctx context.Context, totalPreviousPower int64, bo
 		}
 
 		// Compute proportional share based on voting power
-		powerFraction := math.LegacyNewDec(vote.Validator.Power).Quo(math.LegacyNewDec(totalPreviousPower))
+		powerFraction := math.LegacyNewDec(vote.Validator.Power).QuoTruncate(math.LegacyNewDec(totalPreviousPower))
 		proportional := validatorTotalReward.MulDecTruncate(powerFraction)
 
 		// Add fixed Nakamoto bonus to proportional share
