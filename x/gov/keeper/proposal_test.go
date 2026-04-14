@@ -66,6 +66,12 @@ func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 
 func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 	suite.reset()
+
+	params, err := suite.govKeeper.Params.Get(suite.ctx)
+	suite.Require().NoError(err)
+	params.QuorumCheckCount = 1
+	suite.Require().NoError(suite.govKeeper.Params.Set(suite.ctx, params))
+
 	tp := TestProposal
 	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0])
 	suite.Require().NoError(err)
