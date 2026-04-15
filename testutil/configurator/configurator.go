@@ -18,6 +18,7 @@ import (
 	bankmodulev1 "github.com/cosmos/cosmos-sdk/x/bank/types/module"
 	consensusmodulev1 "github.com/cosmos/cosmos-sdk/x/consensus/types/module"
 	distrmodulev1 "github.com/cosmos/cosmos-sdk/x/distribution/types/module"
+	dynamicfeemodulev1 "github.com/cosmos/cosmos-sdk/x/dynamicfee/types/module"
 	genutilmodulev1 "github.com/cosmos/cosmos-sdk/x/genutil/types/module"
 	govmodulev1 "github.com/cosmos/cosmos-sdk/x/gov/types/module"
 	mintmodulev1 "github.com/cosmos/cosmos-sdk/x/mint/types/module"
@@ -61,6 +62,7 @@ func defaultConfig() *Config {
 			"consensus",
 			"vesting",
 			"circuit",
+			"dynamicfee",
 		},
 		EndBlockersOrder: []string{
 			"crisis",
@@ -82,6 +84,7 @@ func defaultConfig() *Config {
 			"upgrade",
 			"vesting",
 			"circuit",
+			"dynamicfee",
 		},
 		InitGenesisOrder: []string{
 			"auth",
@@ -103,6 +106,7 @@ func defaultConfig() *Config {
 			"upgrade",
 			"vesting",
 			"circuit",
+			"dynamicfee",
 		},
 		setInitGenesis: true,
 	}
@@ -195,6 +199,15 @@ func SlashingModule() ModuleOption {
 		config.ModuleConfigs["slashing"] = &appv1alpha1.ModuleConfig{
 			Name:   "slashing",
 			Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
+		}
+	}
+}
+
+func DynamicfeeModule() ModuleOption {
+	return func(config *Config) {
+		config.ModuleConfigs["dynamicfee"] = &appv1alpha1.ModuleConfig{
+			Name:   "dynamicfee",
+			Config: appconfig.WrapAny(&dynamicfeemodulev1.Module{}),
 		}
 	}
 }

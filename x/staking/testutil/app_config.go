@@ -7,6 +7,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/bank"           // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"      // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"   // import as blank for app wiring
+	_ "github.com/cosmos/cosmos-sdk/x/dynamicfee"     // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"        // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/mint"           // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/params"         // import as blank for app wiring
@@ -24,4 +25,5 @@ var AppConfig = configurator.NewAppConfig(
 	configurator.GenutilModule(),
 	configurator.MintModule(),
 	configurator.DistributionModule(),
+	configurator.DynamicfeeModule(),
 )
