@@ -133,68 +133,6 @@ func (keeper Keeper) SubmitProposal(ctx context.Context, messages []sdk.Msg, met
 	return proposal, nil
 }
 
-// CancelProposal will cancel proposal before the voting period ends
-func (keeper Keeper) CancelProposal(ctx context.Context, proposalID uint64, proposer string) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	proposal, err := keeper.Proposals.Get(ctx, proposalID)
-	if err != nil {
-		return err
-	}
-
-	// Checking proposal have proposer or not because old proposal doesn't have proposer field,
-	// https://github.com/cosmos/cosmos-sdk/blob/v0.46.2/proto/cosmos/gov/v1/gov.proto#L43
-	if proposal.Proposer == "" {
-		return types.ErrInvalidProposal.Wrapf("proposal %d doesn't have proposer %s, so cannot be canceled", proposalID, proposer)
-	}
-
-	// Check creator of the proposal
-	if proposal.Proposer != proposer {
-		return types.ErrInvalidProposer.Wrapf("invalid proposer %s", proposer)
-	}
-
-	// Check if proposal is active or not
-	if (proposal.Status != v1.StatusDepositPeriod) && (proposal.Status != v1.StatusVotingPeriod) {
-		return types.ErrInvalidProposal.Wrap("proposal should be in the deposit or voting period")
-	}
-
-	// Check proposal voting period is ended.
-	if proposal.VotingEndTime != nil && proposal.VotingEndTime.Before(sdkCtx.BlockTime()) {
-		return types.ErrVotingPeriodEnded.Wrapf("voting period is already ended for this proposal %d", proposalID)
-	}
-
-	// burn the (deposits * proposal_cancel_rate) amount or sent to cancellation destination address.
-	// and deposits * (1 - proposal_cancel_rate) will be sent to depositors.
-	params, err := keeper.Params.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = keeper.ChargeDeposit(ctx, proposal.Id, params.ProposalCancelDest, params.ProposalCancelRatio)
-	if err != nil {
-		return err
-	}
-
-	if proposal.VotingStartTime != nil {
-		err = keeper.deleteVotes(ctx, proposal.Id)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = keeper.DeleteProposal(ctx, proposal.Id)
-	if err != nil {
-		return err
-	}
-
-	keeper.Logger(ctx).Info(
-		"proposal is canceled by proposer",
-		"proposal", proposal.Id,
-		"proposer", proposal.Proposer,
-	)
-
-	return nil
-}
-
 // SetProposal sets a proposal to store.
 func (keeper Keeper) SetProposal(ctx context.Context, proposal v1.Proposal) error {
 	if proposal.Status == v1.StatusVotingPeriod {
@@ -285,10 +223,14 @@ func (keeper Keeper) ActivateVotingPeriod(ctx context.Context, proposal v1.Propo
 
 	keeper.UpdateMinDeposit(ctx, false)
 
-	// Add proposal to quorum check queue
-	quorumTimeoutTime := proposal.VotingStartTime.Add(*params.QuorumTimeout)
-	quorumCheckEntry := v1.NewQuorumCheckQueueEntry(quorumTimeoutTime, params.QuorumCheckCount)
-	return keeper.QuorumCheckQueue.Set(ctx, collections.Join(quorumTimeoutTime, proposal.Id), quorumCheckEntry)
+	// Add proposal to quorum check queue if functionality is enabled.
+	if params.QuorumCheckCount > 0 {
+		quorumTimeoutTime := proposal.VotingStartTime.Add(*params.QuorumTimeout)
+		quorumCheckEntry := v1.NewQuorumCheckQueueEntry(quorumTimeoutTime, params.QuorumCheckCount)
+		return keeper.QuorumCheckQueue.Set(ctx, collections.Join(quorumTimeoutTime, proposal.Id), quorumCheckEntry)
+	}
+
+	return nil
 }
 
 // ProposalKinds returns a v1.ProposalKinds useful to determine which kind of

@@ -11,7 +11,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
@@ -187,90 +186,6 @@ func (keeper Keeper) AddDeposit(ctx context.Context, proposalID uint64, deposito
 	}
 
 	return activatedVotingPeriod, nil
-}
-
-// ChargeDeposit will charge proposal cancellation fee (deposits * proposal_cancel_burn_rate)  and
-// send to a destAddress if defined or burn otherwise.
-// Remaining funds are send back to the depositor.
-func (keeper Keeper) ChargeDeposit(ctx context.Context, proposalID uint64, destAddress, proposalCancelRate string) error {
-	rate := sdkmath.LegacyMustNewDecFromStr(proposalCancelRate)
-	var cancellationCharges sdk.Coins
-
-	deposits, err := keeper.GetDeposits(ctx, proposalID)
-	if err != nil {
-		return err
-	}
-
-	for _, deposit := range deposits {
-		depositerAddress, err := keeper.authKeeper.AddressCodec().StringToBytes(deposit.Depositor)
-		if err != nil {
-			return err
-		}
-
-		var remainingAmount sdk.Coins
-
-		for _, coin := range deposit.Amount {
-			burnAmount := sdkmath.LegacyNewDecFromInt(coin.Amount).Mul(rate).TruncateInt()
-			// remaining amount = deposits amount - burn amount
-			remainingAmount = remainingAmount.Add(
-				sdk.NewCoin(
-					coin.Denom,
-					coin.Amount.Sub(burnAmount),
-				),
-			)
-			cancellationCharges = cancellationCharges.Add(
-				sdk.NewCoin(
-					coin.Denom,
-					burnAmount,
-				),
-			)
-		}
-
-		if !remainingAmount.IsZero() {
-			err := keeper.bankKeeper.SendCoinsFromModuleToAccount(
-				ctx, types.ModuleName, depositerAddress, remainingAmount,
-			)
-			if err != nil {
-				return err
-			}
-		}
-		err = keeper.Deposits.Remove(ctx, collections.Join(deposit.ProposalId, sdk.AccAddress(depositerAddress)))
-		if err != nil {
-			return err
-		}
-	}
-
-	// burn the cancellation fee or sent the cancellation charges to destination address.
-	if !cancellationCharges.IsZero() {
-		// get the distribution module account address
-		distributionAddress := keeper.authKeeper.GetModuleAddress(disttypes.ModuleName)
-		switch {
-		case destAddress == "":
-			// burn the cancellation charges from deposits
-			err := keeper.bankKeeper.BurnCoins(ctx, types.ModuleName, cancellationCharges)
-			if err != nil {
-				return err
-			}
-		case distributionAddress.String() == destAddress:
-			err := keeper.distrKeeper.FundCommunityPool(ctx, cancellationCharges, keeper.ModuleAccountAddress())
-			if err != nil {
-				return err
-			}
-		default:
-			destAccAddress, err := keeper.authKeeper.AddressCodec().StringToBytes(destAddress)
-			if err != nil {
-				return err
-			}
-			err = keeper.bankKeeper.SendCoinsFromModuleToAccount(
-				ctx, types.ModuleName, destAccAddress, cancellationCharges,
-			)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
 
 // RefundAndDeleteDeposits refunds and deletes all the deposits on a specific proposal.
