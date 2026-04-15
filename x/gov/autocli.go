@@ -174,15 +174,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					},
 				},
 				{
-					RpcMethod: "CancelProposal",
-					Use:       "cancel-proposal [proposal-id]",
-					Short:     "Cancel governance proposal before the voting period ends. Must be signed by the proposal creator.",
-					Example:   fmt.Sprintf(`$ %s tx gov cancel-proposal 1 --from mykey`, version.AppName),
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "proposal_id"},
-					},
-				},
-				{
 					RpcMethod: "Vote",
 					Use:       "vote [proposal-id] [option]",
 					Short:     "Vote for an active proposal, options: yes/no/no-with-veto/abstain",

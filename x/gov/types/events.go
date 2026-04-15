@@ -7,7 +7,6 @@ const (
 	EventTypeProposalVote            = "proposal_vote"
 	EventTypeInactiveProposal        = "inactive_proposal"
 	EventTypeActiveProposal          = "active_proposal"
-	EventTypeCancelProposal          = "cancel_proposal"
 	EventTypeQuorumCheck             = "quorum_check"
 	EventTypeMinDepositChange        = "min_deposit_change"
 	EventTypeMinInitialDepositChange = "min_initial_deposit_change"
@@ -30,7 +29,6 @@ const (
 	AttributeValueProposalPassed             = "proposal_passed"               // met vote quorum
 	AttributeValueProposalRejected           = "proposal_rejected"             // didn't meet vote quorum
 	AttributeValueProposalFailed             = "proposal_failed"               // error on proposal handler
-	AttributeValueProposalCanceled           = "proposal_canceled"             // error on proposal handler
 	AttributeKeyProposalProposer             = "proposal_proposer"             // account address of the proposer
 	AttributeValueProposalQuorumMet          = "proposal_quorum_met"           // met quorum
 	AttributeValueProposalQuorumNotMet       = "proposal_quorum_not_met"       // didn't meet quorum

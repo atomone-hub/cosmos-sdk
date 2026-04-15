@@ -36,7 +36,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [Unreleased Atom One Fork]
+## [Unreleased AtomOne Fork]
 
 ### Features
 
@@ -53,6 +53,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (x/epochs) [#33](https://github.com/atomone-hub/cosmos-sdk/pull/33) Add `x/epochs` module.
 * (x/distribution) [#10](https://github.com/atomone-hub/cosmos-sdk/pull/10) ADR-004 (Nakamoto Bonus).
 * (x/distribution) [#44](https://github.com/atomone-hub/cosmos-sdk/pull/44) Use epoch time to the nakamoto bonus period.
+* (x/gov) [#85](https://github.com/atomone-hub/cosmos-sdk/pull/85) Remove `msgCancelProposal`
 
 ### Improvements
 

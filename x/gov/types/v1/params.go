@@ -76,8 +76,6 @@ var (
 	DefaultMinInitialDepositDecreaseRatio                            = math.LegacyNewDecWithPrec(5, 3)
 	DefaultTargetProposalsInDepositPeriod                     uint64 = 5
 	DefaultBurnDepositNoThreshold                                    = math.LegacyNewDecWithPrec(80, 2)
-	DefaultProposalCancelRatio                                       = math.LegacyMustNewDecFromStr("0.5")
-	DefaultProposalCancelDestAddress                                 = ""
 	DefaultMinGovernorSelfDelegation                                 = math.NewInt(1000_000000)
 )
 
@@ -127,7 +125,6 @@ func NewParams(
 	maxQuorum, minQuorum string,
 	maxConstitutionAmendmentQuorum, minConstitutionAmendmentQuorum string,
 	maxLawQuorum, minLawQuorum string,
-	proposalCancelRatio, proposalCancelDest string,
 	governorStatusChangePeriod time.Duration, minGovernorSelfDelegation string,
 ) Params {
 	return Params{
@@ -139,8 +136,6 @@ func NewParams(
 		LawThreshold:                   lawThreshold,
 		// MinInitialDepositRatio:         minInitialDepositRatio, // Deprecated in favor of dynamic min deposit
 		//
-		ProposalCancelRatio:        proposalCancelRatio,
-		ProposalCancelDest:         proposalCancelDest,
 		BurnProposalDepositPrevote: burnProposalDeposit,
 		BurnVoteQuorum:             burnVoteQuorum,
 		MinDepositRatio:            minDepositRatio,
@@ -215,8 +210,6 @@ func DefaultParams() Params {
 		DefaultMinConstitutionAmendmentQuorum.String(),
 		DefaultMaxLawQuorum.String(),
 		DefaultMinLawQuorum.String(),
-		DefaultProposalCancelRatio.String(),
-		DefaultProposalCancelDestAddress,
 		DefaultGovernorStatusChangePeriod,
 		DefaultMinGovernorSelfDelegation.String(),
 	)
@@ -499,24 +492,6 @@ func (p Params) ValidateBasic() error {
 	}
 	if burnDepositNoThreshold.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("burnDepositNoThreshold too large: %s", burnDepositNoThreshold)
-	}
-
-	proposalCancelRate, err := math.LegacyNewDecFromStr(p.ProposalCancelRatio)
-	if err != nil {
-		return fmt.Errorf("invalid burn rate of cancel proposal: %w", err)
-	}
-	if proposalCancelRate.IsNegative() {
-		return fmt.Errorf("burn rate of cancel proposal must be positive: %s", proposalCancelRate)
-	}
-	if proposalCancelRate.GT(math.LegacyOneDec()) {
-		return fmt.Errorf("burn rate of cancel proposal is too large: %s", proposalCancelRate)
-	}
-
-	if len(p.ProposalCancelDest) != 0 {
-		_, err := sdk.AccAddressFromBech32(p.ProposalCancelDest)
-		if err != nil {
-			return fmt.Errorf("deposits destination address is invalid: %s", p.ProposalCancelDest)
-		}
 	}
 
 	if p.GovernorStatusChangePeriod == nil {

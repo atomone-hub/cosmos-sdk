@@ -121,33 +121,6 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	}, nil
 }
 
-// CancelProposal implements the MsgServer.CancelProposal method.
-func (k msgServer) CancelProposal(goCtx context.Context, msg *v1.MsgCancelProposal) (*v1.MsgCancelProposalResponse, error) {
-	_, err := k.authKeeper.AddressCodec().StringToBytes(msg.Proposer)
-	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid proposer address: %s", err)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.Keeper.CancelProposal(ctx, msg.ProposalId, msg.Proposer); err != nil {
-		return nil, err
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			govtypes.EventTypeCancelProposal,
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Proposer),
-			sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprint(msg.ProposalId)),
-		),
-	)
-
-	return &v1.MsgCancelProposalResponse{
-		ProposalId:     msg.ProposalId,
-		CanceledTime:   ctx.BlockTime(),
-		CanceledHeight: uint64(ctx.BlockHeight()),
-	}, nil
-}
-
 // ExecLegacyContent implements the MsgServer.ExecLegacyContent method.
 func (k msgServer) ExecLegacyContent(goCtx context.Context, msg *v1.MsgExecLegacyContent) (*v1.MsgExecLegacyContentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)

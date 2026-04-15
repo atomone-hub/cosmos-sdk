@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,8 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
@@ -351,115 +348,5 @@ func TestValidateInitialDeposit(t *testing.T) {
 			}
 			require.NoError(t, err)
 		})
-	}
-}
-
-func TestChargeDeposit(t *testing.T) {
-	testCases := []struct {
-		name                      string
-		proposalCancelRatio       string
-		proposalCancelDestAddress string
-		expectError               bool
-	}{
-		{
-			name:                      "Success: CancelRatio=0",
-			proposalCancelRatio:       "0",
-			proposalCancelDestAddress: "",
-			expectError:               false,
-		},
-		{
-			name:                      "Success: CancelRatio=0.5",
-			proposalCancelRatio:       "0.5",
-			proposalCancelDestAddress: "",
-			expectError:               false,
-		},
-		{
-			name:                      "Success: CancelRatio=1",
-			proposalCancelRatio:       "1",
-			proposalCancelDestAddress: "",
-			expectError:               false,
-		},
-	}
-
-	for _, tc := range testCases {
-		for i := 0; i < 3; i++ {
-			testName := func(i int) string {
-				if i == 0 {
-					return fmt.Sprintf("%s and dest address is %s", tc.name, "nil")
-				} else if i == 1 {
-					return fmt.Sprintf("%s and dest address is normal address", tc.name)
-				}
-				return fmt.Sprintf("%s and dest address is community address", tc.name)
-			}
-
-			t.Run(testName(i), func(t *testing.T) {
-				govKeeper, authKeeper, bankKeeper, stakingKeeper, _, _, ctx := setupGovKeeper(t)
-				params := v1.DefaultParams()
-				params.ProposalCancelRatio = tc.proposalCancelRatio
-				TestAddrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdkmath.NewInt(10000000000))
-				authKeeper.EXPECT().AddressCodec().Return(address.NewBech32Codec("cosmos")).AnyTimes()
-
-				switch i {
-				case 0:
-					// no dest address for cancel proposal, total cancellation charges will be burned
-					params.ProposalCancelDest = ""
-				case 1:
-					// normal account address for proposal cancel dest address
-					params.ProposalCancelDest = TestAddrs[1].String()
-				default:
-					// community address for proposal cancel dest address
-					params.ProposalCancelDest = authtypes.NewModuleAddress(disttypes.ModuleName).String()
-				}
-
-				err := govKeeper.Params.Set(ctx, params)
-				require.NoError(t, err)
-
-				tp := TestProposal
-				proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0])
-				require.NoError(t, err)
-				proposalID := proposal.Id
-				// deposit to proposal
-				fiveStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 300)))
-				_, err = govKeeper.AddDeposit(ctx, proposalID, TestAddrs[0], fiveStake, false)
-				require.NoError(t, err)
-
-				codec := address.NewBech32Codec("cosmos")
-				// get balances of dest address
-				var prevBalance sdk.Coin
-				if len(params.ProposalCancelDest) != 0 {
-					accAddr, err := codec.StringToBytes(params.ProposalCancelDest)
-					require.NoError(t, err)
-					prevBalance = bankKeeper.GetBalance(ctx, accAddr, sdk.DefaultBondDenom)
-				}
-
-				// get the deposits
-				allDeposits, _ := govKeeper.GetDeposits(ctx, proposalID)
-
-				// charge cancellation charges for cancel proposal
-				err = govKeeper.ChargeDeposit(ctx, proposalID, TestAddrs[0].String(), params.ProposalCancelRatio)
-				if tc.expectError {
-					require.Error(t, err)
-					return
-				}
-				require.NoError(t, err)
-
-				if len(params.ProposalCancelDest) != 0 {
-					accAddr, err := codec.StringToBytes(params.ProposalCancelDest)
-					require.NoError(t, err)
-					newBalanceAfterCancelProposal := bankKeeper.GetBalance(ctx, accAddr, sdk.DefaultBondDenom)
-					cancellationCharges := sdkmath.NewInt(0)
-					// MinInitialDepositRatio is deprecated; skip calculation if empty
-					if params.MinInitialDepositRatio != "" {
-						for _, deposits := range allDeposits {
-							for _, deposit := range deposits.Amount {
-								burnAmount := sdkmath.LegacyNewDecFromInt(deposit.Amount).Mul(sdkmath.LegacyMustNewDecFromStr(params.MinInitialDepositRatio)).TruncateInt()
-								cancellationCharges = cancellationCharges.Add(burnAmount)
-							}
-						}
-					}
-					require.True(t, newBalanceAfterCancelProposal.Equal(prevBalance.Add(sdk.NewCoin(sdk.DefaultBondDenom, cancellationCharges))))
-				}
-			})
-		}
 	}
 }
