@@ -14341,25 +14341,6 @@ paths:
                     description: >-
                       The ratio representing the proportion of the deposit value
                       that must be paid at proposal submission.
-                  proposal_cancel_ratio:
-                    type: string
-                    description: >-
-                      The cancel ratio which will not be returned back to the
-                      depositors when a proposal is cancelled.
-
-
-                      Since: cosmos-sdk 0.50
-                  proposal_cancel_dest:
-                    type: string
-                    description: >-
-                      The address which will receive (proposal_cancel_ratio *
-                      deposit) proposal deposits.
-
-                      If empty, the (proposal_cancel_ratio * deposit) proposal
-                      deposits will be burned.
-
-
-                      Since: cosmos-sdk 0.50
                   expedited_voting_period:
                     type: string
                     description: |-
@@ -49797,25 +49778,6 @@ definitions:
         description: >-
           The ratio representing the proportion of the deposit value that must
           be paid at proposal submission.
-      proposal_cancel_ratio:
-        type: string
-        description: >-
-          The cancel ratio which will not be returned back to the depositors
-          when a proposal is cancelled.
-
-
-          Since: cosmos-sdk 0.50
-      proposal_cancel_dest:
-        type: string
-        description: >-
-          The address which will receive (proposal_cancel_ratio * deposit)
-          proposal deposits.
-
-          If empty, the (proposal_cancel_ratio * deposit) proposal deposits will
-          be burned.
-
-
-          Since: cosmos-sdk 0.50
       expedited_voting_period:
         type: string
         description: |-
@@ -50395,25 +50357,6 @@ definitions:
             description: >-
               The ratio representing the proportion of the deposit value that
               must be paid at proposal submission.
-          proposal_cancel_ratio:
-            type: string
-            description: >-
-              The cancel ratio which will not be returned back to the depositors
-              when a proposal is cancelled.
-
-
-              Since: cosmos-sdk 0.50
-          proposal_cancel_dest:
-            type: string
-            description: >-
-              The address which will receive (proposal_cancel_ratio * deposit)
-              proposal deposits.
-
-              If empty, the (proposal_cancel_ratio * deposit) proposal deposits
-              will be burned.
-
-
-              Since: cosmos-sdk 0.50
           expedited_voting_period:
             type: string
             description: |-
