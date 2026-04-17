@@ -36,7 +36,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [Unreleased AtomOne Fork]
+## [v0.500.00](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.0) - 2025-04-17
 
 ### Features
 
@@ -76,8 +76,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (x/staking) [#83](https://github.com/atomone-hub/cosmos-sdk/pull/83) Update existing validator commissions when commission params change.
 * (x/gov) [#71](https://github.com/atomone-hub/cosmos-sdk/pull/71) Validate minimum self-delegation for imported governors in InitGenesis
 * (x/gov) [#87](https://github.com/atomone-hub/cosmos-sdk/pull/87) Add safeguard to prevent proposals to be added to the quorum check queue if functionality is disabled by setting `QuorumCheckCount` to 0.
-
-## [Unreleased]
 
 ## [v0.50.15](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.50.15) - 2025-12-12
 
