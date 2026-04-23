@@ -11,7 +11,7 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/dynamicfee interfaces (messages) on the
 // provided LegacyAmino codec.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "atomone/x/dynamicfee/v1/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "cosmos-sdk/x/dynamicfee/MsgUpdateParams")
 }
 
 // RegisterInterfaces registers the x/dynamicfee interfaces (messages + msg server) on the

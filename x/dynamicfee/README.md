@@ -364,7 +364,7 @@ A user can query and interact with the `dynamicfee` module using the CLI.
 The `query` commands allow users to query `dynamicfee` state.
 
 ```shell
-atomoned query dynamicfee --help
+simd query dynamicfee --help
 ```
 
 ##### params
@@ -372,13 +372,13 @@ atomoned query dynamicfee --help
 The `params` command allows users to query the on-chain parameters.
 
 ```shell
-atomoned query dynamicfee params [flags]
+simd query dynamicfee params [flags]
 ```
 
 Example:
 
 ```shell
-atomoned query dynamicfee params
+simd query dynamicfee params
 ```
 
 Example Output:
@@ -401,13 +401,13 @@ window: "1"
 The `state` command allows users to query the current on-chain state.
 
 ```shell
-atomoned query dynamicfee state [flags]
+simd query dynamicfee state [flags]
 ```
 
 Example:
 
 ```shell
-atomoned query dynamicfee state
+simd query dynamicfee state
 ```
 
 Example Output:
@@ -425,13 +425,13 @@ window:
 The `gas-price` command allows users to query the current gas-price for a given denom.
 
 ```shell
-atomoned query dynamicfee gas-price [denom] [flags]
+simd query dynamicfee gas-price [denom] [flags]
 ```
 
 Example:
 
 ```shell
-atomoned query dynamicfee gas-price uatone
+simd query dynamicfee gas-price uatone
 ```
 
 Example Output:
@@ -446,13 +446,13 @@ The `gas-prices` command allows users to query the current gas-price for all
 supported denoms.
 
 ```shell
-atomoned query dynamicfee gas-prices [flags]
+simd query dynamicfee gas-prices [flags]
 ```
 
 Example:
 
 ```shell
-atomoned query dynamicfee gas-prices
+simd query dynamicfee gas-prices
 ```
 
 Example Output:
@@ -470,7 +470,7 @@ A user can query the `dynamicfee` module using gRPC endpoints.
 The `Params` endpoint allows users to query the on-chain parameters.
 
 ```shell
-atomone.dynamicfee.v1.Query/Params
+cosmos.dynamicfee.v1.Query/Params
 ```
 
 Example:
@@ -478,7 +478,7 @@ Example:
 ```shell
 grpcurl -plaintext \
     localhost:9090 \
-    atomone.dynamicfee.v1.Query/Params
+    cosmos.dynamicfee.v1.Query/Params
 ```
 
 Example Output:
@@ -505,7 +505,7 @@ Example Output:
 The `State` endpoint allows users to query the current on-chain state.
 
 ```shell
-atomone.dynamicfee.v1.Query/State
+cosmos.dynamicfee.v1.Query/State
 ```
 
 Example:
@@ -513,7 +513,7 @@ Example:
 ```shell
 grpcurl -plaintext \
     localhost:9090 \
-    atomone.dynamicfee.v1.Query/State
+    cosmos.dynamicfee.v1.Query/State
 ```
 
 Example Output:
@@ -536,7 +536,7 @@ The `GasPrice` endpoint allows users to query the current on-chain gas price for
 a given denom.
 
 ```shell
-atomone.dynamicfee.v1.Query/GasPrice
+cosmos.dynamicfee.v1.Query/GasPrice
 ```
 
 Example:
@@ -545,7 +545,7 @@ Example:
 grpcurl -plaintext \
     -d '{"denom": "uatone"}' \
     localhost:9090 \
-    atomone.dynamicfee.v1.Query/GasPrice/
+    cosmos.dynamicfee.v1.Query/GasPrice/
 ```
 
 Example Output:
@@ -565,7 +565,7 @@ The `GasPrices` endpoint allows users to query the current on-chain gas prices
 for all denoms.
 
 ```shell
-atomone.dynamicfee.v1.Query/GasPrices
+cosmos.dynamicfee.v1.Query/GasPrices
 ```
 
 Example:
@@ -573,7 +573,7 @@ Example:
 ```shell
 grpcurl -plaintext \
     localhost:9090 \
-    atomone.dynamicfee.v1.Query/GasPrices
+    cosmos.dynamicfee.v1.Query/GasPrices
 ```
 
 Example Output:
