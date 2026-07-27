@@ -24,14 +24,19 @@ func (k Keeper) HandleValidatorSignature(ctx context.Context, addr cryptotypes.A
 	consAddr := sdk.ConsAddress(addr)
 
 	// don't update missed blocks when validator's jailed
-	isJailed, err := k.sk.IsValidatorJailed(ctx, consAddr)
+	val, err := k.sk.ValidatorByConsAddr(ctx, consAddr)
 	if err != nil {
 		return err
 	}
-
-	if isJailed {
+	if val.IsJailed() {
 		return nil
 	}
+
+	currentConsAddr, err := val.GetConsAddr()
+	if err != nil {
+		return err
+	}
+	consAddr = sdk.ConsAddress(currentConsAddr)
 
 	// fetch signing info
 	signInfo, err := k.GetValidatorSigningInfo(ctx, consAddr)

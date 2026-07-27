@@ -30,7 +30,7 @@ func (k Keeper) getPreviousConsKey(ctx context.Context, addr sdk.ConsAddress) (s
 }
 
 // performConsensusPubKeyUpdate updates the cons address to its pub key relation.
-// It migrates signing info and missed blocks from the old pubkey to the new pubkey.
+// It migrates signing info from the old pubkey to the new pubkey.
 func (k Keeper) performConsensusPubKeyUpdate(ctx context.Context, oldPubKey, newPubKey cryptotypes.PubKey) error {
 	// Connect new consensus address with PubKey.
 	if err := k.AddPubkey(ctx, newPubKey); err != nil {
@@ -45,6 +45,7 @@ func (k Keeper) performConsensusPubKeyUpdate(ctx context.Context, oldPubKey, new
 	if err != nil {
 		return types.ErrInvalidConsPubKey.Wrap("failed to get signing info for old public key")
 	}
+	signingInfo.Address = newConsAddr.String()
 
 	if err := k.SetValidatorSigningInfo(ctx, newConsAddr, signingInfo); err != nil {
 		return err
@@ -54,25 +55,7 @@ func (k Keeper) performConsensusPubKeyUpdate(ctx context.Context, oldPubKey, new
 		return err
 	}
 
-	// Migrate missed block bitmap from oldPubKey to newPubKey.
-	signedBlocksWindow, err := k.SignedBlocksWindow(ctx)
-	if err != nil {
-		return err
-	}
-
-	for i := int64(0); i < signedBlocksWindow; i++ {
-		missed, err := k.GetMissedBlockBitmapValue(ctx, oldConsAddr, i)
-		if err != nil {
-			return err
-		}
-		if missed {
-			if err := k.SetMissedBlockBitmapValue(ctx, newConsAddr, i, true); err != nil {
-				return err
-			}
-		}
-	}
-
-	return k.DeleteMissedBlockBitmap(ctx, oldConsAddr)
+	return nil
 }
 
 // deleteValidatorSigningInfo removes the validator signing info for a consensus address.
