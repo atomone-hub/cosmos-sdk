@@ -38,6 +38,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+### Features
+
+### Improvements
+
+### Bug Fixes
+
 ## [v0.500.2](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.2) - 2026-07-27
 
 ### Improvements
