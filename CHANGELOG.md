@@ -46,7 +46,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-## [v0.500.0](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.0) - 2026-06-22
+* (x/staking) [#108](https://github.com/atomone-hub/atomone-sdk/pull/108) Cherry-pick #19038 from upstream Cosmos SDK and add regression test.
+
+## [v0.500.0 / v0.500.1](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.0) - 2026-06-22
 
 ### Features
 
