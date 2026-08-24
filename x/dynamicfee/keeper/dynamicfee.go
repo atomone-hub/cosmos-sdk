@@ -39,6 +39,27 @@ func (k *Keeper) UpdateDynamicfee(ctx context.Context) error {
 		return err
 	}
 
+	// Make the current block's window slot authoritative by sourcing it from
+	// the consensus block gas meter, which accounts for the gas of every
+	// transaction charged to the block, including transactions whose messages
+	// failed or ran out of gas. The per-transaction post handler only records
+	// gas for successfully executed messages: its cached state write is
+	// discarded when message execution fails, and it is skipped entirely when a
+	// transaction runs out of gas (the panic unwinds before it runs). Relying on
+	// that handler alone therefore lets failed transactions consume block space
+	// without ever influencing the base gas price. Reading the block gas meter
+	// here closes that accounting gap and keeps the dynamic fee window in sync
+	// with the gas the block actually charged.
+	if blockGasMeter := sdkCtx.BlockGasMeter(); blockGasMeter != nil {
+		blockGas := blockGasMeter.GasConsumed()
+		// The block gas meter can slightly overshoot the limit on the final
+		// consumption; clamp so the window never records more than a full block.
+		if blockGas > maxBlockGas {
+			blockGas = maxBlockGas
+		}
+		state.Window[state.Index] = blockGas
+	}
+
 	// Update the learning rate based on the block gas seen in the
 	// current block. This is the AIMD learning rate adjustment algorithm.
 	newLR := state.UpdateLearningRate(params, maxBlockGas)

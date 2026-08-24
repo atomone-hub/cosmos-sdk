@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/dynamicfee/testutil"
@@ -210,6 +211,32 @@ func TestUpdateDynamicfee(t *testing.T) {
 		lr, err := k.GetLearningRate(ctx)
 		require.NoError(err)
 		require.Equal(math.LegacyMustNewDecFromStr("0.125"), lr)
+	})
+
+	t.Run("full block charged only through the block gas meter raises the base fee", func(t *testing.T) {
+		require := require.New(t)
+		k, ctx := testutil.SetupKeeper(t, 0)
+		state := types.DefaultState()
+		params := types.DefaultParams()
+		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
+
+		// Model a block whose entire gas was consumed by transactions that
+		// failed or ran out of gas: the per-transaction post handler never
+		// recorded any of it (the window slot is empty), yet the consensus
+		// block gas meter is full. The base fee must still react to the full
+		// block, exactly as it would for a block of successful transactions.
+		maxBlockGas := k.GetMaxBlockGas(ctx, params)
+		blockGasMeter := storetypes.NewGasMeter(maxBlockGas)
+		blockGasMeter.ConsumeGas(maxBlockGas, "failed transactions")
+		ctx = ctx.WithBlockGasMeter(blockGasMeter)
+
+		require.NoError(k.UpdateDynamicfee(ctx))
+
+		// A full block raises the base fee by 1/8th.
+		fee, err := k.GetBaseGasPrice(ctx)
+		require.NoError(err)
+		factor := math.LegacyMustNewDecFromStr("1.125")
+		require.Equal(state.BaseGasPrice.Mul(factor), fee)
 	})
 
 	t.Run("in-between min and target block with default eip1559 at min base fee", func(t *testing.T) {
