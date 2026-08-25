@@ -52,8 +52,15 @@ func (k *Keeper) UpdateDynamicfee(ctx context.Context) error {
 	// with the gas the block actually charged.
 	if blockGasMeter := sdkCtx.BlockGasMeter(); blockGasMeter != nil {
 		blockGas := blockGasMeter.GasConsumed()
-		// The block gas meter can slightly overshoot the limit on the final
-		// consumption; clamp so the window never records more than a full block.
+		// Clamp to the module's max block gas so a block never records more than
+		// full utilization. maxBlockGas is authoritative for the module's
+		// accounting: when the consensus MaxGas is set it equals it, and when it
+		// is 0/-1 (unbounded consensus, so the app uses an infinite block gas
+		// meter that enforces nothing) it falls back to DefaultMaxBlockGas. The
+		// clamp keeps utilization in [0, 1] and the AIMD math and window bounded
+		// in that case, and also absorbs the block gas meter overshooting its
+		// limit on the tx whose final consumption trips it (recovered as
+		// out-of-gas) when consensus MaxGas is set.
 		if blockGas > maxBlockGas {
 			blockGas = maxBlockGas
 		}
