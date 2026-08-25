@@ -24,7 +24,10 @@ import (
 //     (which triggers staking's updateToNewPubkey -> slashing's
 //     AfterConsensusPubKeyUpdate hook).
 //  4. Verify that:
-//     - signing info was migrated to the new consensus address.
+//     - signing info was migrated to the new consensus address, while the
+//     old-address record is retained (frozen) for old-key evidence
+//     accountability.
+//     - the pubkey relation for the old consensus address is retained.
 //     - the missed-block bitmap stays keyed under the old consensus address
 //     (1 entry) and remains reachable from the new consensus address via the
 //     ValidatorIdentifier indirection.
@@ -99,18 +102,24 @@ func TestConsensusKeyRotation_PreservesMissedBlocks(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, oldConsAddr, identifier)
 
-	// Signing info was migrated: gone at the old address, present at the new one
-	// with the new address embedded in the record.
-	_, err = f.slashingKeeper.GetValidatorSigningInfo(ctx, oldConsAddr)
-	assert.ErrorContains(t, err, slashingtypes.ErrNoSigningInfoFound.Error())
+	// Signing info was migrated: the live record now lives at the new address
+	// with the new address embedded in it, and the old-address record is
+	// retained (frozen) so old-key equivocation evidence still finds it.
+	retainedInfo, err := f.slashingKeeper.GetValidatorSigningInfo(ctx, oldConsAddr)
+	assert.NilError(t, err)
+	assert.Equal(t, oldConsAddr.String(), retainedInfo.Address)
 	migratedInfo, err := f.slashingKeeper.GetValidatorSigningInfo(ctx, newConsAddr)
 	assert.NilError(t, err)
 	assert.Equal(t, newConsAddr.String(), migratedInfo.Address)
 
-	// The pubkey relation for the new consensus address is set.
+	// The pubkey relation for the new consensus address is set, and the one for
+	// the old address is retained (old-key evidence accountability).
 	savedPk, err := f.slashingKeeper.GetPubkey(ctx, newConsAddr.Bytes())
 	assert.NilError(t, err)
 	assert.DeepEqual(t, newPk.Bytes(), savedPk.Bytes())
+	savedOldPk, err := f.slashingKeeper.GetPubkey(ctx, oldConsAddr.Bytes())
+	assert.NilError(t, err)
+	assert.DeepEqual(t, oldPk.Bytes(), savedOldPk.Bytes())
 
 	// The bitmap stays under the OLD consensus address and still holds 1 entry.
 	oldMissed, err := f.slashingKeeper.GetValidatorMissedBlocks(ctx, oldConsAddr)
