@@ -113,8 +113,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 
 		// Reaching the target block gas means that we expect this to not
 		// increase.
-		err := state.Update(types.GetTargetBlockGas(testutil.MaxBlockGas, params), testutil.MaxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = types.GetTargetBlockGas(testutil.MaxBlockGas, params)
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -139,8 +138,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 		state.BaseGasPrice = state.BaseGasPrice.Mul(math.LegacyNewDec(2))
 		// Reaching the target block gas means that we expect this to not
 		// increase.
-		err := state.Update(types.GetTargetBlockGas(testutil.MaxBlockGas, params), testutil.MaxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = types.GetTargetBlockGas(testutil.MaxBlockGas, params)
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -164,8 +162,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 
 		// Reaching the target block gas means that we expect this to not
 		// increase.
-		err := state.Update(testutil.MaxBlockGas, testutil.MaxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = testutil.MaxBlockGas
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -193,8 +190,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 		state.BaseGasPrice = state.BaseGasPrice.Mul(math.LegacyNewDec(2))
 		// Reaching the target block gas means that we expect this to not
 		// increase.
-		err := state.Update(testutil.MaxBlockGas, testutil.MaxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = testutil.MaxBlockGas
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -246,8 +242,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
 
-		err := state.Update(25, maxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = 25
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -271,9 +266,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 		state.BaseGasPrice = state.BaseGasPrice.Mul(math.LegacyNewDec(2))
 
 		params := types.DefaultParams()
-		err := state.Update(25, maxBlockGas)
-
-		require.NoError(err)
+		state.Window[state.Index] = 25
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -299,8 +292,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
 
-		err := state.Update(75, maxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = 75
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
@@ -327,8 +319,7 @@ func TestUpdateDynamicfee(t *testing.T) {
 		state.BaseGasPrice = state.BaseGasPrice.Mul(math.LegacyNewDec(2))
 		params := types.DefaultParams()
 
-		err := state.Update(75, maxBlockGas)
-		require.NoError(err)
+		state.Window[state.Index] = 75
 
 		k.InitGenesis(ctx, types.GenesisState{Params: params, State: state})
 
