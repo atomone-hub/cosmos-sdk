@@ -44,6 +44,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+* (x/staking) [#111](https://github.com/atomone-hub/atomone-sdk/pull/111) Keep old-key signing info after rotation
+
 ## [v0.500.2](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.2) - 2026-07-27
 
 ### Improvements
