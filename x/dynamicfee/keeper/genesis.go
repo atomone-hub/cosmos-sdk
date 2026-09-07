@@ -7,12 +7,10 @@ import (
 
 // InitGenesis initializes the dynamicfee module's state from a given genesis state.
 func (k *Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) {
+	// ValidateBasic enforces every genesis invariant, including that
+	// params.Window matches the length of state.Window.
 	if err := gs.ValidateBasic(); err != nil {
 		panic(err)
-	}
-
-	if gs.Params.Window != uint64(len(gs.State.Window)) {
-		panic("genesis state and parameters do not match for window")
 	}
 
 	// Initialize the dynamic fee pricing state and parameters.
