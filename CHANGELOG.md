@@ -44,7 +44,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-* (x/staking) [#115](https://github.com/atomone-hub/atomone-sdk/pull/115) Rebuild the unbonding-operation indexes and types at `InitGenesis` from the imported entries and advance the operation counter past their ids, so on-hold entries stay releasable and new operations never reuse an imported id after an export/import; persist a validator's cleared `UnbondingIds` when its own unbonding completes.
+* (x/staking) [#115](https://github.com/atomone-hub/atomone-sdk/pull/115) fix(x/staking): rebuild unbonding-operation indexes and counter at InitGenesis
+
 
 ## [v0.500.2](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.2) - 2026-07-27
 
