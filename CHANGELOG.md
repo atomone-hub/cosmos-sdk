@@ -44,6 +44,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+* (x/staking) [#115](https://github.com/atomone-hub/atomone-sdk/pull/115) fix(x/staking): rebuild unbonding-operation indexes and counter at InitGenesis
+
+
 ## [v0.500.2](https://github.com/atomone-hub/cosmos-sdk/releases/tag/v0.500.2) - 2026-07-27
 
 ### Improvements
